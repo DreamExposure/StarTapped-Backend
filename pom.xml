@@ -63,6 +63,14 @@
             <type>jar</type>
             <scope>compile</scope>
         </dependency>
+        <!--TAP-Core-->
+        <dependency>
+            <groupId>org.dreamexposure</groupId>
+            <artifactId>TAP-Core</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+            <type>jar</type>
+            <scope>compile</scope>
+        </dependency>
         <!--MySQL Driver-->
         <dependency>
             <groupId>mysql</groupId>
@@ -124,6 +132,22 @@
             <groupId>org.simplejavamail</groupId>
             <artifactId>simple-java-mail</artifactId>
             <version>5.0.3</version>
+        </dependency>
+        <!--OkHTTP API-->
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp</artifactId>
+            <version>3.10.0</version>
+            <scope>compile</scope>
+            <optional>false</optional>
+        </dependency>
+        <!--Lettuce API for Redis-->
+        <dependency>
+            <groupId>io.lettuce</groupId>
+            <artifactId>lettuce-core</artifactId>
+            <version>5.1.2.RELEASE</version>
+            <scope>compile</scope>
+            <optional>false</optional>
         </dependency>
     </dependencies>
 
