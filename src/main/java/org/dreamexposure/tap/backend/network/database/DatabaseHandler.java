@@ -5,7 +5,10 @@ import org.dreamexposure.novautils.database.DatabaseManager;
 import org.dreamexposure.novautils.database.DatabaseSettings;
 import org.dreamexposure.tap.backend.conf.SiteSettings;
 import org.dreamexposure.tap.backend.utils.Logger;
+import org.dreamexposure.tap.core.enums.blog.BlogType;
+import org.dreamexposure.tap.core.enums.post.PostType;
 import org.dreamexposure.tap.core.objects.account.Account;
+import org.dreamexposure.tap.core.objects.auth.AccountAuthentication;
 import org.dreamexposure.tap.core.objects.confirmation.EmailConfirmation;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
@@ -13,6 +16,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -72,6 +77,7 @@ public class DatabaseHandler {
             String confirmationTableName = String.format("%sconfirmation", databaseInfo.getSettings().getPrefix());
             String blogTableName = String.format("%sblog", databaseInfo.getSettings().getPrefix());
             String postTableName = String.format("%spost", databaseInfo.getSettings().getPrefix());
+            String authTableName = String.format("%sauth", databaseInfo.getSettings().getPrefix());
             
             String createAccountsTable = "CREATE TABLE IF NOT EXISTS " + accountsTableName +
                     "(id VARCHAR(255) not NULL, " +
@@ -119,11 +125,18 @@ public class DatabaseHandler {
                     " audio_url LONGTEXT NULL, " +
                     " video_url LONGTEXT NULL, " +
                     " PRIMARY KEY (id))";
+            String createAuthTable = "CREATE TABLE IF NOT EXISTS " + authTableName +
+                    "(id VARCHAR(255) NOT NULL, " +
+                    " refresh_token VARCHAR(64) NOT NULL, " +
+                    " access_token VARCHAR(64) NOT NULL, " +
+                    " expire LONG NOT NULL, " +
+                    " PRIMARY KEY (id))";
             
             statement.execute(createAccountsTable);
             statement.execute(createConfirmationTable);
             statement.execute(createBlogTable);
             statement.execute(createPostTable);
+            statement.execute(createAuthTable);
             
             statement.close();
             System.out.println("Successfully created needed tables in MySQL database!");
@@ -368,5 +381,417 @@ public class DatabaseHandler {
         } catch (SQLException e) {
             Logger.getLogger().exception("Failed to delete confirmation data", e, this.getClass());
         }
+    }
+    
+    public void saveAuth(AccountAuthentication auth) {
+        try {
+            if (databaseInfo.getMySQL().checkConnection()) {
+                String tableName = String.format("%sauth", databaseInfo.getMySQL().getPrefix());
+                String query = "INSERT INTO " + tableName + " (id, refresh_token, access_token, expire) VALUES (?, ?, ?, ?)";
+                PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
+                
+                statement.setString(1, auth.getAccountId().toString());
+                statement.setString(2, auth.getRefreshToken());
+                statement.setString(3, auth.getAccessToken());
+                statement.setLong(4, auth.getExpire());
+                
+                statement.execute();
+            }
+        } catch (SQLException e) {
+            Logger.getLogger().exception("Failed to add Authentication data.", e, this.getClass());
+        }
+    }
+    
+    public AccountAuthentication getAuthFromAccessToken(String accessToken) {
+        try {
+            if (databaseInfo.getMySQL().checkConnection()) {
+                String tableName = String.format("%saccounts", databaseInfo.getSettings().getPrefix());
+                String query = "SELECT * FROM " + tableName + " WHERE access_token = ?";
+                PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
+                statement.setString(1, accessToken);
+                
+                ResultSet res = statement.executeQuery();
+                
+                boolean hasStuff = res.next();
+                
+                if (hasStuff) {
+                    AccountAuthentication auth = new AccountAuthentication();
+                    auth.setAccountId(UUID.fromString(res.getString("id")));
+                    auth.setRefeshToken(res.getString("refresh_token"));
+                    auth.setAccessToken(res.getString("access_token"));
+                    auth.setExpire(res.getLong("expire"));
+                }
+                statement.close();
+            }
+        } catch (SQLException e) {
+            Logger.getLogger().exception("Failed to get auth data from database by access token", e, this.getClass());
+        }
+        return null;
+    }
+    
+    public AccountAuthentication getAuthFromRefreshToken(String refreshToken) {
+        try {
+            if (databaseInfo.getMySQL().checkConnection()) {
+                String tableName = String.format("%saccounts", databaseInfo.getSettings().getPrefix());
+                String query = "SELECT * FROM " + tableName + " WHERE refresh_token = ?";
+                PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
+                statement.setString(1, refreshToken);
+                
+                ResultSet res = statement.executeQuery();
+                
+                boolean hasStuff = res.next();
+                
+                if (hasStuff) {
+                    AccountAuthentication auth = new AccountAuthentication();
+                    auth.setAccountId(UUID.fromString(res.getString("id")));
+                    auth.setRefeshToken(res.getString("refresh_token"));
+                    auth.setAccessToken(res.getString("access_token"));
+                    auth.setExpire(res.getLong("expire"));
+                }
+                statement.close();
+            }
+        } catch (SQLException e) {
+            Logger.getLogger().exception("Failed to get auth data from database by refresh token", e, this.getClass());
+        }
+        return null;
+    }
+    
+    public List<AccountAuthentication> getAllAuth(UUID accountId) {
+        List<AccountAuthentication> all = new ArrayList<>();
+        
+        try {
+            if (databaseInfo.getMySQL().checkConnection()) {
+                String tableName = String.format("%saccounts", databaseInfo.getSettings().getPrefix());
+                String query = "SELECT * FROM " + tableName + " WHERE id = ?";
+                PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
+                statement.setString(1, accountId.toString());
+                
+                ResultSet res = statement.executeQuery();
+                
+                while (res.next()) {
+                    if (res.getString("id") != null) {
+                        AccountAuthentication auth = new AccountAuthentication();
+                        auth.setAccountId(accountId);
+                        auth.setRefeshToken(res.getString("refresh_token"));
+                        auth.setAccessToken(res.getString("access_token"));
+                        auth.setExpire(res.getLong("expire"));
+                        
+                        all.add(auth);
+                    }
+                }
+                statement.close();
+            }
+        } catch (SQLException e) {
+            Logger.getLogger().exception("Failed to get auth data from database by refresh token", e, this.getClass());
+        }
+        
+        return all;
+    }
+    
+    public void removeAuth(UUID accountId) {
+        try {
+            if (databaseInfo.getMySQL().checkConnection()) {
+                String tableName = String.format("%sauth", databaseInfo.getSettings().getPrefix());
+                String query = "DELETE FROM " + tableName + " WHERE id = '" + accountId.toString() + "';";
+                PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
+                
+                statement.execute();
+                statement.close();
+            }
+        } catch (SQLException e) {
+            Logger.getLogger().exception("Failed to delete auth data.", e, this.getClass());
+        }
+    }
+    
+    public void removeAuth(String accessToken) {
+        try {
+            if (databaseInfo.getMySQL().checkConnection()) {
+                String tableName = String.format("%sconfirmation", databaseInfo.getSettings().getPrefix());
+                String query = "DELETE FROM " + tableName + " WHERE access_token = '" + accessToken + "';";
+                PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
+                
+                statement.execute();
+                statement.close();
+            }
+        } catch (SQLException e) {
+            Logger.getLogger().exception("Failed to delete auth data.", e, this.getClass());
+        }
+    }
+    
+    //For handling counting...
+    public int getAccountCount() {
+        int amount = -1;
+        try {
+            if (databaseInfo.getMySQL().checkConnection()) {
+                String tableName = String.format("%saccounts", databaseInfo.getSettings().getPrefix());
+                
+                String query = "SELECT COUNT(*) FROM " + tableName + ";";
+                PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
+                ResultSet res = statement.executeQuery();
+                
+                if (res.next())
+                    amount = res.getInt(1);
+                else
+                    amount = 0;
+                
+                
+                res.close();
+                statement.close();
+            }
+        } catch (SQLException e) {
+            Logger.getLogger().exception("Failed to get account count", e, this.getClass());
+        }
+        return amount;
+    }
+    
+    public int getAuthCount(UUID accountId) {
+        int amount = -1;
+        try {
+            if (databaseInfo.getMySQL().checkConnection()) {
+                String tableName = String.format("%sauth", databaseInfo.getSettings().getPrefix());
+                
+                String query = "SELECT COUNT(*) FROM " + tableName + " WHERE id = " + accountId.toString() + ";";
+                PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
+                ResultSet res = statement.executeQuery();
+                
+                if (res.next())
+                    amount = res.getInt(1);
+                else
+                    amount = 0;
+                
+                
+                res.close();
+                statement.close();
+            }
+        } catch (SQLException e) {
+            Logger.getLogger().exception("Failed to get auth count for account.", e, this.getClass());
+        }
+        return amount;
+    }
+    
+    public int getBlogCount() {
+        int amount = -1;
+        try {
+            if (databaseInfo.getMySQL().checkConnection()) {
+                String tableName = String.format("%sblog", databaseInfo.getSettings().getPrefix());
+                
+                String query = "SELECT COUNT(*) FROM " + tableName + ";";
+                PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
+                ResultSet res = statement.executeQuery();
+                
+                if (res.next())
+                    amount = res.getInt(1);
+                else
+                    amount = 0;
+                
+                
+                res.close();
+                statement.close();
+            }
+        } catch (SQLException e) {
+            Logger.getLogger().exception("Failed to get blog count", e, this.getClass());
+        }
+        return amount;
+    }
+    
+    public int getBlogCount(BlogType type) {
+        int amount = -1;
+        try {
+            if (databaseInfo.getMySQL().checkConnection()) {
+                String tableName = String.format("%sblog", databaseInfo.getSettings().getPrefix());
+                
+                String query = "SELECT COUNT(*) FROM " + tableName + " WHERE blog_type = " + type.name() + ";";
+                PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
+                ResultSet res = statement.executeQuery();
+                
+                if (res.next())
+                    amount = res.getInt(1);
+                else
+                    amount = 0;
+                
+                
+                res.close();
+                statement.close();
+            }
+        } catch (SQLException e) {
+            Logger.getLogger().exception("Failed to get blog count", e, this.getClass());
+        }
+        return amount;
+    }
+    
+    public int getBlogCount(UUID accountId) {
+        int amount = -1;
+        try {
+            if (databaseInfo.getMySQL().checkConnection()) {
+                String tableName = String.format("%sblog", databaseInfo.getSettings().getPrefix());
+                
+                //Include personal AND group blogs
+                String query = "SELECT COUNT(*) FROM " + tableName + " WHERE owner = " + accountId.toString() + " OR owners LIKE %" + accountId.toString() + "%;";
+                PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
+                ResultSet res = statement.executeQuery();
+                
+                if (res.next())
+                    amount = res.getInt(1);
+                else
+                    amount = 0;
+                
+                
+                res.close();
+                statement.close();
+            }
+        } catch (SQLException e) {
+            Logger.getLogger().exception("Failed to get blog count for account", e, this.getClass());
+        }
+        return amount;
+    }
+    
+    public int getPostCount() {
+        int amount = -1;
+        try {
+            if (databaseInfo.getMySQL().checkConnection()) {
+                String tableName = String.format("%spost", databaseInfo.getSettings().getPrefix());
+                
+                String query = "SELECT COUNT(*) FROM " + tableName + ";";
+                PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
+                ResultSet res = statement.executeQuery();
+                
+                if (res.next())
+                    amount = res.getInt(1);
+                else
+                    amount = 0;
+                
+                
+                res.close();
+                statement.close();
+            }
+        } catch (SQLException e) {
+            Logger.getLogger().exception("Failed to get post count", e, this.getClass());
+        }
+        return amount;
+    }
+    
+    public int getPostCount(PostType type) {
+        int amount = -1;
+        try {
+            if (databaseInfo.getMySQL().checkConnection()) {
+                String tableName = String.format("%spost", databaseInfo.getSettings().getPrefix());
+                
+                String query = "SELECT COUNT(*) FROM " + tableName + " WHERE post_type = " + type.name() + ";";
+                PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
+                ResultSet res = statement.executeQuery();
+                
+                if (res.next())
+                    amount = res.getInt(1);
+                else
+                    amount = 0;
+                
+                
+                res.close();
+                statement.close();
+            }
+        } catch (SQLException e) {
+            Logger.getLogger().exception("Failed to get post count by type", e, this.getClass());
+        }
+        return amount;
+    }
+    
+    public int getPostCountForBlog(UUID blogId) {
+        int amount = -1;
+        try {
+            if (databaseInfo.getMySQL().checkConnection()) {
+                String tableName = String.format("%spost", databaseInfo.getSettings().getPrefix());
+                
+                String query = "SELECT COUNT(*) FROM " + tableName + " WHERE origin_blog_id = " + blogId.toString() + ";";
+                PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
+                ResultSet res = statement.executeQuery();
+                
+                if (res.next())
+                    amount = res.getInt(1);
+                else
+                    amount = 0;
+                
+                
+                res.close();
+                statement.close();
+            }
+        } catch (SQLException e) {
+            Logger.getLogger().exception("Failed to get post count for blog", e, this.getClass());
+        }
+        return amount;
+    }
+    
+    public int getPostCountForBlog(UUID blogId, PostType type) {
+        int amount = -1;
+        try {
+            if (databaseInfo.getMySQL().checkConnection()) {
+                String tableName = String.format("%spost", databaseInfo.getSettings().getPrefix());
+                
+                String query = "SELECT COUNT(*) FROM " + tableName + " WHERE origin_blog_id = " + blogId.toString() + " AND post_type = " + type.name() + ";";
+                PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
+                ResultSet res = statement.executeQuery();
+                
+                if (res.next())
+                    amount = res.getInt(1);
+                else
+                    amount = 0;
+                
+                
+                res.close();
+                statement.close();
+            }
+        } catch (SQLException e) {
+            Logger.getLogger().exception("Failed to get post count for blog", e, this.getClass());
+        }
+        return amount;
+    }
+    
+    public int getPostcountForAccount(UUID accountId) {
+        int amount = -1;
+        try {
+            if (databaseInfo.getMySQL().checkConnection()) {
+                String tableName = String.format("%spost", databaseInfo.getSettings().getPrefix());
+                
+                String query = "SELECT COUNT(*) FROM " + tableName + " WHERE creator_id = " + accountId.toString() + ";";
+                PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
+                ResultSet res = statement.executeQuery();
+                
+                if (res.next())
+                    amount = res.getInt(1);
+                else
+                    amount = 0;
+                
+                
+                res.close();
+                statement.close();
+            }
+        } catch (SQLException e) {
+            Logger.getLogger().exception("Failed to get post count for account", e, this.getClass());
+        }
+        return amount;
+    }
+    
+    public int getPostcountForAccount(UUID accountId, PostType type) {
+        int amount = -1;
+        try {
+            if (databaseInfo.getMySQL().checkConnection()) {
+                String tableName = String.format("%spost", databaseInfo.getSettings().getPrefix());
+                
+                String query = "SELECT COUNT(*) FROM " + tableName + " WHERE creator_id = " + accountId.toString() + " AND post_type = " + type.name() + ";";
+                PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
+                ResultSet res = statement.executeQuery();
+                
+                if (res.next())
+                    amount = res.getInt(1);
+                else
+                    amount = 0;
+                
+                
+                res.close();
+                statement.close();
+            }
+        } catch (SQLException e) {
+            Logger.getLogger().exception("Failed to get post count for account", e, this.getClass());
+        }
+        return amount;
     }
 }
