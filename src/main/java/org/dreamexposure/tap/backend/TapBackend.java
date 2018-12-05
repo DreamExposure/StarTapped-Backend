@@ -1,6 +1,8 @@
 package org.dreamexposure.tap.backend;
 
 import org.dreamexposure.tap.backend.conf.SiteSettings;
+import org.dreamexposure.tap.backend.network.database.DatabaseHandler;
+import org.dreamexposure.tap.backend.utils.Logger;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -25,12 +27,12 @@ public class TapBackend {
         Properties p = new Properties();
         p.load(new FileReader(new File("settings.properties")));
         SiteSettings.init(p);
-        
-        //Logger.getLogger().init();
+    
+        Logger.getLogger().init();
         
         //Init database
-        //DatabaseManager.getManager().connectToMySQL();
-        //DatabaseManager.getManager().createTables();
+        DatabaseHandler.getHandler().connectToMySQL();
+        DatabaseHandler.getHandler().createTables();
         
         //Init Spring
         //AccountHandler.getHandler().init();
