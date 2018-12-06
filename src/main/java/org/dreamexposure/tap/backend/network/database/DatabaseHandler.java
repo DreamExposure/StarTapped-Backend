@@ -9,6 +9,9 @@ import org.dreamexposure.tap.core.enums.blog.BlogType;
 import org.dreamexposure.tap.core.enums.post.PostType;
 import org.dreamexposure.tap.core.objects.account.Account;
 import org.dreamexposure.tap.core.objects.auth.AccountAuthentication;
+import org.dreamexposure.tap.core.objects.blog.GroupBlog;
+import org.dreamexposure.tap.core.objects.blog.IBlog;
+import org.dreamexposure.tap.core.objects.blog.PersonalBlog;
 import org.dreamexposure.tap.core.objects.confirmation.EmailConfirmation;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
@@ -145,7 +148,7 @@ public class DatabaseHandler {
         }
     }
     
-    //Actual database methods that are very useful
+    //Account handling
     public void createAccount(String username, String email, String hash, String birthday) {
         try {
             if (databaseInfo.getMySQL().checkConnection()) {
@@ -261,6 +264,8 @@ public class DatabaseHandler {
                     a.setSafeSearch(res.getBoolean("safe_search"));
                     a.setVerified(res.getBoolean("verified"));
                     a.setEmailConfirmed(res.getBoolean("email_confirmed"));
+    
+                    statement.close();
                     return a;
                 }
                 statement.close();
@@ -367,6 +372,7 @@ public class DatabaseHandler {
         return false;
     }
     
+    //Confirmation handling
     public void addPendingConfirmation(Account account, String code) {
         try {
             if (databaseInfo.getMySQL().checkConnection()) {
@@ -429,6 +435,7 @@ public class DatabaseHandler {
         }
     }
     
+    //Account authorization handling
     public void saveAuth(AccountAuthentication auth) {
         try {
             if (databaseInfo.getMySQL().checkConnection()) {
@@ -471,6 +478,9 @@ public class DatabaseHandler {
                     auth.setRefeshToken(res.getString("refresh_token"));
                     auth.setAccessToken(res.getString("access_token"));
                     auth.setExpire(res.getLong("expire"));
+    
+                    statement.close();
+                    return auth;
                 }
                 statement.close();
             }
@@ -498,6 +508,9 @@ public class DatabaseHandler {
                     auth.setRefeshToken(res.getString("refresh_token"));
                     auth.setAccessToken(res.getString("access_token"));
                     auth.setExpire(res.getLong("expire"));
+    
+                    statement.close();
+                    return auth;
                 }
                 statement.close();
             }
@@ -583,6 +596,246 @@ public class DatabaseHandler {
             Logger.getLogger().exception("Failed to delete auth data by refresh token.", e, this.getClass());
         }
     }
+    
+    //Blog handling
+    public boolean createOrUpdateBlog(IBlog blog) {
+        try {
+            if (databaseInfo.getMySQL().checkConnection()) {
+                String tableName = String.format("%sblog", databaseInfo.getSettings().getPrefix());
+                
+                String query = "SELECT * FROM " + tableName + " WHERE id = '" + blog.getBlogId().toString() + "';";
+                PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
+                ResultSet res = statement.executeQuery();
+                
+                boolean hasStuff = res.next();
+                
+                if (!hasStuff || res.getString("API_KEY") == null) {
+                    //Data not present, add to DB.
+                    String insertCommand = "INSERT INTO " + tableName +
+                            "(id, base_url, complete_url, blog_type, name, description, " +
+                            " icon_url, background_color, background_url, " +
+                            " allow_under_18, nsfw, owners, owner)" +
+                            " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+                    PreparedStatement ps = databaseInfo.getConnection().prepareStatement(insertCommand);
+                    
+                    ps.setString(1, blog.getBlogId().toString());
+                    ps.setString(2, blog.getBaseUrl());
+                    ps.setString(3, blog.getCompleteUrl());
+                    ps.setString(4, blog.getType().name());
+                    ps.setString(5, blog.getName());
+                    ps.setString(6, blog.getDescription());
+                    ps.setString(7, blog.getIconUrl());
+                    ps.setString(8, blog.getBackgroundColor());
+                    ps.setString(9, blog.getBackgroundUrl());
+                    ps.setBoolean(10, blog.isAllowUnder18());
+                    ps.setBoolean(11, blog.isNsfw());
+                    if (blog instanceof GroupBlog)
+                        ps.setString(12, ((GroupBlog) blog).getOwners().toString());
+                    else
+                        ps.setString(12, null);
+                    if (blog instanceof PersonalBlog)
+                        ps.setString(13, ((PersonalBlog) blog).getOwnerId().toString());
+                    else
+                        ps.setString(13, null);
+                    
+                    ps.executeUpdate();
+                    ps.close();
+                    statement.close();
+                    return true;
+                } else {
+                    //Data present, update.
+                    String update = "UPDATE " + tableName +
+                            " SET base_url = ?, complete_url = ?, blog_type = ?, name = ?, description = ?, " +
+                            "icon_url = ?, background_color = ?, background_url = ?, " +
+                            " allow_under_18 = ?, nsfw = ?, owners = ?, owner = ? " +
+                            " WHERE id = ?";
+                    PreparedStatement ps = databaseInfo.getConnection().prepareStatement(update);
+                    
+                    ps.setString(1, blog.getBaseUrl());
+                    ps.setString(2, blog.getCompleteUrl());
+                    ps.setString(3, blog.getType().name());
+                    ps.setString(4, blog.getName());
+                    ps.setString(5, blog.getDescription());
+                    ps.setString(6, blog.getIconUrl());
+                    ps.setString(7, blog.getBackgroundColor());
+                    ps.setString(8, blog.getBackgroundUrl());
+                    ps.setBoolean(9, blog.isAllowUnder18());
+                    ps.setBoolean(10, blog.isNsfw());
+                    if (blog instanceof GroupBlog)
+                        ps.setString(11, ((GroupBlog) blog).getOwners().toString());
+                    else
+                        ps.setString(11, null);
+                    if (blog instanceof PersonalBlog)
+                        ps.setString(12, ((PersonalBlog) blog).getOwnerId().toString());
+                    else
+                        ps.setString(12, null);
+                    ps.setString(13, blog.getBlogId().toString());
+                    
+                    ps.executeUpdate();
+                    ps.close();
+                    statement.close();
+                    return true;
+                }
+                
+            }
+        } catch (SQLException e) {
+            Logger.getLogger().exception("Failed to create or update blog in database", e, this.getClass());
+        }
+        return false;
+    }
+    
+    public IBlog getBlog(UUID blogId) {
+        try {
+            if (databaseInfo.getMySQL().checkConnection()) {
+                String tableName = String.format("%sblog", databaseInfo.getSettings().getPrefix());
+                String query = "SELECT * FROM " + tableName + " WHERE id = ?";
+                PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
+                statement.setString(1, blogId.toString());
+                
+                ResultSet res = statement.executeQuery();
+                
+                boolean hasStuff = res.next();
+                
+                if (hasStuff) {
+                    if (BlogType.valueOf(res.getString("blog_type")) == BlogType.GROUP) {
+                        GroupBlog blog = new GroupBlog();
+                        blog.setBlogId(blogId);
+                        
+                        blog.setBaseUrl(res.getString("base_url"));
+                        blog.setCompleteUrl(res.getString("complete_url"));
+                        blog.setName(res.getString("name"));
+                        blog.setDescription(res.getString("description"));
+                        blog.setIconUrl(res.getString("icon_url"));
+                        blog.setBackgroundColor(res.getString("background_color"));
+                        blog.setBackgroundUrl(res.getString("background_url"));
+                        blog.setAllowUnder18(res.getBoolean("allow_under_18"));
+                        blog.setNsfw(res.getBoolean("nsfw"));
+                        
+                        @SuppressWarnings("RegExpRedundantEscape")
+                        String ownersRaw = res.getString("owners").replaceAll("\\[", "").replaceAll("\\]", "");
+                        
+                        for (String s : ownersRaw.split(",")) {
+                            blog.getOwners().add(UUID.fromString(s));
+                        }
+                        
+                        
+                        statement.close();
+                        return blog;
+                    } else {
+                        PersonalBlog blog = new PersonalBlog();
+                        blog.setBlogId(blogId);
+                        
+                        blog.setBaseUrl(res.getString("base_url"));
+                        blog.setCompleteUrl(res.getString("complete_url"));
+                        blog.setName(res.getString("name"));
+                        blog.setDescription(res.getString("description"));
+                        blog.setIconUrl(res.getString("icon_url"));
+                        blog.setBackgroundColor(res.getString("background_color"));
+                        blog.setBackgroundUrl(res.getString("background_url"));
+                        blog.setAllowUnder18(res.getBoolean("allow_under_18"));
+                        blog.setNsfw(res.getBoolean("nsfw"));
+                        
+                        blog.setOwnerId(UUID.fromString(res.getString("owner")));
+                        
+                        statement.close();
+                        return blog;
+                    }
+                }
+                statement.close();
+            }
+        } catch (SQLException e) {
+            Logger.getLogger().exception("Failed to get blog from database", e, this.getClass());
+        }
+        return null;
+    }
+    
+    public GroupBlog getGroupBlog(UUID blogId) {
+        try {
+            if (databaseInfo.getMySQL().checkConnection()) {
+                String tableName = String.format("%sblog", databaseInfo.getSettings().getPrefix());
+                String query = "SELECT * FROM " + tableName + " WHERE id = ? AND blog_type = ?";
+                PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
+                statement.setString(1, blogId.toString());
+                statement.setString(2, BlogType.GROUP.name());
+                
+                ResultSet res = statement.executeQuery();
+                
+                boolean hasStuff = res.next();
+                
+                if (hasStuff) {
+                    GroupBlog blog = new GroupBlog();
+                    blog.setBlogId(blogId);
+                    
+                    blog.setBaseUrl(res.getString("base_url"));
+                    blog.setCompleteUrl(res.getString("complete_url"));
+                    blog.setName(res.getString("name"));
+                    blog.setDescription(res.getString("description"));
+                    blog.setIconUrl(res.getString("icon_url"));
+                    blog.setBackgroundColor(res.getString("background_color"));
+                    blog.setBackgroundUrl(res.getString("background_url"));
+                    blog.setAllowUnder18(res.getBoolean("allow_under_18"));
+                    blog.setNsfw(res.getBoolean("nsfw"));
+                    
+                    @SuppressWarnings("RegExpRedundantEscape")
+                    String ownersRaw = res.getString("owners").replaceAll("\\[", "").replaceAll("\\]", "");
+                    
+                    for (String s : ownersRaw.split(",")) {
+                        blog.getOwners().add(UUID.fromString(s));
+                    }
+                    
+                    
+                    statement.close();
+                    return blog;
+                }
+                statement.close();
+            }
+        } catch (SQLException e) {
+            Logger.getLogger().exception("Failed to get blog from database", e, this.getClass());
+        }
+        return null;
+    }
+    
+    public PersonalBlog getPersonalBlog(UUID blogId) {
+        try {
+            if (databaseInfo.getMySQL().checkConnection()) {
+                String tableName = String.format("%sblog", databaseInfo.getSettings().getPrefix());
+                String query = "SELECT * FROM " + tableName + " WHERE id = ? AND blog_type = ?";
+                PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
+                statement.setString(1, blogId.toString());
+                statement.setString(2, BlogType.PERSONAL.name());
+                
+                ResultSet res = statement.executeQuery();
+                
+                boolean hasStuff = res.next();
+                
+                if (hasStuff) {
+                    PersonalBlog blog = new PersonalBlog();
+                    blog.setBlogId(blogId);
+                    
+                    blog.setBaseUrl(res.getString("base_url"));
+                    blog.setCompleteUrl(res.getString("complete_url"));
+                    blog.setName(res.getString("name"));
+                    blog.setDescription(res.getString("description"));
+                    blog.setIconUrl(res.getString("icon_url"));
+                    blog.setBackgroundColor(res.getString("background_color"));
+                    blog.setBackgroundUrl(res.getString("background_url"));
+                    blog.setAllowUnder18(res.getBoolean("allow_under_18"));
+                    blog.setNsfw(res.getBoolean("nsfw"));
+                    
+                    blog.setOwnerId(UUID.fromString(res.getString("owner")));
+                    
+                    statement.close();
+                    return blog;
+                }
+                statement.close();
+            }
+        } catch (SQLException e) {
+            Logger.getLogger().exception("Failed to get blog from database", e, this.getClass());
+        }
+        return null;
+    }
+    
+    //Post handling
     
     //For handling counting...
     public int getAccountCount() {
