@@ -402,6 +402,11 @@ public class DatabaseHandler {
         }
     }
     
+    public void updateAuth(AccountAuthentication auth) {
+        removeAuthByRefreshToken(auth.getRefreshToken());
+        saveAuth(auth);
+    }
+    
     public AccountAuthentication getAuthFromAccessToken(String accessToken) {
         try {
             if (databaseInfo.getMySQL().checkConnection()) {
@@ -503,7 +508,7 @@ public class DatabaseHandler {
         }
     }
     
-    public void removeAuth(String accessToken) {
+    public void removeAuthByAccessToken(String accessToken) {
         try {
             if (databaseInfo.getMySQL().checkConnection()) {
                 String tableName = String.format("%sconfirmation", databaseInfo.getSettings().getPrefix());
@@ -514,7 +519,22 @@ public class DatabaseHandler {
                 statement.close();
             }
         } catch (SQLException e) {
-            Logger.getLogger().exception("Failed to delete auth data.", e, this.getClass());
+            Logger.getLogger().exception("Failed to delete auth data by access token.", e, this.getClass());
+        }
+    }
+    
+    public void removeAuthByRefreshToken(String refreshToken) {
+        try {
+            if (databaseInfo.getMySQL().checkConnection()) {
+                String tableName = String.format("%sconfirmation", databaseInfo.getSettings().getPrefix());
+                String query = "DELETE FROM " + tableName + " WHERE refreshToken = '" + refreshToken + "';";
+                PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
+                
+                statement.execute();
+                statement.close();
+            }
+        } catch (SQLException e) {
+            Logger.getLogger().exception("Failed to delete auth data by refresh token.", e, this.getClass());
         }
     }
     
