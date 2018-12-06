@@ -36,7 +36,6 @@ public class TapBackend {
         DatabaseHandler.getHandler().createTables();
         
         //Init Spring
-        //AccountHandler.getHandler().init();
         SpringApplication.run(TapBackend.class, args);
         
         //Init the rest of our services

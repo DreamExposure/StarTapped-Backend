@@ -10,6 +10,6 @@ package org.dreamexposure.tap.backend.utils;
  */
 public class ResponseUtils {
     public static String getJsonResponseMessage(String msg) {
-        return "{\"Message\": \"" + msg + "\"}";
+        return "{\"message\": \"" + msg + "\"}";
     }
 }

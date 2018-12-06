@@ -13,4 +13,8 @@ public class GlobalVars {
     public static final String siteUrl = "https://startapped.com";
     
     public static final String lineBreak = System.lineSeparator();
+    
+    public static final long oneMinuteMs = 60000;
+    public static final long oneHourMs = 3600000;
+    public static final long oneDayMs = 86400000;
 }

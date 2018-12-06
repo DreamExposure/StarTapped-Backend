@@ -1,5 +1,7 @@
 package org.dreamexposure.tap.backend.objects.auth;
 
+import org.dreamexposure.tap.backend.utils.ResponseUtils;
+
 /**
  * @author NovaFox161
  * Date Created: 12/5/18
@@ -42,6 +44,6 @@ public class AuthenticationState {
     }
     
     public String toJson() {
-        return "{\"Message\": \"" + reason + "\"}";
+        return ResponseUtils.getJsonResponseMessage(reason);
     }
 }
