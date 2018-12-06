@@ -321,6 +321,52 @@ public class DatabaseHandler {
         return false;
     }
     
+    public boolean updateAccount(Account account) {
+        try {
+            if (databaseInfo.getMySQL().checkConnection()) {
+                String tableName = String.format("%saccounts", databaseInfo.getSettings().getPrefix());
+                
+                String query = "SELECT * FROM " + tableName + " WHERE id = '" + account.getAccountId().toString() + "';";
+                PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
+                ResultSet res = statement.executeQuery();
+                
+                boolean hasStuff = res.next();
+                
+                if (!hasStuff || res.getString("id") == null) {
+                    //Data not present. this should not be possible.
+                    statement.close();
+                    return false;
+                } else {
+                    //Data present, update.
+                    String update = "UPDATE " + tableName
+                            + " SET username = ?, email = ?, phone_number = ?, birthday = ?, " +
+                            " safe_search = ?, verified = ?, email_confirmed = ?, admin = ?" +
+                            " WHERE user_id = ?";
+                    PreparedStatement ps = databaseInfo.getConnection().prepareStatement(update);
+                    
+                    ps.setString(1, account.getUsername());
+                    ps.setString(2, account.getEmail());
+                    //Skip hash
+                    ps.setString(3, account.getPhoneNumber());
+                    ps.setString(4, account.getBirthday());
+                    ps.setBoolean(5, account.isSafeSearch());
+                    ps.setBoolean(6, account.isVerified());
+                    ps.setBoolean(7, account.isEmailConfirmed());
+                    ps.setBoolean(8, account.isAdmin());
+                    
+                    ps.executeUpdate();
+                    
+                    ps.close();
+                    statement.close();
+                }
+                return true;
+            }
+        } catch (SQLException e) {
+            Logger.getLogger().exception("Failed to update Account Info", e, this.getClass());
+        }
+        return false;
+    }
+    
     public void addPendingConfirmation(Account account, String code) {
         try {
             if (databaseInfo.getMySQL().checkConnection()) {
