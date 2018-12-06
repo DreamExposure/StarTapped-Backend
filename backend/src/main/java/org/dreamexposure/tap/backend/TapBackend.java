@@ -3,7 +3,7 @@ package org.dreamexposure.tap.backend;
 import org.dreamexposure.tap.backend.conf.SiteSettings;
 import org.dreamexposure.tap.backend.network.database.DatabaseHandler;
 import org.dreamexposure.tap.backend.network.email.EmailHandler;
-import org.dreamexposure.tap.backend.utils.Logger;
+import org.dreamexposure.tap.core.utils.Logger;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -29,7 +29,7 @@ public class TapBackend {
         p.load(new FileReader(new File("settings.properties")));
         SiteSettings.init(p);
     
-        Logger.getLogger().init();
+        Logger.getLogger().init(SiteSettings.LOG_FOLDER.get());
         
         //Init database
         DatabaseHandler.getHandler().connectToMySQL();

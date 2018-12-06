@@ -3,8 +3,8 @@ package org.dreamexposure.tap.backend.network.auth;
 import org.dreamexposure.novautils.crypto.KeyGenerator;
 import org.dreamexposure.tap.backend.network.database.DatabaseHandler;
 import org.dreamexposure.tap.backend.objects.auth.AuthenticationState;
-import org.dreamexposure.tap.backend.utils.Logger;
 import org.dreamexposure.tap.core.objects.auth.AccountAuthentication;
+import org.dreamexposure.tap.core.utils.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 

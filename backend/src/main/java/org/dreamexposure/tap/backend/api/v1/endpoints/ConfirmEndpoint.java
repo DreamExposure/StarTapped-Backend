@@ -1,9 +1,9 @@
 package org.dreamexposure.tap.backend.api.v1.endpoints;
 
 import org.dreamexposure.tap.backend.network.database.DatabaseHandler;
-import org.dreamexposure.tap.backend.utils.Logger;
 import org.dreamexposure.tap.core.objects.account.Account;
 import org.dreamexposure.tap.core.objects.confirmation.EmailConfirmation;
+import org.dreamexposure.tap.core.utils.Logger;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;

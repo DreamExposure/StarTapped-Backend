@@ -4,7 +4,6 @@ import org.dreamexposure.novautils.database.DatabaseInfo;
 import org.dreamexposure.novautils.database.DatabaseManager;
 import org.dreamexposure.novautils.database.DatabaseSettings;
 import org.dreamexposure.tap.backend.conf.SiteSettings;
-import org.dreamexposure.tap.backend.utils.Logger;
 import org.dreamexposure.tap.core.enums.blog.BlogType;
 import org.dreamexposure.tap.core.enums.post.PostType;
 import org.dreamexposure.tap.core.objects.account.Account;
@@ -13,6 +12,7 @@ import org.dreamexposure.tap.core.objects.blog.GroupBlog;
 import org.dreamexposure.tap.core.objects.blog.IBlog;
 import org.dreamexposure.tap.core.objects.blog.PersonalBlog;
 import org.dreamexposure.tap.core.objects.confirmation.EmailConfirmation;
+import org.dreamexposure.tap.core.utils.Logger;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.sql.PreparedStatement;

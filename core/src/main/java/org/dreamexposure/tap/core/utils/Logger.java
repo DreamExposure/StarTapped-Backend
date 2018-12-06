@@ -1,6 +1,4 @@
-package org.dreamexposure.tap.backend.utils;
-
-import org.dreamexposure.tap.backend.conf.SiteSettings;
+package org.dreamexposure.tap.core.utils;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -36,13 +34,13 @@ public class Logger {
         return instance;
     }
     
-    public void init() {
+    public void init(String folder) {
         //Create files...
         String timestamp = new SimpleDateFormat("dd-MM-yyyy-hh.mm.ss").format(System.currentTimeMillis());
         
-        exceptionsFile = SiteSettings.LOG_FOLDER.get() + "/" + timestamp + "-exceptions.log";
-        apiFile = SiteSettings.LOG_FOLDER.get() + "/" + timestamp + "-api.log";
-        debugFile = SiteSettings.LOG_FOLDER.get() + "/" + timestamp + "-debug.log";
+        exceptionsFile = folder + "/" + timestamp + "-exceptions.log";
+        apiFile = folder + "/" + timestamp + "-api.log";
+        debugFile = folder + "/" + timestamp + "-debug.log";
         
         try {
             PrintWriter exceptions = new PrintWriter(exceptionsFile, "UTF-8");
