@@ -2,6 +2,7 @@ package org.dreamexposure.tap.backend;
 
 import org.dreamexposure.tap.backend.conf.SiteSettings;
 import org.dreamexposure.tap.backend.network.database.DatabaseHandler;
+import org.dreamexposure.tap.backend.network.email.EmailHandler;
 import org.dreamexposure.tap.backend.utils.Logger;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -39,6 +40,6 @@ public class TapBackend {
         SpringApplication.run(TapBackend.class, args);
         
         //Init the rest of our services
-        //EmailHandler.getHandler().init();
+        EmailHandler.getHandler().init();
     }
 }
