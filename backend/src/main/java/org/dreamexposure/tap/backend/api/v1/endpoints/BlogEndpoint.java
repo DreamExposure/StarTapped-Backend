@@ -70,7 +70,7 @@ public class BlogEndpoint {
                     PersonalBlog blog = new PersonalBlog();
                     blog.setBlogId(UUID.randomUUID());
                     blog.setBaseUrl(url);
-                    blog.setCompleteUrl(url + ".startapped.com");
+                    blog.setCompleteUrl("https://" + url + ".startapped.com");
                     blog.setOwnerId(account.getAccountId());
                     blog.setName(name);
                     blog.setDescription(description);
@@ -99,7 +99,7 @@ public class BlogEndpoint {
                     blog.setBlogId(UUID.randomUUID());
                     blog.setBlogId(UUID.randomUUID());
                     blog.setBaseUrl(url);
-                    blog.setCompleteUrl(url + ".startapped.com");
+                    blog.setCompleteUrl("https://" + url + ".startapped.com");
                     blog.getOwners().add(account.getAccountId());
                     blog.setName(name);
                     blog.setDescription(description);
