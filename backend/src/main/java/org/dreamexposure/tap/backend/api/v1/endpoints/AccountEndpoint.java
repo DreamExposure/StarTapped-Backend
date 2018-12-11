@@ -4,8 +4,10 @@ import de.triology.recaptchav2java.ReCaptcha;
 import org.dreamexposure.novautils.crypto.KeyGenerator;
 import org.dreamexposure.tap.backend.conf.GlobalVars;
 import org.dreamexposure.tap.backend.conf.SiteSettings;
+import org.dreamexposure.tap.backend.network.auth.Authentication;
 import org.dreamexposure.tap.backend.network.database.DatabaseHandler;
 import org.dreamexposure.tap.backend.network.email.EmailHandler;
+import org.dreamexposure.tap.backend.objects.auth.AuthenticationState;
 import org.dreamexposure.tap.backend.utils.Generator;
 import org.dreamexposure.tap.backend.utils.ResponseUtils;
 import org.dreamexposure.tap.core.objects.account.Account;
@@ -61,6 +63,7 @@ public class AccountEndpoint {
                     auth.setAccessToken(KeyGenerator.csRandomAlphaNumericString(32));
                     auth.setRefreshToken(KeyGenerator.csRandomAlphaNumericString(32));
                     auth.setExpire(System.currentTimeMillis() + GlobalVars.oneDayMs); //Auth token good for 24 hours, unless manually revoked.
+                    DatabaseHandler.getHandler().saveAuth(auth);
                     
                     Logger.getLogger().api("User registered account: " + account.getUsername(), request.getRemoteAddr());
                     
@@ -119,6 +122,7 @@ public class AccountEndpoint {
                     auth.setAccessToken(KeyGenerator.csRandomAlphaNumericString(32));
                     auth.setRefreshToken(KeyGenerator.csRandomAlphaNumericString(32));
                     auth.setExpire(System.currentTimeMillis() + GlobalVars.oneDayMs); //Auth token good for 24 hours, unless manually revoked.
+                    DatabaseHandler.getHandler().saveAuth(auth);
                     
                     Logger.getLogger().api("User logged into account: " + account.getUsername(), request.getRemoteAddr());
                     
@@ -194,6 +198,132 @@ public class AccountEndpoint {
             responseBody.put("message", "Bad request");
             
             return responseBody.toString();
+        }
+    }
+    
+    @PostMapping(value = "/get", produces = "application/json")
+    public static String get(HttpServletRequest request, HttpServletResponse response, @RequestBody String requestBody) {
+        //Authenticate...
+        AuthenticationState authState = Authentication.authenticate(request);
+        if (!authState.isSuccess()) {
+            response.setStatus(authState.getStatus());
+            response.setContentType("application/json");
+            return authState.toJson();
+        }
+        
+        try {
+            Account account = DatabaseHandler.getHandler().getAccountFromId(authState.getId());
+            
+            response.setContentType("application/json");
+            response.setStatus(200);
+            
+            JSONObject responseBody = new JSONObject();
+            responseBody.put("message", "Success");
+            responseBody.put("account", account.toJson());
+            
+            return responseBody.toString();
+        } catch (Exception e) {
+            Logger.getLogger().exception("Failed to handle account data get", e, BlogEndpoint.class);
+            
+            response.setContentType("application/json");
+            response.setStatus(500);
+            return ResponseUtils.getJsonResponseMessage("Internal Server Error");
+        }
+    }
+    
+    @PostMapping(value = "/update", produces = "application/json")
+    public static String create(HttpServletRequest request, HttpServletResponse response, @RequestBody String requestBody) {
+        //Authenticate...
+        AuthenticationState authState = Authentication.authenticate(request);
+        if (!authState.isSuccess()) {
+            response.setStatus(authState.getStatus());
+            response.setContentType("application/json");
+            return authState.toJson();
+        }
+        
+        try {
+            JSONObject body = new JSONObject(requestBody);
+            
+            Account account = DatabaseHandler.getHandler().getAccountFromId(authState.getId());
+            if (body.has("email")) {
+                account.setEmail(body.getString("email"));
+                account.setEmailConfirmed(false);
+                
+                DatabaseHandler.getHandler().updateAccount(account);
+                //Send confirmation email!!!
+                EmailHandler.getHandler().sendEmailConfirm(body.getString("email"), Generator.generateEmailConfirmationLink(account));
+                
+                //Respond
+                response.setContentType("application/json");
+                response.setStatus(200);
+                
+                JSONObject responseBody = new JSONObject();
+                responseBody.put("message", "Success");
+                
+                return responseBody.toString();
+            } else if (body.has("password")) {
+                //Update password...
+                BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+                String hash = encoder.encode(body.getString("password"));
+                
+                DatabaseHandler.getHandler().updateAccountHash(account, hash);
+                
+                //Invalidate existing sessions...
+                DatabaseHandler.getHandler().removeAuth(account.getAccountId());
+                
+                //Generate new tokens...
+                AccountAuthentication auth = new AccountAuthentication();
+                auth.setAccountId(account.getAccountId());
+                auth.setAccessToken(KeyGenerator.csRandomAlphaNumericString(32));
+                auth.setRefreshToken(KeyGenerator.csRandomAlphaNumericString(32));
+                auth.setExpire(System.currentTimeMillis() + GlobalVars.oneDayMs); //Auth token good for 24 hours, unless manually revoked.
+                DatabaseHandler.getHandler().saveAuth(auth);
+                
+                //Respond
+                response.setContentType("application/json");
+                response.setStatus(200);
+                
+                JSONObject responseBody = new JSONObject();
+                responseBody.put("message", "Success");
+                responseBody.put("credentials", auth.toJson());
+                
+                return responseBody.toString();
+            } else if (body.has("safe_search")) {
+                //Update safe search
+                account.setSafeSearch(body.getBoolean("safe_search"));
+                DatabaseHandler.getHandler().updateAccount(account);
+                
+                //Respond
+                response.setContentType("application/json");
+                response.setStatus(200);
+                
+                JSONObject responseBody = new JSONObject();
+                responseBody.put("message", "Success");
+                
+                return responseBody.toString();
+            } else if (body.has("phone_number")) {
+                account.setPhoneNumber(body.getString("phone_number"));
+                DatabaseHandler.getHandler().updateAccount(account);
+                
+                //Respond
+                response.setContentType("application/json");
+                response.setStatus(200);
+                
+                JSONObject responseBody = new JSONObject();
+                responseBody.put("message", "Success");
+                
+                return responseBody.toString();
+            } else {
+                response.setContentType("application/json");
+                response.setStatus(400);
+                return ResponseUtils.getJsonResponseMessage("Bad Request");
+            }
+        } catch (Exception e) {
+            Logger.getLogger().exception("Failed to handle account data update.", e, BlogEndpoint.class);
+            
+            response.setContentType("application/json");
+            response.setStatus(500);
+            return ResponseUtils.getJsonResponseMessage("Internal Server Error");
         }
     }
 }

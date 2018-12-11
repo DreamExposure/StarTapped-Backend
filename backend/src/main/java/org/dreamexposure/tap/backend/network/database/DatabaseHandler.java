@@ -188,7 +188,7 @@ public class DatabaseHandler {
                 
                 if (hasStuff) {
                     Account a = new Account();
-                    a.setAccountId(UUID.fromString(res.getString("user_id")));
+                    a.setAccountId(UUID.fromString(res.getString("id")));
                     a.setUsername(username);
                     a.setEmail(res.getString("email"));
                     a.setPhoneNumber(res.getString("phone_number"));
@@ -222,7 +222,7 @@ public class DatabaseHandler {
                 
                 if (hasStuff) {
                     Account a = new Account();
-                    a.setAccountId(UUID.fromString(res.getString("user_id")));
+                    a.setAccountId(UUID.fromString(res.getString("id")));
                     a.setUsername(res.getString("username"));
                     a.setEmail(email);
                     a.setPhoneNumber(res.getString("phone_number"));
@@ -246,7 +246,7 @@ public class DatabaseHandler {
         try {
             if (databaseInfo.getMySQL().checkConnection()) {
                 String tableName = String.format("%saccounts", databaseInfo.getSettings().getPrefix());
-                String query = "SELECT * FROM " + tableName + " WHERE user_id = ?";
+                String query = "SELECT * FROM " + tableName + " WHERE id = ?";
                 PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
                 statement.setString(1, id.toString());
                 
@@ -346,7 +346,7 @@ public class DatabaseHandler {
                     String update = "UPDATE " + tableName
                             + " SET username = ?, email = ?, phone_number = ?, birthday = ?, " +
                             " safe_search = ?, verified = ?, email_confirmed = ?, admin = ?" +
-                            " WHERE user_id = ?";
+                            " WHERE id = ?";
                     PreparedStatement ps = databaseInfo.getConnection().prepareStatement(update);
                     
                     ps.setString(1, account.getUsername());
@@ -358,6 +358,8 @@ public class DatabaseHandler {
                     ps.setBoolean(6, account.isVerified());
                     ps.setBoolean(7, account.isEmailConfirmed());
                     ps.setBoolean(8, account.isAdmin());
+    
+                    ps.setString(9, account.getAccountId().toString());
                     
                     ps.executeUpdate();
                     
@@ -371,6 +373,44 @@ public class DatabaseHandler {
         }
         return false;
     }
+    
+    public boolean updateAccountHash(Account account, String hash) {
+        try {
+            if (databaseInfo.getMySQL().checkConnection()) {
+                String tableName = String.format("%saccounts", databaseInfo.getSettings().getPrefix());
+                
+                String query = "SELECT * FROM " + tableName + " WHERE id = '" + account.getAccountId().toString() + "';";
+                PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
+                ResultSet res = statement.executeQuery();
+                
+                boolean hasStuff = res.next();
+                
+                if (!hasStuff || res.getString("id") == null) {
+                    //Data not present. this should not be possible.
+                    statement.close();
+                    return false;
+                } else {
+                    //Data present, update.
+                    String update = "UPDATE " + tableName
+                            + " SET hash = ? WHERE id = ?";
+                    PreparedStatement ps = databaseInfo.getConnection().prepareStatement(update);
+                    
+                    ps.setString(1, hash);
+                    ps.setString(2, account.getAccountId().toString());
+                    
+                    ps.executeUpdate();
+                    
+                    ps.close();
+                    statement.close();
+                }
+                return true;
+            }
+        } catch (SQLException e) {
+            Logger.getLogger().exception("Failed to update Account Info", e, this.getClass());
+        }
+        return false;
+    }
+    
     
     //Confirmation handling
     public void addPendingConfirmation(Account account, String code) {
