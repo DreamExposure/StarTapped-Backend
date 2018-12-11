@@ -31,8 +31,8 @@ public class VideoPost extends Post {
     @Override
     public JSONObject toJson() {
         JSONObject base = super.toJson();
-        
-        base.put("video-url", videoUrl);
+    
+        base.put("video_url", videoUrl);
         
         return base;
     }
@@ -40,8 +40,8 @@ public class VideoPost extends Post {
     @Override
     public VideoPost fromJson(JSONObject json) {
         super.fromJson(json);
-        
-        videoUrl = json.getString("video-url");
+    
+        videoUrl = json.getString("video_url");
         
         return this;
     }

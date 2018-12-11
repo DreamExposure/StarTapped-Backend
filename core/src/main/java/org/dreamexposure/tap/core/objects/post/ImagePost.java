@@ -31,8 +31,8 @@ public class ImagePost extends Post {
     @Override
     public JSONObject toJson() {
         JSONObject base = super.toJson();
-        
-        base.put("image-url", imageUrl);
+    
+        base.put("image_url", imageUrl);
         
         return base;
     }
@@ -40,8 +40,8 @@ public class ImagePost extends Post {
     @Override
     public ImagePost fromJson(JSONObject json) {
         super.fromJson(json);
-        
-        imageUrl = json.getString("image-url");
+    
+        imageUrl = json.getString("image_url");
         
         return this;
     }

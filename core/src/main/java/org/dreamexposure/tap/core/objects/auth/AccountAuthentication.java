@@ -42,7 +42,7 @@ public class AccountAuthentication {
         accountId = _id;
     }
     
-    public void setRefeshToken(String _token) {
+    public void setRefreshToken(String _token) {
         refreshToken = _token;
     }
     
@@ -56,19 +56,19 @@ public class AccountAuthentication {
     
     public JSONObject toJson() {
         JSONObject json = new JSONObject();
-        
-        json.put("account-id", accountId.toString());
-        json.put("refresh-token", refreshToken);
-        json.put("access-token", accessToken);
+    
+        json.put("account_id", accountId.toString());
+        json.put("refresh_token", refreshToken);
+        json.put("access_token", accessToken);
         json.put("expire", expire);
         
         return json;
     }
     
     public AccountAuthentication fromJson(JSONObject json) {
-        accountId = UUID.fromString(json.getString("account-id"));
-        refreshToken = json.getString("refresh-token");
-        accessToken = json.getString("access-token");
+        accountId = UUID.fromString(json.getString("account_id"));
+        refreshToken = json.getString("refresh_token");
+        accessToken = json.getString("access_token");
         json.put("expire", expire);
         
         return this;

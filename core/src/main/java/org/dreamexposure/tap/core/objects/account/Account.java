@@ -116,11 +116,11 @@ public class Account {
         json.put("username", username);
         json.put("email", email);
         //Skip hashed password.
-        json.put("phone-number", phoneNumber);
+        json.put("phone_number", phoneNumber);
         json.put("birthday", birthday);
-        json.put("safe-search", safeSearch);
+        json.put("safe_search", safeSearch);
         json.put("verified", verified);
-        json.put("email-confirmed", emailConfirmed);
+        json.put("email_confirmed", emailConfirmed);
         json.put("admin", admin);
         
         return json;
@@ -131,11 +131,11 @@ public class Account {
         username = json.getString("username");
         email = json.getString("email");
         //Skip hashed password
-        phoneNumber = json.getString("phone-number");
+        phoneNumber = json.getString("phone_number");
         birthday = json.getString("birthday");
-        safeSearch = json.getBoolean("safe-search");
+        safeSearch = json.getBoolean("safe_search");
         verified = json.getBoolean("verified");
-        emailConfirmed = json.getBoolean("email-confirmed");
+        emailConfirmed = json.getBoolean("email_confirmed");
         admin = json.getBoolean("admin");
         
         return this;

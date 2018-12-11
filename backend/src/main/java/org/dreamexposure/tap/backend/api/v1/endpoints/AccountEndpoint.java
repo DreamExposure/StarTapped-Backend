@@ -59,7 +59,7 @@ public class AccountEndpoint {
                     AccountAuthentication auth = new AccountAuthentication();
                     auth.setAccountId(account.getAccountId());
                     auth.setAccessToken(KeyGenerator.csRandomAlphaNumericString(32));
-                    auth.setRefeshToken(KeyGenerator.csRandomAlphaNumericString(32));
+                    auth.setRefreshToken(KeyGenerator.csRandomAlphaNumericString(32));
                     auth.setExpire(System.currentTimeMillis() + GlobalVars.oneDayMs); //Auth token good for 24 hours, unless manually revoked.
                     
                     Logger.getLogger().api("User registered account: " + account.getUsername(), request.getRemoteAddr());
@@ -117,7 +117,7 @@ public class AccountEndpoint {
                     AccountAuthentication auth = new AccountAuthentication();
                     auth.setAccountId(account.getAccountId());
                     auth.setAccessToken(KeyGenerator.csRandomAlphaNumericString(32));
-                    auth.setRefeshToken(KeyGenerator.csRandomAlphaNumericString(32));
+                    auth.setRefreshToken(KeyGenerator.csRandomAlphaNumericString(32));
                     auth.setExpire(System.currentTimeMillis() + GlobalVars.oneDayMs); //Auth token good for 24 hours, unless manually revoked.
                     
                     Logger.getLogger().api("User logged into account: " + account.getUsername(), request.getRemoteAddr());

@@ -31,8 +31,8 @@ public class AudioPost extends Post {
     @Override
     public JSONObject toJson() {
         JSONObject base = super.toJson();
-        
-        base.put("audio-url", audioUrl);
+    
+        base.put("audio_url", audioUrl);
         
         return base;
     }
@@ -40,8 +40,8 @@ public class AudioPost extends Post {
     @Override
     public AudioPost fromJson(JSONObject json) {
         super.fromJson(json);
-        
-        audioUrl = json.getString("audio-url");
+    
+        audioUrl = json.getString("audio_url");
         
         return this;
     }

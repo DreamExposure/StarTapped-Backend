@@ -118,9 +118,9 @@ public class Post implements IPost {
         
         json.put("id", id.toString());
         json.put("creator", creator.toJson());
-        json.put("origin-blog", originBlog.toJson());
+        json.put("origin_blog", originBlog.toJson());
         json.put("permalink", permaLink);
-        json.put("full-url", fullUrl);
+        json.put("full_url", fullUrl);
         json.put("timestamp", timestamp);
         json.put("type", type.name());
         json.put("title", title);
@@ -133,9 +133,9 @@ public class Post implements IPost {
     public IPost fromJson(JSONObject json) {
         id = UUID.fromString(json.getString("id"));
         creator = new Account().fromJson(json.getJSONObject("creator"));
-        originBlog = new Blog().fromJson(json.getJSONObject("origin-blog"));
+        originBlog = new Blog().fromJson(json.getJSONObject("origin_blog"));
         permaLink = json.getString("permalink");
-        fullUrl = json.getString("full-url");
+        fullUrl = json.getString("full_url");
         timestamp = json.getLong("timestamp");
         type = PostType.valueOf(json.getString("type"));
         title = json.getString("title");

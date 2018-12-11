@@ -125,15 +125,15 @@ public class Blog implements IBlog {
         JSONObject json = new JSONObject();
         
         json.put("id", blogId.toString());
-        json.put("base-url", baseUrl);
-        json.put("complete-url", completeUrl);
+        json.put("base_url", baseUrl);
+        json.put("complete_url", completeUrl);
         json.put("type", type.name());
         json.put("name", name);
         json.put("description", description);
-        json.put("icon-url", iconUrl);
-        json.put("background-color", backgroundColor);
-        json.put("background-url", backgroundUrl);
-        json.put("allow-under-18", allowUnder18);
+        json.put("icon_url", iconUrl);
+        json.put("background_color", backgroundColor);
+        json.put("background_url", backgroundUrl);
+        json.put("allow-under_18", allowUnder18);
         json.put("nsfw", nsfw);
         
         return json;
@@ -141,15 +141,15 @@ public class Blog implements IBlog {
     
     public Blog fromJson(JSONObject json) {
         blogId = UUID.fromString(json.getString("id"));
-        baseUrl = json.getString("base-url");
-        completeUrl = json.getString("complete-url");
+        baseUrl = json.getString("base_url");
+        completeUrl = json.getString("complete_url");
         type = BlogType.valueOf(json.getString("type"));
         name = json.getString("name");
         description = json.getString("description");
         iconUrl = json.getString("icon-url");
-        backgroundColor = json.getString("background-color");
-        backgroundUrl = json.getString("background-url");
-        allowUnder18 = json.getBoolean("allow-under-18");
+        backgroundColor = json.getString("background_color");
+        backgroundUrl = json.getString("background_url");
+        allowUnder18 = json.getBoolean("allow-under_18");
         nsfw = json.getBoolean("nsfw");
         
         return this;

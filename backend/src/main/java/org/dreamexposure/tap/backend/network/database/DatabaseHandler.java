@@ -475,7 +475,7 @@ public class DatabaseHandler {
                 if (hasStuff) {
                     AccountAuthentication auth = new AccountAuthentication();
                     auth.setAccountId(UUID.fromString(res.getString("id")));
-                    auth.setRefeshToken(res.getString("refresh_token"));
+                    auth.setRefreshToken(res.getString("refresh_token"));
                     auth.setAccessToken(res.getString("access_token"));
                     auth.setExpire(res.getLong("expire"));
     
@@ -505,7 +505,7 @@ public class DatabaseHandler {
                 if (hasStuff) {
                     AccountAuthentication auth = new AccountAuthentication();
                     auth.setAccountId(UUID.fromString(res.getString("id")));
-                    auth.setRefeshToken(res.getString("refresh_token"));
+                    auth.setRefreshToken(res.getString("refresh_token"));
                     auth.setAccessToken(res.getString("access_token"));
                     auth.setExpire(res.getLong("expire"));
     
@@ -536,7 +536,7 @@ public class DatabaseHandler {
                     if (res.getString("id") != null) {
                         AccountAuthentication auth = new AccountAuthentication();
                         auth.setAccountId(accountId);
-                        auth.setRefeshToken(res.getString("refresh_token"));
+                        auth.setRefreshToken(res.getString("refresh_token"));
                         auth.setAccessToken(res.getString("access_token"));
                         auth.setExpire(res.getLong("expire"));
                         

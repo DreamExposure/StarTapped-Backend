@@ -44,17 +44,17 @@ public class PersonalBlog extends Blog {
     @Override
     public JSONObject toJson() {
         JSONObject base = super.toJson();
-        
-        base.put("owner-id", ownerId.toString());
-        base.put("display-age", displayAge);
+    
+        base.put("owner_id", ownerId.toString());
+        base.put("display_age", displayAge);
         
         return base;
     }
     
     @Override
     public PersonalBlog fromJson(JSONObject json) {
-        ownerId = UUID.fromString(json.getString("owner-id"));
-        displayAge = json.getBoolean("display-age");
+        ownerId = UUID.fromString(json.getString("owner_id"));
+        displayAge = json.getBoolean("display_age");
         
         return this;
     }
