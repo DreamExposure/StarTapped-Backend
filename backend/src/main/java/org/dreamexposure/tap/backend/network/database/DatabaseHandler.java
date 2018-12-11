@@ -835,6 +835,31 @@ public class DatabaseHandler {
         return null;
     }
     
+    public boolean blogUrlTaken(String url) {
+        try {
+            if (databaseInfo.getMySQL().checkConnection()) {
+                String tableName = String.format("%sblog", databaseInfo.getSettings().getPrefix());
+                String query = "SELECT * FROM " + tableName + " WHERE base_url = ?";
+                PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
+                statement.setString(1, url);
+                
+                ResultSet res = statement.executeQuery();
+                
+                if (res.next()) {
+                    statement.close();
+                    return true;
+                }
+                statement.close();
+                return false;
+            }
+        } catch (SQLException e) {
+            Logger.getLogger().exception("Failed to check if URL is taken", e, this.getClass());
+            //Assume its taken just to be on the safe side.
+            return true;
+        }
+        return false;
+    }
+    
     //Post handling
     
     //For handling counting...

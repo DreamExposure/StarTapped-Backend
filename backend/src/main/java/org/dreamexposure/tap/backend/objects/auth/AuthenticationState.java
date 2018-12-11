@@ -2,6 +2,8 @@ package org.dreamexposure.tap.backend.objects.auth;
 
 import org.dreamexposure.tap.backend.utils.ResponseUtils;
 
+import java.util.UUID;
+
 /**
  * @author NovaFox161
  * Date Created: 12/5/18
@@ -11,14 +13,20 @@ import org.dreamexposure.tap.backend.utils.ResponseUtils;
  * Contact: nova@dreamexposure.org
  */
 public class AuthenticationState {
+    private final UUID id;
     private final boolean success;
     
     private int status;
     
     private String reason;
     
-    public AuthenticationState(boolean _success) {
+    public AuthenticationState(UUID _id, boolean _success) {
+        id = _id;
         success = _success;
+    }
+    
+    public UUID getId() {
+        return id;
     }
     
     public boolean isSuccess() {
