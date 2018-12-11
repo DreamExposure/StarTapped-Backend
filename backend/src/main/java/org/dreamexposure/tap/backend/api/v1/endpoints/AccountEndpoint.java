@@ -31,7 +31,7 @@ import javax.servlet.http.HttpServletResponse;
  */
 @SuppressWarnings("Duplicates")
 @RestController
-@RequestMapping("/api/v1/account")
+@RequestMapping("/v1/account")
 public class AccountEndpoint {
     @PostMapping(value = "/register", produces = "application/json")
     public static String register(HttpServletRequest request, HttpServletResponse response, @RequestBody String requestBody) {
