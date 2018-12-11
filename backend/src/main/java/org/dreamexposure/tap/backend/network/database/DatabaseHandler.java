@@ -789,6 +789,71 @@ public class DatabaseHandler {
         return null;
     }
     
+    public IBlog getBlog(String baseUrl) {
+        try {
+            if (databaseInfo.getMySQL().checkConnection()) {
+                String tableName = String.format("%sblog", databaseInfo.getSettings().getPrefix());
+                String query = "SELECT * FROM " + tableName + " WHERE base_url = ?";
+                PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
+                statement.setString(1, baseUrl);
+                
+                ResultSet res = statement.executeQuery();
+                
+                boolean hasStuff = res.next();
+                
+                if (hasStuff) {
+                    if (BlogType.valueOf(res.getString("blog_type")) == BlogType.GROUP) {
+                        GroupBlog blog = new GroupBlog();
+                        blog.setBlogId(UUID.fromString(res.getString("id")));
+                        
+                        blog.setBaseUrl(res.getString("base_url"));
+                        blog.setCompleteUrl(res.getString("complete_url"));
+                        blog.setName(res.getString("name"));
+                        blog.setDescription(res.getString("description"));
+                        blog.setIconUrl(res.getString("icon_url"));
+                        blog.setBackgroundColor(res.getString("background_color"));
+                        blog.setBackgroundUrl(res.getString("background_url"));
+                        blog.setAllowUnder18(res.getBoolean("allow_under_18"));
+                        blog.setNsfw(res.getBoolean("nsfw"));
+                        
+                        @SuppressWarnings("RegExpRedundantEscape")
+                        String ownersRaw = res.getString("owners").replaceAll("\\[", "").replaceAll("\\]", "");
+                        
+                        for (String s : ownersRaw.split(",")) {
+                            blog.getOwners().add(UUID.fromString(s));
+                        }
+                        
+                        
+                        statement.close();
+                        return blog;
+                    } else {
+                        PersonalBlog blog = new PersonalBlog();
+                        blog.setBlogId(UUID.fromString(res.getString("id")));
+                        
+                        blog.setBaseUrl(res.getString("base_url"));
+                        blog.setCompleteUrl(res.getString("complete_url"));
+                        blog.setName(res.getString("name"));
+                        blog.setDescription(res.getString("description"));
+                        blog.setIconUrl(res.getString("icon_url"));
+                        blog.setBackgroundColor(res.getString("background_color"));
+                        blog.setBackgroundUrl(res.getString("background_url"));
+                        blog.setAllowUnder18(res.getBoolean("allow_under_18"));
+                        blog.setNsfw(res.getBoolean("nsfw"));
+                        
+                        blog.setOwnerId(UUID.fromString(res.getString("owner")));
+                        
+                        statement.close();
+                        return blog;
+                    }
+                }
+                statement.close();
+            }
+        } catch (SQLException e) {
+            Logger.getLogger().exception("Failed to get blog from database", e, this.getClass());
+        }
+        return null;
+    }
+    
     public GroupBlog getGroupBlog(UUID blogId) {
         try {
             if (databaseInfo.getMySQL().checkConnection()) {
