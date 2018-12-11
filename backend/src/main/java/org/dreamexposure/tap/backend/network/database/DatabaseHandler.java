@@ -3,6 +3,7 @@ package org.dreamexposure.tap.backend.network.database;
 import org.dreamexposure.novautils.database.DatabaseInfo;
 import org.dreamexposure.novautils.database.DatabaseManager;
 import org.dreamexposure.novautils.database.DatabaseSettings;
+import org.dreamexposure.novautils.database.MySQL;
 import org.dreamexposure.tap.backend.conf.SiteSettings;
 import org.dreamexposure.tap.core.enums.blog.BlogType;
 import org.dreamexposure.tap.core.enums.post.PostType;
@@ -15,10 +16,7 @@ import org.dreamexposure.tap.core.objects.confirmation.EmailConfirmation;
 import org.dreamexposure.tap.core.utils.Logger;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -56,8 +54,19 @@ public class DatabaseHandler {
      */
     public void connectToMySQL() {
         DatabaseSettings settings = new DatabaseSettings(SiteSettings.SQL_HOST.get(), SiteSettings.SQL_PORT.get(), SiteSettings.SQL_DB.get(), SiteSettings.SQL_USER.get(), SiteSettings.SQL_PASSWORD.get(), SiteSettings.SQL_PREFIX.get());
+    
+        try {
+            MySQL mySQL = new MySQL(settings.getHostname(), settings.getPort(), settings.getDatabase(), settings.getPrefix(), settings.getUser(), settings.getPassword());
         
-        databaseInfo = DatabaseManager.connectToMySQL(settings);
+            Connection mySQLConnection = mySQL.openConnection();
+        
+            databaseInfo = new DatabaseInfo(mySQL, mySQLConnection, settings);
+            System.out.println("Connected to MySQL database!");
+        } catch (Exception e) {
+            System.out.println("Failed to connect to MySQL database! Is it properly configured?");
+            e.printStackTrace();
+            Logger.getLogger().exception("Failed to connect to MySQL Database!", e, this.getClass());
+        }
     }
     
     /**
