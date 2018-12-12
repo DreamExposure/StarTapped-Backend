@@ -246,48 +246,102 @@ public class AccountEndpoint {
             
             Account account = DatabaseHandler.getHandler().getAccountFromId(authState.getId());
             if (body.has("email")) {
-                account.setEmail(body.getString("email"));
-                account.setEmailConfirmed(false);
+                if (new ReCaptcha(SiteSettings.RECAP_KEY.get()).isValid(body.getString("gcap"))) {
+                    if (DatabaseHandler.getHandler().validLogin(account.getEmail(), body.getString("password"))) {
+                        if (!DatabaseHandler.getHandler().emailTaken(body.getString("email"))) {
+                            account.setEmail(body.getString("email"));
+                            account.setEmailConfirmed(false);
                 
-                DatabaseHandler.getHandler().updateAccount(account);
-                //Send confirmation email!!!
-                EmailHandler.getHandler().sendEmailConfirm(body.getString("email"), Generator.generateEmailConfirmationLink(account));
+                            DatabaseHandler.getHandler().updateAccount(account);
+                            //Send confirmation email!!!
+                            EmailHandler.getHandler().sendEmailConfirm(body.getString("email"), Generator.generateEmailConfirmationLink(account));
                 
-                //Respond
-                response.setContentType("application/json");
-                response.setStatus(200);
+                            //Respond
+                            response.setContentType("application/json");
+                            response.setStatus(200);
                 
-                JSONObject responseBody = new JSONObject();
-                responseBody.put("message", "Success");
+                            JSONObject responseBody = new JSONObject();
+                            responseBody.put("message", "Success");
                 
-                return responseBody.toString();
+                            return responseBody.toString();
+                        } else {
+                            //Email taken
+                            response.setContentType("application/json");
+                            response.setStatus(400);
+                
+                            JSONObject responseBody = new JSONObject();
+                            responseBody.put("message", "Email Taken");
+                
+                            return responseBody.toString();
+                        }
+                    } else {
+                        //Failed to verify login.
+                        response.setContentType("application/json");
+                        response.setStatus(400);
+            
+                        JSONObject responseBody = new JSONObject();
+                        responseBody.put("message", "Password Invalid");
+            
+                        return responseBody.toString();
+                    }
+                } else {
+                    response.setContentType("application/json");
+                    response.setStatus(400);
+        
+                    JSONObject responseBody = new JSONObject();
+                    responseBody.put("message", "Failed to verify ReCAPTCHA");
+        
+                    return responseBody.toString();
+                }
             } else if (body.has("password")) {
-                //Update password...
-                BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-                String hash = encoder.encode(body.getString("password"));
-                
-                DatabaseHandler.getHandler().updateAccountHash(account, hash);
-                
-                //Invalidate existing sessions...
-                DatabaseHandler.getHandler().removeAuth(account.getAccountId());
-                
-                //Generate new tokens...
-                AccountAuthentication auth = new AccountAuthentication();
-                auth.setAccountId(account.getAccountId());
-                auth.setAccessToken(KeyGenerator.csRandomAlphaNumericString(32));
-                auth.setRefreshToken(KeyGenerator.csRandomAlphaNumericString(32));
-                auth.setExpire(System.currentTimeMillis() + GlobalVars.oneDayMs); //Auth token good for 24 hours, unless manually revoked.
-                DatabaseHandler.getHandler().saveAuth(auth);
-                
-                //Respond
-                response.setContentType("application/json");
-                response.setStatus(200);
-                
-                JSONObject responseBody = new JSONObject();
-                responseBody.put("message", "Success");
-                responseBody.put("credentials", auth.toJson());
-                
-                return responseBody.toString();
+                if (new ReCaptcha(SiteSettings.RECAP_KEY.get()).isValid(body.getString("gcap"))) {
+                    if (DatabaseHandler.getHandler().validLogin(account.getEmail(), body.getString("old_password"))) {
+                        //Update password...
+                        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+                        String hash = encoder.encode(body.getString("password"));
+            
+                        DatabaseHandler.getHandler().updateAccountHash(account, hash);
+            
+                        //Invalidate existing sessions...
+                        DatabaseHandler.getHandler().removeAuth(account.getAccountId());
+            
+                        //Generate new tokens...
+                        AccountAuthentication auth = new AccountAuthentication();
+                        auth.setAccountId(account.getAccountId());
+                        auth.setAccessToken(KeyGenerator.csRandomAlphaNumericString(32));
+                        auth.setRefreshToken(KeyGenerator.csRandomAlphaNumericString(32));
+                        auth.setExpire(System.currentTimeMillis() + GlobalVars.oneDayMs); //Auth token good for 24 hours, unless manually revoked.
+                        DatabaseHandler.getHandler().saveAuth(auth);
+            
+                        //Respond
+                        response.setContentType("application/json");
+                        response.setStatus(200);
+            
+                        JSONObject responseBody = new JSONObject();
+                        responseBody.put("message", "Success");
+                        responseBody.put("credentials", auth.toJson());
+            
+                        return responseBody.toString();
+                    } else {
+                        //Password incorrect
+                        response.setContentType("application/json");
+                        response.setStatus(400);
+            
+                        JSONObject responseBody = new JSONObject();
+                        responseBody.put("message", "Password Invalid");
+            
+                        return responseBody.toString();
+                    }
+                } else {
+                    //Failed to verify recap
+                    response.setContentType("application/json");
+                    response.setStatus(400);
+        
+                    JSONObject responseBody = new JSONObject();
+                    responseBody.put("message", "Failed to verify ReCAPTCHA");
+        
+                    return responseBody.toString();
+                }
             } else if (body.has("safe_search")) {
                 //Update safe search
                 account.setSafeSearch(body.getBoolean("safe_search"));

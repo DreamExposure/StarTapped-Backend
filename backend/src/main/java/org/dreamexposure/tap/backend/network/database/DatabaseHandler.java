@@ -335,6 +335,32 @@ public class DatabaseHandler {
         return false;
     }
     
+    public boolean emailTaken(String email) {
+        try {
+            if (databaseInfo.getMySQL().checkConnection()) {
+                String tableName = String.format("%saccounts", databaseInfo.getSettings().getPrefix());
+                
+                //Try email first....
+                String query = "SELECT * FROM " + tableName + " WHERE email = ?";
+                PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
+                statement.setString(1, email);
+                
+                ResultSet res = statement.executeQuery();
+                
+                boolean hasStuff = res.next();
+                
+                if (hasStuff) {
+                    statement.close();
+                    return true;
+                }
+                statement.close();
+            }
+        } catch (SQLException e) {
+            Logger.getLogger().exception("Failed to verify email taken", e, this.getClass());
+        }
+        return false;
+    }
+    
     public boolean updateAccount(Account account) {
         try {
             if (databaseInfo.getMySQL().checkConnection()) {
@@ -512,7 +538,7 @@ public class DatabaseHandler {
     public AccountAuthentication getAuthFromAccessToken(String accessToken) {
         try {
             if (databaseInfo.getMySQL().checkConnection()) {
-                String tableName = String.format("%saccounts", databaseInfo.getSettings().getPrefix());
+                String tableName = String.format("%sauth", databaseInfo.getSettings().getPrefix());
                 String query = "SELECT * FROM " + tableName + " WHERE access_token = ?";
                 PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
                 statement.setString(1, accessToken);
@@ -542,7 +568,7 @@ public class DatabaseHandler {
     public AccountAuthentication getAuthFromRefreshToken(String refreshToken) {
         try {
             if (databaseInfo.getMySQL().checkConnection()) {
-                String tableName = String.format("%saccounts", databaseInfo.getSettings().getPrefix());
+                String tableName = String.format("%sauth", databaseInfo.getSettings().getPrefix());
                 String query = "SELECT * FROM " + tableName + " WHERE refresh_token = ?";
                 PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
                 statement.setString(1, refreshToken);
@@ -574,7 +600,7 @@ public class DatabaseHandler {
         
         try {
             if (databaseInfo.getMySQL().checkConnection()) {
-                String tableName = String.format("%saccounts", databaseInfo.getSettings().getPrefix());
+                String tableName = String.format("%sauth", databaseInfo.getSettings().getPrefix());
                 String query = "SELECT * FROM " + tableName + " WHERE id = ?";
                 PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
                 statement.setString(1, accountId.toString());
@@ -619,7 +645,7 @@ public class DatabaseHandler {
     public void removeAuthByAccessToken(String accessToken) {
         try {
             if (databaseInfo.getMySQL().checkConnection()) {
-                String tableName = String.format("%sconfirmation", databaseInfo.getSettings().getPrefix());
+                String tableName = String.format("%sauth", databaseInfo.getSettings().getPrefix());
                 String query = "DELETE FROM " + tableName + " WHERE access_token = '" + accessToken + "';";
                 PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
                 
@@ -634,8 +660,8 @@ public class DatabaseHandler {
     public void removeAuthByRefreshToken(String refreshToken) {
         try {
             if (databaseInfo.getMySQL().checkConnection()) {
-                String tableName = String.format("%sconfirmation", databaseInfo.getSettings().getPrefix());
-                String query = "DELETE FROM " + tableName + " WHERE refreshToken = '" + refreshToken + "';";
+                String tableName = String.format("%sauth", databaseInfo.getSettings().getPrefix());
+                String query = "DELETE FROM " + tableName + " WHERE refresh_token = '" + refreshToken + "';";
                 PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
                 
                 statement.execute();
