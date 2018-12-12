@@ -142,7 +142,7 @@ public class DatabaseHandler {
                     " refresh_token VARCHAR(64) NOT NULL, " +
                     " access_token VARCHAR(64) NOT NULL, " +
                     " expire LONG NOT NULL, " +
-                    " PRIMARY KEY (id))";
+                    " PRIMARY KEY (refresh_token))";
             
             statement.execute(createAccountsTable);
             statement.execute(createConfirmationTable);

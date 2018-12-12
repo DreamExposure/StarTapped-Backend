@@ -165,7 +165,7 @@ public class AccountEndpoint {
     
     @PostMapping(value = "/logout", produces = "application/json")
     public static String logout(HttpServletRequest request, HttpServletResponse response) {
-        if (request.getHeader("Authorization.Access") != null && request.getHeader("Authorization.Refresh") != null) {
+        if (request.getHeader("Authorization_Access") != null && request.getHeader("Authorization_Refresh") != null) {
             //User is currently logged in, we can now revoke access and confirm the logout.
             String accessToken = request.getHeader("Authorization.Access");
             String refreshToken = request.getHeader("Authorization.Refresh");

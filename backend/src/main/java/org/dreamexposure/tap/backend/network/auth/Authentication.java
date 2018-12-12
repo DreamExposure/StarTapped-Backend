@@ -24,8 +24,8 @@ public class Authentication {
             return new AuthenticationState(null, false).setStatus(405).setReason("Method not allowed");
         }
         //Check authorization
-        if (request.getHeader("Authorization.Access") != null) {
-            String accessToken = request.getHeader("Authorization.Access");
+        if (request.getHeader("Authorization_Access") != null) {
+            String accessToken = request.getHeader("Authorization_Access");
             
             AccountAuthentication auth = DatabaseHandler.getHandler().getAuthFromAccessToken(accessToken);
             
@@ -35,8 +35,8 @@ public class Authentication {
                     return new AuthenticationState(auth.getAccountId(), true).setStatus(200).setReason("Success");
                 } else {
                     //Access code is bad, refresh required.
-                    if (request.getHeader("Authorization.Refresh") != null) {
-                        String refreshToken = request.getHeader("Authorization.Refresh");
+                    if (request.getHeader("Authorization_Refresh") != null) {
+                        String refreshToken = request.getHeader("Authorization_Refresh");
                         auth = DatabaseHandler.getHandler().getAuthFromRefreshToken(refreshToken);
                         
                         if (auth != null) {
@@ -55,8 +55,8 @@ public class Authentication {
                 }
             } else {
                 //Check if refresh token exists and is valid...
-                if (request.getHeader("Authorization.Refresh") != null) {
-                    String refreshToken = request.getHeader("Authorization.Refresh");
+                if (request.getHeader("Authorization_Refresh") != null) {
+                    String refreshToken = request.getHeader("Authorization_Refresh");
                     auth = DatabaseHandler.getHandler().getAuthFromRefreshToken(refreshToken);
                     
                     if (auth != null) {
