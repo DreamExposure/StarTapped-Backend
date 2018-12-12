@@ -202,7 +202,7 @@ public class AccountEndpoint {
     }
     
     @PostMapping(value = "/get", produces = "application/json")
-    public static String get(HttpServletRequest request, HttpServletResponse response, @RequestBody String requestBody) {
+    public static String get(HttpServletRequest request, HttpServletResponse response) {
         //Authenticate...
         AuthenticationState authState = Authentication.authenticate(request);
         if (!authState.isSuccess()) {
