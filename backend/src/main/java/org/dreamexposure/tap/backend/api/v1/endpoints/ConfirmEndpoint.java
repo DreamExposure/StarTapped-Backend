@@ -1,5 +1,6 @@
 package org.dreamexposure.tap.backend.api.v1.endpoints;
 
+import org.dreamexposure.tap.backend.conf.GlobalVars;
 import org.dreamexposure.tap.backend.network.database.DatabaseHandler;
 import org.dreamexposure.tap.core.objects.account.Account;
 import org.dreamexposure.tap.core.objects.confirmation.EmailConfirmation;
@@ -40,7 +41,7 @@ public class ConfirmEndpoint {
                 
                 //Success... redirect to account page.
                 try {
-                    response.sendRedirect("/account");
+                    response.sendRedirect(GlobalVars.siteUrl + "/account");
                     return "redirect:/account";
                 } catch (Exception ignore) {
                     return "redirect:/account";

@@ -19,7 +19,7 @@ public class Generator {
         
         //Save to database
         DatabaseHandler.getHandler().addPendingConfirmation(account, code);
-        
-        return GlobalVars.siteUrl + "/confirm/email?code=" + code;
+    
+        return GlobalVars.apiUrl + "/confirm/email?code=" + code;
     }
 }

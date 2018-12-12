@@ -426,7 +426,7 @@ public class DatabaseHandler {
         try {
             if (databaseInfo.getMySQL().checkConnection()) {
                 String tableName = String.format("%sconfirmation", databaseInfo.getSettings().getPrefix());
-                String query = "INSERT INTO " + tableName + " (user_id, code) VALUES (?, ?)";
+                String query = "INSERT INTO " + tableName + " (id, code) VALUES (?, ?)";
                 PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
                 
                 statement.setString(1, account.getAccountId().toString());
