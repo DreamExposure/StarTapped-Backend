@@ -12,6 +12,7 @@ import org.dreamexposure.tap.core.objects.auth.AccountAuthentication;
 import org.dreamexposure.tap.core.objects.blog.GroupBlog;
 import org.dreamexposure.tap.core.objects.blog.IBlog;
 import org.dreamexposure.tap.core.objects.blog.PersonalBlog;
+import org.dreamexposure.tap.core.objects.cloudflare.DnsRecord;
 import org.dreamexposure.tap.core.objects.confirmation.EmailConfirmation;
 import org.dreamexposure.tap.core.utils.Logger;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -90,6 +91,7 @@ public class DatabaseHandler {
             String blogTableName = String.format("%sblog", databaseInfo.getSettings().getPrefix());
             String postTableName = String.format("%spost", databaseInfo.getSettings().getPrefix());
             String authTableName = String.format("%sauth", databaseInfo.getSettings().getPrefix());
+            String recordTableName = String.format("%srecord", databaseInfo.getSettings().getPrefix());
             
             String createAccountsTable = "CREATE TABLE IF NOT EXISTS " + accountsTableName +
                     "(id VARCHAR(255) not NULL, " +
@@ -143,12 +145,17 @@ public class DatabaseHandler {
                     " access_token VARCHAR(64) NOT NULL, " +
                     " expire LONG NOT NULL, " +
                     " PRIMARY KEY (refresh_token))";
+            String createRecordTable = "CREATE TABLE IF NOT EXISTS " + recordTableName +
+                    "(blog_id VARCHAR(255) NOT NULL, " +
+                    " record_id LONGTEXT NOT NULL, " +
+                    " PRIMARY KEY (blog_id))";
             
             statement.execute(createAccountsTable);
             statement.execute(createConfirmationTable);
             statement.execute(createBlogTable);
             statement.execute(createPostTable);
             statement.execute(createAuthTable);
+            statement.execute(createRecordTable);
             
             statement.close();
             System.out.println("Successfully created needed tables in MySQL database!");
@@ -975,6 +982,68 @@ public class DatabaseHandler {
         return null;
     }
     
+    public List<IBlog> getBlogs(UUID ownerId) {
+        List<IBlog> blogs = new ArrayList<>();
+        try {
+            if (databaseInfo.getMySQL().checkConnection()) {
+                String tableName = String.format("%sblog", databaseInfo.getSettings().getPrefix());
+                String query = "SELECT * FROM " + tableName + " WHERE owner = ? OR owners LIKE ?;";
+                PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
+                statement.setString(1, ownerId.toString());
+                statement.setString(2, ownerId.toString());
+                
+                ResultSet res = statement.executeQuery();
+                
+                while (res.next()) {
+                    if (BlogType.valueOf(res.getString("blog_type")) == BlogType.GROUP) {
+                        GroupBlog blog = new GroupBlog();
+                        blog.setBlogId(UUID.fromString(res.getString("id")));
+                        
+                        blog.setBaseUrl(res.getString("base_url"));
+                        blog.setCompleteUrl(res.getString("complete_url"));
+                        blog.setName(res.getString("name"));
+                        blog.setDescription(res.getString("description"));
+                        blog.setIconUrl(res.getString("icon_url"));
+                        blog.setBackgroundColor(res.getString("background_color"));
+                        blog.setBackgroundUrl(res.getString("background_url"));
+                        blog.setAllowUnder18(res.getBoolean("allow_under_18"));
+                        blog.setNsfw(res.getBoolean("nsfw"));
+                        
+                        @SuppressWarnings("RegExpRedundantEscape")
+                        String ownersRaw = res.getString("owners").replaceAll("\\[", "").replaceAll("\\]", "");
+                        
+                        for (String s : ownersRaw.split(",")) {
+                            blog.getOwners().add(UUID.fromString(s));
+                        }
+                        
+                        blogs.add(blog);
+                    } else {
+                        PersonalBlog blog = new PersonalBlog();
+                        blog.setBlogId(UUID.fromString(res.getString("id")));
+                        
+                        blog.setBaseUrl(res.getString("base_url"));
+                        blog.setCompleteUrl(res.getString("complete_url"));
+                        blog.setName(res.getString("name"));
+                        blog.setDescription(res.getString("description"));
+                        blog.setIconUrl(res.getString("icon_url"));
+                        blog.setBackgroundColor(res.getString("background_color"));
+                        blog.setBackgroundUrl(res.getString("background_url"));
+                        blog.setAllowUnder18(res.getBoolean("allow_under_18"));
+                        blog.setNsfw(res.getBoolean("nsfw"));
+                        
+                        blog.setOwnerId(UUID.fromString(res.getString("owner")));
+                        
+                        blogs.add(blog);
+                    }
+                }
+                statement.close();
+            }
+        } catch (SQLException e) {
+            Logger.getLogger().exception("Failed to get all blogs of user from database", e, this.getClass());
+        }
+        return blogs;
+    }
+    
     public boolean blogUrlTaken(String url) {
         try {
             if (databaseInfo.getMySQL().checkConnection()) {
@@ -996,6 +1065,88 @@ public class DatabaseHandler {
             Logger.getLogger().exception("Failed to check if URL is taken", e, this.getClass());
             //Assume its taken just to be on the safe side.
             return true;
+        }
+        return false;
+    }
+    
+    //CloudFlare record handling
+    public boolean createRecord(DnsRecord record) {
+        try {
+            if (databaseInfo.getMySQL().checkConnection()) {
+                String tableName = String.format("%srecord", databaseInfo.getMySQL().getPrefix());
+                String query = "INSERT INTO " + tableName + " (blog_id, record_id) VALUES (?, ?)";
+                PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
+                
+                statement.setString(1, record.getBlogId().toString());
+                statement.setString(2, record.getRecordId());
+                
+                statement.execute();
+                return true;
+            }
+        } catch (SQLException e) {
+            Logger.getLogger().exception("Failed to add dns record data.", e, this.getClass());
+        }
+        return false;
+    }
+    
+    public DnsRecord getRecord(UUID blogId) {
+        try {
+            if (databaseInfo.getMySQL().checkConnection()) {
+                String tableName = String.format("%srecord", databaseInfo.getSettings().getPrefix());
+                String query = "SELECT * FROM " + tableName + " WHERE blog_id = ?";
+                PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
+                statement.setString(1, blogId.toString());
+                
+                ResultSet res = statement.executeQuery();
+                
+                boolean hasStuff = res.next();
+                
+                if (hasStuff) {
+                    DnsRecord record = new DnsRecord();
+                    record.setBlogId(UUID.fromString(res.getString("blog_id")));
+                    record.setRecordId(res.getString("record_id"));
+                    
+                    statement.close();
+                    return record;
+                }
+                statement.close();
+            }
+        } catch (SQLException e) {
+            Logger.getLogger().exception("Failed to get dns record data from database by blog id", e, this.getClass());
+        }
+        return null;
+    }
+    
+    public boolean deleteRecord(UUID blogId) {
+        try {
+            if (databaseInfo.getMySQL().checkConnection()) {
+                String tableName = String.format("%srecord", databaseInfo.getSettings().getPrefix());
+                String query = "DELETE FROM " + tableName + " WHERE blog_id = '" + blogId.toString() + "';";
+                PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
+                
+                statement.execute();
+                statement.close();
+                return true;
+            }
+        } catch (SQLException e) {
+            Logger.getLogger().exception("Failed to delete dns record data by blog ID", e, this.getClass());
+        }
+        return false;
+    }
+    
+    public boolean deleteRecord(String recordId) {
+        try {
+            if (databaseInfo.getMySQL().checkConnection()) {
+                String tableName = String.format("%srecord", databaseInfo.getSettings().getPrefix());
+                String query = "DELETE FROM " + tableName + " WHERE record_id = '" + recordId + "';";
+                PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
+                
+                statement.execute();
+                statement.close();
+                return true;
+            }
+        } catch (SQLException e) {
+            Logger.getLogger().exception("Failed to delete dns record data by record ID", e, this.getClass());
         }
         return false;
     }

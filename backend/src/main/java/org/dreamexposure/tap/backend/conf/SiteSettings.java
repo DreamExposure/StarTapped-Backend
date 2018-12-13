@@ -20,11 +20,13 @@ public enum SiteSettings {
     REDIS_PASS,
     
     TIME_OUT,
-    PORT, LOG_FOLDER,
+    PORT,
+    LOG_FOLDER, BLOG_FOLDER,
     RECAP_KEY,
     SMTP_HOST, SMTP_PORT,
-    EMAIL_USER, EMAIL_PASS;
+    EMAIL_USER, EMAIL_PASS,
     
+    CF_EMAIL, CF_ZONE_ID, CF_AUTH_KEY;
     private String val;
     
     SiteSettings() {

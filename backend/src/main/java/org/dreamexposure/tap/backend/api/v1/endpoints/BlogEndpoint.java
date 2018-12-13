@@ -1,8 +1,10 @@
 package org.dreamexposure.tap.backend.api.v1.endpoints;
 
 import org.dreamexposure.tap.backend.network.auth.Authentication;
+import org.dreamexposure.tap.backend.network.cloudflare.CloudFlareIntegrator;
 import org.dreamexposure.tap.backend.network.database.DatabaseHandler;
 import org.dreamexposure.tap.backend.objects.auth.AuthenticationState;
+import org.dreamexposure.tap.backend.utils.FileHandler;
 import org.dreamexposure.tap.backend.utils.ResponseUtils;
 import org.dreamexposure.tap.core.enums.blog.BlogType;
 import org.dreamexposure.tap.core.objects.account.Account;
@@ -10,6 +12,7 @@ import org.dreamexposure.tap.core.objects.blog.GroupBlog;
 import org.dreamexposure.tap.core.objects.blog.IBlog;
 import org.dreamexposure.tap.core.objects.blog.PersonalBlog;
 import org.dreamexposure.tap.core.utils.Logger;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -43,6 +47,7 @@ public class BlogEndpoint {
             response.setContentType("application/json");
             return authState.toJson();
         }
+        //TODO: Handle reCAPTCHA to stop bots....
         
         //Okay, now handle actual request.
         Account account = DatabaseHandler.getHandler().getAccountFromId(authState.getId());
@@ -85,16 +90,39 @@ public class BlogEndpoint {
                     blog.setBackgroundColor("#ffffff");
                     
                     DatabaseHandler.getHandler().createOrUpdateBlog(blog);
-                    
-                    //Respond to client
-                    response.setContentType("application/json");
-                    response.setStatus(200);
-                    
-                    JSONObject responseBody = new JSONObject();
-                    responseBody.put("message", "Success");
-                    responseBody.put("blog", blog.toJson());
-                    
-                    return responseBody.toString();
+    
+                    //Lets get that CNAME record created...
+                    if (CloudFlareIntegrator.get().createCNAMEForBlog(blog)) {
+        
+                        //Create the folders... that's super important
+                        if (FileHandler.createDefaultBlogFolders(blog)) {
+                            //Respond to client
+                            response.setContentType("application/json");
+                            response.setStatus(200);
+            
+                            JSONObject responseBody = new JSONObject();
+                            responseBody.put("message", "Success");
+                            responseBody.put("blog", blog.toJson());
+            
+                            return responseBody.toString();
+                        } else {
+                            //Respond to client
+                            response.setContentType("application/json");
+                            response.setStatus(500);
+            
+                            JSONObject responseBody = new JSONObject();
+                            responseBody.put("message", "Failed to create folder structure on disk. Contact the developers ASAP");
+                            return responseBody.toString();
+                        }
+                    } else {
+                        //Respond to client
+                        response.setContentType("application/json");
+                        response.setStatus(500);
+        
+                        JSONObject responseBody = new JSONObject();
+                        responseBody.put("message", "Failed to create CNAME record. Contact the developers ASAP.");
+                        return responseBody.toString();
+                    }
                 } else {
                     GroupBlog blog = new GroupBlog();
                     blog.setBlogId(UUID.randomUUID());
@@ -113,16 +141,39 @@ public class BlogEndpoint {
                     blog.setBackgroundColor("#ffffff");
                     
                     DatabaseHandler.getHandler().createOrUpdateBlog(blog);
-                    
-                    //Respond to client
-                    response.setContentType("application/json");
-                    response.setStatus(200);
-                    
-                    JSONObject responseBody = new JSONObject();
-                    responseBody.put("message", "Success");
-                    responseBody.put("blog", blog.toJson());
-                    
-                    return responseBody.toString();
+    
+                    //Lets get that CNAME record created...
+                    if (CloudFlareIntegrator.get().createCNAMEForBlog(blog)) {
+        
+                        //Create the folders... that's super important
+                        if (FileHandler.createDefaultBlogFolders(blog)) {
+                            //Respond to client
+                            response.setContentType("application/json");
+                            response.setStatus(200);
+            
+                            JSONObject responseBody = new JSONObject();
+                            responseBody.put("message", "Success");
+                            responseBody.put("blog", blog.toJson());
+            
+                            return responseBody.toString();
+                        } else {
+                            //Respond to client
+                            response.setContentType("application/json");
+                            response.setStatus(500);
+            
+                            JSONObject responseBody = new JSONObject();
+                            responseBody.put("message", "Failed to create folder structure on disk. Contact the developers ASAP");
+                            return responseBody.toString();
+                        }
+                    } else {
+                        //Respond to client
+                        response.setContentType("application/json");
+                        response.setStatus(500);
+        
+                        JSONObject responseBody = new JSONObject();
+                        responseBody.put("message", "Failed to create CNAME record. Contact the developers ASAP.");
+                        return responseBody.toString();
+                    }
                 }
             }
         } catch (JSONException e) {
@@ -181,11 +232,11 @@ public class BlogEndpoint {
                 //Get by blog ID
                 UUID id = UUID.fromString(body.getString("id"));
                 IBlog blog = DatabaseHandler.getHandler().getBlog(id);
-                
+    
                 if (blog != null) {
                     response.setContentType("application/json");
                     response.setStatus(200);
-                    
+        
                     JSONObject responseBody = new JSONObject();
                     responseBody.put("message", "Success");
                     if (blog instanceof GroupBlog) {
@@ -193,13 +244,33 @@ public class BlogEndpoint {
                     } else {
                         responseBody.put("blog", ((PersonalBlog) blog).toJson());
                     }
-                    
+        
                     return responseBody.toString();
                 } else {
                     response.setContentType("application/json");
                     response.setStatus(404);
                     return ResponseUtils.getJsonResponseMessage("Blog not Found");
                 }
+            } else if (body.has("all")) {
+                List<IBlog> blogs = DatabaseHandler.getHandler().getBlogs(authState.getId());
+    
+                JSONArray jBlogs = new JSONArray();
+                for (IBlog b : blogs) {
+                    if (b.getType() == BlogType.PERSONAL)
+                        jBlogs.put(((PersonalBlog) b).toJson());
+                    else
+                        jBlogs.put(((GroupBlog) b).toJson());
+                }
+    
+                //Respond to client
+                response.setContentType("application/json");
+                response.setStatus(200);
+    
+                JSONObject responseBody = new JSONObject();
+                responseBody.put("message", "Success");
+                responseBody.put("blogs", jBlogs);
+    
+                return responseBody.toString();
             } else {
                 response.setContentType("application/json");
                 response.setStatus(400);

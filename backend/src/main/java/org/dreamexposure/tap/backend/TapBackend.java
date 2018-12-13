@@ -1,6 +1,7 @@
 package org.dreamexposure.tap.backend;
 
 import org.dreamexposure.tap.backend.conf.SiteSettings;
+import org.dreamexposure.tap.backend.network.cloudflare.CloudFlareIntegrator;
 import org.dreamexposure.tap.backend.network.database.DatabaseHandler;
 import org.dreamexposure.tap.backend.network.email.EmailHandler;
 import org.dreamexposure.tap.core.utils.Logger;
@@ -40,5 +41,6 @@ public class TapBackend {
         
         //Init the rest of our services
         EmailHandler.getHandler().init();
+        CloudFlareIntegrator.get().init();
     }
 }
