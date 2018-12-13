@@ -269,6 +269,7 @@ public class BlogEndpoint {
                 JSONObject responseBody = new JSONObject();
                 responseBody.put("message", "Success");
                 responseBody.put("blogs", jBlogs);
+                responseBody.put("count", jBlogs.length());
     
                 return responseBody.toString();
             } else {
