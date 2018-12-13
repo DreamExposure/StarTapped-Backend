@@ -133,7 +133,7 @@ public class Blog implements IBlog {
         json.put("icon_url", iconUrl);
         json.put("background_color", backgroundColor);
         json.put("background_url", backgroundUrl);
-        json.put("allow-under_18", allowUnder18);
+        json.put("allow_under_18", allowUnder18);
         json.put("nsfw", nsfw);
         
         return json;
@@ -149,7 +149,7 @@ public class Blog implements IBlog {
         iconUrl = json.getString("icon-url");
         backgroundColor = json.getString("background_color");
         backgroundUrl = json.getString("background_url");
-        allowUnder18 = json.getBoolean("allow-under_18");
+        allowUnder18 = json.getBoolean("allow_under_18");
         nsfw = json.getBoolean("nsfw");
         
         return this;
