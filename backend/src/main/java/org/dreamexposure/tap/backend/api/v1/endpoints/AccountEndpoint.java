@@ -167,8 +167,8 @@ public class AccountEndpoint {
     public static String logout(HttpServletRequest request, HttpServletResponse response) {
         if (request.getHeader("Authorization_Access") != null && request.getHeader("Authorization_Refresh") != null) {
             //User is currently logged in, we can now revoke access and confirm the logout.
-            String accessToken = request.getHeader("Authorization.Access");
-            String refreshToken = request.getHeader("Authorization.Refresh");
+            String accessToken = request.getHeader("Authorization_Access");
+            String refreshToken = request.getHeader("Authorization_Refresh");
             
             AccountAuthentication auth = DatabaseHandler.getHandler().getAuthFromRefreshToken(refreshToken);
             if (auth == null)

@@ -1,6 +1,7 @@
 package org.dreamexposure.tap.backend.network.auth;
 
 import org.dreamexposure.novautils.crypto.KeyGenerator;
+import org.dreamexposure.tap.backend.conf.GlobalVars;
 import org.dreamexposure.tap.backend.network.database.DatabaseHandler;
 import org.dreamexposure.tap.backend.objects.auth.AuthenticationState;
 import org.dreamexposure.tap.core.objects.auth.AccountAuthentication;
@@ -41,6 +42,7 @@ public class Authentication {
                         
                         if (auth != null) {
                             auth.setAccessToken(KeyGenerator.csRandomAlphaNumericString(32));
+                            auth.setExpire(System.currentTimeMillis() + GlobalVars.oneDayMs);
                             DatabaseHandler.getHandler().updateAuth(auth);
     
                             return new AuthenticationState(auth.getAccountId(), true).setStatus(200).setReason("Success. Access token regenerated.");
@@ -61,6 +63,7 @@ public class Authentication {
                     
                     if (auth != null) {
                         auth.setAccessToken(KeyGenerator.csRandomAlphaNumericString(32));
+                        auth.setExpire(System.currentTimeMillis() + GlobalVars.oneDayMs);
                         DatabaseHandler.getHandler().updateAuth(auth);
     
                         return new AuthenticationState(auth.getAccountId(), true).setStatus(200).setReason("Success. Access token regenerated.");
