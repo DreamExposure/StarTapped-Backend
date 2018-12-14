@@ -690,8 +690,8 @@ public class DatabaseHandler {
                 ResultSet res = statement.executeQuery();
                 
                 boolean hasStuff = res.next();
-                
-                if (!hasStuff || res.getString("API_KEY") == null) {
+    
+                if (!hasStuff || res.getString("id") == null) {
                     //Data not present, add to DB.
                     String insertCommand = "INSERT INTO " + tableName +
                             "(id, base_url, complete_url, blog_type, name, description, " +
