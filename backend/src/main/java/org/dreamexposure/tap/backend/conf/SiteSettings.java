@@ -21,12 +21,13 @@ public enum SiteSettings {
     
     TIME_OUT,
     PORT,
-    LOG_FOLDER, BLOG_FOLDER,
+    LOG_FOLDER, BLOG_FOLDER, TMP_FOLDER, UPLOAD_FOLDER,
     RECAP_KEY,
     SMTP_HOST, SMTP_PORT,
     EMAIL_USER, EMAIL_PASS,
     
-    CF_EMAIL, CF_ZONE_ID, CF_AUTH_KEY;
+    CF_EMAIL, CF_ZONE_ID, CF_AUTH_KEY,
+    CLAM_HOST, CLAM_PORT, CLAM_NO_SCAN;
     private String val;
     
     SiteSettings() {

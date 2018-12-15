@@ -1,16 +1,20 @@
 package org.dreamexposure.tap.backend.api.v1.endpoints;
 
+import org.dreamexposure.tap.backend.conf.GlobalVars;
 import org.dreamexposure.tap.backend.network.auth.Authentication;
 import org.dreamexposure.tap.backend.network.cloudflare.CloudFlareIntegrator;
 import org.dreamexposure.tap.backend.network.database.DatabaseHandler;
 import org.dreamexposure.tap.backend.objects.auth.AuthenticationState;
 import org.dreamexposure.tap.backend.utils.FileHandler;
+import org.dreamexposure.tap.backend.utils.FileUploadHandler;
 import org.dreamexposure.tap.backend.utils.ResponseUtils;
 import org.dreamexposure.tap.core.enums.blog.BlogType;
+import org.dreamexposure.tap.core.enums.file.MimeType;
 import org.dreamexposure.tap.core.objects.account.Account;
 import org.dreamexposure.tap.core.objects.blog.GroupBlog;
 import org.dreamexposure.tap.core.objects.blog.IBlog;
 import org.dreamexposure.tap.core.objects.blog.PersonalBlog;
+import org.dreamexposure.tap.core.objects.file.UploadedFile;
 import org.dreamexposure.tap.core.utils.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -85,8 +89,8 @@ public class BlogEndpoint {
                     blog.setAllowUnder18(true);
                     
                     //set default images and colors
-                    blog.setIconUrl("https://cdn.startapped.com/img/default/profile.jpg");
-                    blog.setBackgroundUrl("https://cdn.startapped.com/img/default/background.jpg");
+                    blog.setIconUrl(GlobalVars.cdnUrl + "/img/default/profile.jpg");
+                    blog.setBackgroundUrl(GlobalVars.cdnUrl + "/img/default/background.jpg");
                     blog.setBackgroundColor("#ffffff");
                     
                     DatabaseHandler.getHandler().createOrUpdateBlog(blog);
@@ -136,8 +140,8 @@ public class BlogEndpoint {
                     blog.setAllowUnder18(true);
                     
                     //set default images and colors
-                    blog.setIconUrl("https://cdn.startapped.com/img/default/profile.jpg");
-                    blog.setBackgroundUrl("https://cdn.startapped.com/img/default/background.jpg");
+                    blog.setIconUrl(GlobalVars.cdnUrl + "/img/default/profile.jpg");
+                    blog.setBackgroundUrl(GlobalVars.cdnUrl + "/img/default/background.jpg");
                     blog.setBackgroundColor("#ffffff");
                     
                     DatabaseHandler.getHandler().createOrUpdateBlog(blog);
@@ -327,7 +331,17 @@ public class BlogEndpoint {
                             blog.setAllowUnder18(body.getBoolean("allow_under_18"));
                         if (body.has("background_color"))
                             blog.setBackgroundColor(body.getString("background_color"));
-                        //TODO: Support changing icon URL and background URL.
+                        if (body.has("icon_image")) {
+                            UploadedFile file = FileUploadHandler.handleBase64Upload(body.getJSONObject("icon_image"), request, account.getAccountId(), MimeType.IMAGE);
+                            if (file != null)
+                                blog.setIconUrl(file.getUrl());
+                        }
+                        if (body.has("background_image")) {
+                            UploadedFile file = FileUploadHandler.handleBase64Upload(body.getJSONObject("background_image"), request, account.getAccountId(), MimeType.IMAGE);
+                            if (file != null) {
+                                blog.setBackgroundUrl(file.getUrl());
+                            }
+                        }
                         
                         DatabaseHandler.getHandler().createOrUpdateBlog(blog);
                         
@@ -392,7 +406,7 @@ public class BlogEndpoint {
             response.setStatus(400);
             return ResponseUtils.getJsonResponseMessage("Bad Request");
         } catch (Exception e) {
-            Logger.getLogger().exception("Failed to handle blog creation", e, BlogEndpoint.class);
+            Logger.getLogger().exception("Failed to handle blog update", e, BlogEndpoint.class);
             
             response.setContentType("application/json");
             response.setStatus(500);

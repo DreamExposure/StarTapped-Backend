@@ -538,8 +538,36 @@ public class DatabaseHandler {
     }
     
     public void updateAuth(AccountAuthentication auth) {
-        removeAuthByRefreshToken(auth.getRefreshToken());
-        saveAuth(auth);
+        try {
+            if (databaseInfo.getMySQL().checkConnection()) {
+                String tableName = String.format("%sauth", databaseInfo.getSettings().getPrefix());
+                String query = "SELECT * FROM " + tableName + " WHERE refresh_token = ?";
+                PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
+                statement.setString(1, auth.getRefreshToken());
+            
+                ResultSet res = statement.executeQuery();
+            
+                boolean hasStuff = res.next();
+            
+                if (hasStuff && res.getString("refresh_token") != null) {
+                    //Has stuff, lets update
+                    String update = "UPDATE " + tableName
+                            + " SET access_token = ?, expire = ? WHERE refresh_token = ?";
+                    PreparedStatement ps = databaseInfo.getConnection().prepareStatement(update);
+                
+                    ps.setString(1, auth.getAccessToken());
+                    ps.setLong(2, auth.getExpire());
+                    ps.setString(3, auth.getRefreshToken());
+                
+                    ps.executeUpdate();
+                
+                    ps.close();
+                    statement.close();
+                }
+            }
+        } catch (SQLException e) {
+            Logger.getLogger().exception("Failed to update auth data", e, this.getClass());
+        }
     }
     
     public AccountAuthentication getAuthFromAccessToken(String accessToken) {
