@@ -52,11 +52,21 @@ public class FileUploadHandler {
         try {
             //Save file to tmp
             OutputStream outputStream = new FileOutputStream(SiteSettings.TMP_FOLDER.get() + "/" + hash + ".tmp");
+    
             outputStream.write(bytes);
             outputStream.flush();
             outputStream.close();
             
             File tmpFile = new File(SiteSettings.TMP_FOLDER.get() + "/" + hash + ".tmp");
+    
+            //Validate file size (CloudFlare limits max upload to 100Mb, so we don't have to worry about it exceeding that on write.
+            long fileSizeInMb = tmpFile.length() / (1024 * 1024);
+            if (fileSizeInMb > 10) {
+                //File too big... delete
+                tmpFile.delete();
+        
+                return null;
+            }
             
             //Validate content type...
             InputStream is = new BufferedInputStream(new FileInputStream(tmpFile));
