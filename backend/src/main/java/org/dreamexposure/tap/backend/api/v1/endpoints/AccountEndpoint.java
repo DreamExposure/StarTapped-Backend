@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.UUID;
 
 /**
  * @author NovaFox161
@@ -210,21 +211,65 @@ public class AccountEndpoint {
             response.setContentType("application/json");
             return authState.toJson();
         }
-        
+
         try {
             Account account = DatabaseHandler.getHandler().getAccountFromId(authState.getId());
-            
+
             response.setContentType("application/json");
             response.setStatus(200);
-            
+
             JSONObject responseBody = new JSONObject();
             responseBody.put("message", "Success");
             responseBody.put("account", account.toJson());
-            
+
             return responseBody.toString();
         } catch (Exception e) {
             Logger.getLogger().exception("Failed to handle account data get", e, BlogEndpoint.class);
-            
+
+            response.setContentType("application/json");
+            response.setStatus(500);
+            return ResponseUtils.getJsonResponseMessage("Internal Server Error");
+        }
+    }
+
+    @PostMapping(value = "/get/other", produces = "application/json")
+    public static String get(HttpServletRequest request, HttpServletResponse response, @RequestBody String requestBody) {
+        //Authenticate...
+        AuthenticationState authState = Authentication.authenticate(request);
+        if (!authState.isSuccess()) {
+            response.setStatus(authState.getStatus());
+            response.setContentType("application/json");
+            return authState.toJson();
+        }
+
+        try {
+            JSONObject body = new JSONObject(requestBody);
+
+            UUID id = UUID.fromString(body.getString("id"));
+
+            Account account = DatabaseHandler.getHandler().getAccountFromId(id);
+
+            if (account != null) {
+                response.setContentType("application/json");
+                response.setStatus(200);
+
+                JSONObject responseBody = new JSONObject();
+                responseBody.put("message", "Success");
+                responseBody.put("account", account.toJsonNoPersonal());
+
+                return responseBody.toString();
+            } else {
+                response.setContentType("application/json");
+                response.setStatus(404);
+
+                JSONObject responseBody = new JSONObject();
+                responseBody.put("message", "Account not found");
+
+                return responseBody.toString();
+            }
+        } catch (Exception e) {
+            Logger.getLogger().exception("Failed to handle account data get", e, BlogEndpoint.class);
+
             response.setContentType("application/json");
             response.setStatus(500);
             return ResponseUtils.getJsonResponseMessage("Internal Server Error");

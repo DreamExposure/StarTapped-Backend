@@ -125,6 +125,18 @@ public class Account {
         
         return json;
     }
+
+    public JSONObject toJsonNoPersonal() {
+        JSONObject json = new JSONObject();
+        json.put("id", accountId.toString());
+        json.put("username", username);
+        json.put("birthday", birthday);
+        json.put("safe_search", safeSearch);
+        json.put("verified", verified);
+        json.put("admin", admin);
+
+        return json;
+    }
     
     public Account fromJson(JSONObject json) {
         accountId = UUID.fromString(json.getString("id"));
