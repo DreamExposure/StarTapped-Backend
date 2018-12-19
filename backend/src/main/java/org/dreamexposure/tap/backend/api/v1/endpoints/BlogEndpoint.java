@@ -5,9 +5,7 @@ import org.dreamexposure.tap.backend.network.auth.Authentication;
 import org.dreamexposure.tap.backend.network.cloudflare.CloudFlareIntegrator;
 import org.dreamexposure.tap.backend.network.database.DatabaseHandler;
 import org.dreamexposure.tap.backend.objects.auth.AuthenticationState;
-import org.dreamexposure.tap.backend.utils.FileHandler;
-import org.dreamexposure.tap.backend.utils.FileUploadHandler;
-import org.dreamexposure.tap.backend.utils.ResponseUtils;
+import org.dreamexposure.tap.backend.utils.*;
 import org.dreamexposure.tap.core.enums.blog.BlogType;
 import org.dreamexposure.tap.core.enums.file.MimeType;
 import org.dreamexposure.tap.core.objects.account.Account;
@@ -59,10 +57,17 @@ public class BlogEndpoint {
         try {
             JSONObject body = new JSONObject(requestBody);
             //Lets get all those variables
-            String url = body.getString("url");
+            String url = Sanitizer.sanitizeBlogUrl(body.getString("url"));
             BlogType type = BlogType.valueOf(body.getString("type"));
             String name = account.getUsername() + "'s blog";
             String description = "Lorem Ipsum";
+
+            //Valid URL?
+            if (!Validator.validBlogUrlLength(url)) {
+                response.setContentType("application/json");
+                response.setStatus(400);
+                return ResponseUtils.getJsonResponseMessage("Invalid Blog URL");
+            }
             
             //Check if URL is taken...
             if (DatabaseHandler.getHandler().blogUrlTaken(url)) {
@@ -180,7 +185,7 @@ public class BlogEndpoint {
                     }
                 }
             }
-        } catch (JSONException e) {
+        } catch (JSONException | IllegalArgumentException e) {
             e.printStackTrace();
             
             response.setContentType("application/json");
@@ -210,7 +215,7 @@ public class BlogEndpoint {
             JSONObject body = new JSONObject(requestBody);
             if (body.has("url")) {
                 //Get by URL
-                String url = body.getString("url");
+                String url = Sanitizer.sanitizeBlogUrl(body.getString("url"));
                 
                 IBlog blog = DatabaseHandler.getHandler().getBlog(url);
                 
@@ -281,7 +286,7 @@ public class BlogEndpoint {
                 response.setStatus(400);
                 return ResponseUtils.getJsonResponseMessage("Bad Request");
             }
-        } catch (JSONException e) {
+        } catch (JSONException | IllegalArgumentException e) {
             e.printStackTrace();
             
             response.setContentType("application/json");
@@ -320,17 +325,20 @@ public class BlogEndpoint {
                     if (blog.getOwnerId().equals(account.getAccountId()) || account.isAdmin()) {
                         //TODO: Support changing URL
                         if (body.has("name"))
-                            blog.setName(body.getString("name"));
+                            blog.setName(Sanitizer.sanitizeUserInput(body.getString("name")));
                         if (body.has("description"))
-                            blog.setDescription(body.getString("description"));
+                            blog.setDescription(Sanitizer.sanitizeUserInput(body.getString("description")));
                         if (body.has("display_age"))
                             blog.setDisplayAge(body.getBoolean("display_age"));
                         if (body.has("nsfw"))
                             blog.setNsfw(body.getBoolean("nsfw"));
                         if (body.has("allow_under_18"))
                             blog.setAllowUnder18(body.getBoolean("allow_under_18"));
-                        if (body.has("background_color"))
-                            blog.setBackgroundColor(body.getString("background_color"));
+                        if (body.has("background_color")) {
+                            //Validate color -- Fail silently and let the rest of the edit go through.
+                            if (Validator.validColorCode(body.getString("background_color")))
+                                blog.setBackgroundColor(body.getString("background_color"));
+                        }
                         if (body.has("icon_image")) {
                             UploadedFile file = FileUploadHandler.handleBase64Upload(body.getJSONObject("icon_image"), request, account.getAccountId(), MimeType.IMAGE);
                             if (file != null)
@@ -365,16 +373,29 @@ public class BlogEndpoint {
                     if (blog.getOwners().contains(account.getAccountId()) || account.isAdmin()) {
                         //TODO: Support changing URL
                         if (body.has("name"))
-                            blog.setName(body.getString("name"));
+                            blog.setName(Sanitizer.sanitizeUserInput(body.getString("name")));
                         if (body.has("description"))
-                            blog.setDescription(body.getString("description"));
+                            blog.setDescription(Sanitizer.sanitizeUserInput(body.getString("description")));
                         if (body.has("nsfw"))
                             blog.setNsfw(body.getBoolean("nsfw"));
                         if (body.has("allow_under_18"))
                             blog.setAllowUnder18(body.getBoolean("allow_under_18"));
-                        if (body.has("background_color"))
-                            blog.setBackgroundColor(body.getString("background_color"));
-                        //TODO: Support changing icon URL and background URL.
+                        if (body.has("background_color")) {
+                            //Validate color -- Fail silently and let the rest of the edit go through.
+                            if (Validator.validColorCode(body.getString("background_color")))
+                                blog.setBackgroundColor(body.getString("background_color"));
+                        }
+                        if (body.has("icon_image")) {
+                            UploadedFile file = FileUploadHandler.handleBase64Upload(body.getJSONObject("icon_image"), request, account.getAccountId(), MimeType.IMAGE);
+                            if (file != null)
+                                blog.setIconUrl(file.getUrl());
+                        }
+                        if (body.has("background_image")) {
+                            UploadedFile file = FileUploadHandler.handleBase64Upload(body.getJSONObject("background_image"), request, account.getAccountId(), MimeType.IMAGE);
+                            if (file != null) {
+                                blog.setBackgroundUrl(file.getUrl());
+                            }
+                        }
                         
                         DatabaseHandler.getHandler().createOrUpdateBlog(blog);
                         
@@ -399,7 +420,7 @@ public class BlogEndpoint {
                 response.setStatus(404);
                 return ResponseUtils.getJsonResponseMessage("Blog not Found");
             }
-        } catch (JSONException e) {
+        } catch (JSONException | IllegalArgumentException e) {
             e.printStackTrace();
             
             response.setContentType("application/json");

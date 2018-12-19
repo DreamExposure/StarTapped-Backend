@@ -4,6 +4,8 @@ import org.apache.commons.validator.routines.EmailValidator;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author NovaFox161
@@ -32,5 +34,15 @@ public class Validator {
         } catch (Exception ignore) {
         }
         return false;
+    }
+
+    public static boolean validBlogUrlLength(String input) {
+        return input.length() >= 3 && input.length() <= 60;
+    }
+
+    public static boolean validColorCode(String input) {
+        Pattern colorPattern = Pattern.compile("#([0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})");
+        Matcher m = colorPattern.matcher(input);
+        return m.matches();
     }
 }
