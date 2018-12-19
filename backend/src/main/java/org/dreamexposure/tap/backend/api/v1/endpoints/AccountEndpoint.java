@@ -232,7 +232,7 @@ public class AccountEndpoint {
     }
     
     @PostMapping(value = "/update", produces = "application/json")
-    public static String create(HttpServletRequest request, HttpServletResponse response, @RequestBody String requestBody) {
+    public static String update(HttpServletRequest request, HttpServletResponse response, @RequestBody String requestBody) {
         //Authenticate...
         AuthenticationState authState = Authentication.authenticate(request);
         if (!authState.isSuccess()) {
