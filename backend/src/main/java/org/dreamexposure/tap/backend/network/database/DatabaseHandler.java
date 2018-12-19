@@ -121,6 +121,7 @@ public class DatabaseHandler {
                     " background_url LONGTEXT not NULL, " +
                     " allow_under_18 BOOLEAN not NULL, " +
                     " nsfw BOOLEAN not NULL, " +
+                    " show_age BOOLEAN NULL, " +
                     " owners LONGTEXT NULL, " +
                     " owner VARCHAR(255) null, " +
                     " PRIMARY KEY (id))";
@@ -724,10 +725,10 @@ public class DatabaseHandler {
                     String insertCommand = "INSERT INTO " + tableName +
                             "(id, base_url, complete_url, blog_type, name, description, " +
                             " icon_url, background_color, background_url, " +
-                            " allow_under_18, nsfw, owners, owner)" +
-                            " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+                            " allow_under_18, nsfw, show_age, owners, owner)" +
+                            " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
                     PreparedStatement ps = databaseInfo.getConnection().prepareStatement(insertCommand);
-                    
+
                     ps.setString(1, blog.getBlogId().toString());
                     ps.setString(2, blog.getBaseUrl());
                     ps.setString(3, blog.getCompleteUrl());
@@ -739,14 +740,15 @@ public class DatabaseHandler {
                     ps.setString(9, blog.getBackgroundUrl());
                     ps.setBoolean(10, blog.isAllowUnder18());
                     ps.setBoolean(11, blog.isNsfw());
-                    if (blog instanceof GroupBlog)
-                        ps.setString(12, ((GroupBlog) blog).getOwners().toString());
-                    else
-                        ps.setString(12, null);
-                    if (blog instanceof PersonalBlog)
-                        ps.setString(13, ((PersonalBlog) blog).getOwnerId().toString());
-                    else
+                    if (blog instanceof GroupBlog) {
+                        ps.setBoolean(12, false);
+                        ps.setString(13, ((GroupBlog) blog).getOwners().toString());
+                        ps.setString(14, null);
+                    } else {
+                        ps.setBoolean(12, ((PersonalBlog) blog).isDisplayAge());
                         ps.setString(13, null);
+                        ps.setString(14, ((PersonalBlog) blog).getOwnerId().toString());
+                    }
                     
                     ps.executeUpdate();
                     ps.close();
@@ -757,7 +759,7 @@ public class DatabaseHandler {
                     String update = "UPDATE " + tableName +
                             " SET base_url = ?, complete_url = ?, blog_type = ?, name = ?, description = ?, " +
                             "icon_url = ?, background_color = ?, background_url = ?, " +
-                            " allow_under_18 = ?, nsfw = ?, owners = ?, owner = ? " +
+                            " allow_under_18 = ?, nsfw = ?, show_age = ?, owners = ?, owner = ? " +
                             " WHERE id = ?";
                     PreparedStatement ps = databaseInfo.getConnection().prepareStatement(update);
                     
@@ -771,15 +773,16 @@ public class DatabaseHandler {
                     ps.setString(8, blog.getBackgroundUrl());
                     ps.setBoolean(9, blog.isAllowUnder18());
                     ps.setBoolean(10, blog.isNsfw());
-                    if (blog instanceof GroupBlog)
-                        ps.setString(11, ((GroupBlog) blog).getOwners().toString());
-                    else
-                        ps.setString(11, null);
-                    if (blog instanceof PersonalBlog)
-                        ps.setString(12, ((PersonalBlog) blog).getOwnerId().toString());
-                    else
+                    if (blog instanceof GroupBlog) {
+                        ps.setBoolean(11, false);
+                        ps.setString(12, ((GroupBlog) blog).getOwners().toString());
+                        ps.setString(13, null);
+                    } else {
+                        ps.setBoolean(11, ((PersonalBlog) blog).isDisplayAge());
                         ps.setString(12, null);
-                    ps.setString(13, blog.getBlogId().toString());
+                        ps.setString(13, ((PersonalBlog) blog).getOwnerId().toString());
+                    }
+                    ps.setString(14, blog.getBlogId().toString());
                     
                     ps.executeUpdate();
                     ps.close();
@@ -846,6 +849,7 @@ public class DatabaseHandler {
                         blog.setNsfw(res.getBoolean("nsfw"));
                         
                         blog.setOwnerId(UUID.fromString(res.getString("owner")));
+                        blog.setDisplayAge(res.getBoolean("show_age"));
                         
                         statement.close();
                         return blog;
@@ -911,6 +915,7 @@ public class DatabaseHandler {
                         blog.setNsfw(res.getBoolean("nsfw"));
                         
                         blog.setOwnerId(UUID.fromString(res.getString("owner")));
+                        blog.setDisplayAge(res.getBoolean("show_age"));
                         
                         statement.close();
                         return blog;
@@ -998,6 +1003,7 @@ public class DatabaseHandler {
                     blog.setNsfw(res.getBoolean("nsfw"));
                     
                     blog.setOwnerId(UUID.fromString(res.getString("owner")));
+                    blog.setDisplayAge(res.getBoolean("show_age"));
                     
                     statement.close();
                     return blog;
@@ -1060,6 +1066,7 @@ public class DatabaseHandler {
                         blog.setNsfw(res.getBoolean("nsfw"));
                         
                         blog.setOwnerId(UUID.fromString(res.getString("owner")));
+                        blog.setDisplayAge(res.getBoolean("show_age"));
                         
                         blogs.add(blog);
                     }
