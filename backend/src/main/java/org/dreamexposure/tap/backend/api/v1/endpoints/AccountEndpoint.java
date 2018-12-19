@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.UUID;
 
 /**
  * @author NovaFox161
@@ -42,7 +43,7 @@ public class AccountEndpoint {
         
         JSONObject body = new JSONObject(requestBody);
         if (body.has("username") && body.has("email") && body.has("password") && body.has("gcap") && body.has("birthday")) {
-            if (new ReCaptcha(SiteSettings.RECAP_KEY.get()).isValid(body.getString("gcap"))) {
+            if (new ReCaptcha(SiteSettings.RECAP_KEY_SITE.get()).isValid(body.getString("gcap")) || new ReCaptcha(SiteSettings.RECAP_KEY_ANDROID.get()).isValid(body.getString("gcap"))) {
                 String username = body.getString("username");
                 String email = body.getString("email");
                 String birthday = body.getString("birthday");
@@ -110,7 +111,7 @@ public class AccountEndpoint {
         
         JSONObject body = new JSONObject(requestBody);
         if (body.has("email") && body.has("password") && body.has("gcap")) {
-            if (new ReCaptcha(SiteSettings.RECAP_KEY.get()).isValid(body.getString("gcap"))) {
+            if (new ReCaptcha(SiteSettings.RECAP_KEY_SITE.get()).isValid(body.getString("gcap")) || new ReCaptcha(SiteSettings.RECAP_KEY_ANDROID.get()).isValid(body.getString("gcap"))) {
                 String email = body.getString("email");
                 if (DatabaseHandler.getHandler().validLogin(email, body.getString("password"))) {
                     
@@ -210,21 +211,65 @@ public class AccountEndpoint {
             response.setContentType("application/json");
             return authState.toJson();
         }
-        
+
         try {
             Account account = DatabaseHandler.getHandler().getAccountFromId(authState.getId());
-            
+
             response.setContentType("application/json");
             response.setStatus(200);
-            
+
             JSONObject responseBody = new JSONObject();
             responseBody.put("message", "Success");
             responseBody.put("account", account.toJson());
-            
+
             return responseBody.toString();
         } catch (Exception e) {
             Logger.getLogger().exception("Failed to handle account data get", e, BlogEndpoint.class);
-            
+
+            response.setContentType("application/json");
+            response.setStatus(500);
+            return ResponseUtils.getJsonResponseMessage("Internal Server Error");
+        }
+    }
+
+    @PostMapping(value = "/get/other", produces = "application/json")
+    public static String get(HttpServletRequest request, HttpServletResponse response, @RequestBody String requestBody) {
+        //Authenticate...
+        AuthenticationState authState = Authentication.authenticate(request);
+        if (!authState.isSuccess()) {
+            response.setStatus(authState.getStatus());
+            response.setContentType("application/json");
+            return authState.toJson();
+        }
+
+        try {
+            JSONObject body = new JSONObject(requestBody);
+
+            UUID id = UUID.fromString(body.getString("id"));
+
+            Account account = DatabaseHandler.getHandler().getAccountFromId(id);
+
+            if (account != null) {
+                response.setContentType("application/json");
+                response.setStatus(200);
+
+                JSONObject responseBody = new JSONObject();
+                responseBody.put("message", "Success");
+                responseBody.put("account", account.toJsonNoPersonal());
+
+                return responseBody.toString();
+            } else {
+                response.setContentType("application/json");
+                response.setStatus(404);
+
+                JSONObject responseBody = new JSONObject();
+                responseBody.put("message", "Account not found");
+
+                return responseBody.toString();
+            }
+        } catch (Exception e) {
+            Logger.getLogger().exception("Failed to handle account data get", e, BlogEndpoint.class);
+
             response.setContentType("application/json");
             response.setStatus(500);
             return ResponseUtils.getJsonResponseMessage("Internal Server Error");
@@ -246,7 +291,7 @@ public class AccountEndpoint {
             
             Account account = DatabaseHandler.getHandler().getAccountFromId(authState.getId());
             if (body.has("email")) {
-                if (new ReCaptcha(SiteSettings.RECAP_KEY.get()).isValid(body.getString("gcap"))) {
+                if (new ReCaptcha(SiteSettings.RECAP_KEY_SITE.get()).isValid(body.getString("gcap")) || new ReCaptcha(SiteSettings.RECAP_KEY_ANDROID.get()).isValid(body.getString("gcap"))) {
                     if (DatabaseHandler.getHandler().validLogin(account.getEmail(), body.getString("password"))) {
                         if (!DatabaseHandler.getHandler().emailTaken(body.getString("email"))) {
                             account.setEmail(body.getString("email"));
@@ -294,7 +339,7 @@ public class AccountEndpoint {
                     return responseBody.toString();
                 }
             } else if (body.has("password")) {
-                if (new ReCaptcha(SiteSettings.RECAP_KEY.get()).isValid(body.getString("gcap"))) {
+                if (new ReCaptcha(SiteSettings.RECAP_KEY_SITE.get()).isValid(body.getString("gcap")) || new ReCaptcha(SiteSettings.RECAP_KEY_ANDROID.get()).isValid(body.getString("gcap"))) {
                     if (DatabaseHandler.getHandler().validLogin(account.getEmail(), body.getString("old_password"))) {
                         //Update password...
                         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
