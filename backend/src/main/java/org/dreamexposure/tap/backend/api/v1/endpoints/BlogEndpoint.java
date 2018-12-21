@@ -3,7 +3,8 @@ package org.dreamexposure.tap.backend.api.v1.endpoints;
 import org.dreamexposure.tap.backend.conf.GlobalVars;
 import org.dreamexposure.tap.backend.network.auth.Authentication;
 import org.dreamexposure.tap.backend.network.cloudflare.CloudFlareIntegrator;
-import org.dreamexposure.tap.backend.network.database.DatabaseHandler;
+import org.dreamexposure.tap.backend.network.database.AccountDataHandler;
+import org.dreamexposure.tap.backend.network.database.BlogDataHandler;
 import org.dreamexposure.tap.backend.objects.auth.AuthenticationState;
 import org.dreamexposure.tap.backend.utils.*;
 import org.dreamexposure.tap.core.enums.blog.BlogType;
@@ -52,7 +53,7 @@ public class BlogEndpoint {
         //TODO: Handle reCAPTCHA to stop bots....
         
         //Okay, now handle actual request.
-        Account account = DatabaseHandler.getHandler().getAccountFromId(authState.getId());
+        Account account = AccountDataHandler.get().getAccountFromId(authState.getId());
         
         try {
             JSONObject body = new JSONObject(requestBody);
@@ -70,7 +71,7 @@ public class BlogEndpoint {
             }
             
             //Check if URL is taken...
-            if (DatabaseHandler.getHandler().blogUrlTaken(url)) {
+            if (BlogDataHandler.get().blogUrlTaken(url)) {
                 response.setContentType("application/json");
                 response.setStatus(409);
                 
@@ -97,8 +98,8 @@ public class BlogEndpoint {
                     blog.setIconUrl(GlobalVars.cdnUrl + "/img/default/profile.jpg");
                     blog.setBackgroundUrl(GlobalVars.cdnUrl + "/img/default/background.jpg");
                     blog.setBackgroundColor("#ffffff");
-                    
-                    DatabaseHandler.getHandler().createOrUpdateBlog(blog);
+
+                    BlogDataHandler.get().createOrUpdateBlog(blog);
     
                     //Lets get that CNAME record created...
                     if (CloudFlareIntegrator.get().createCNAMEForBlog(blog)) {
@@ -148,8 +149,8 @@ public class BlogEndpoint {
                     blog.setIconUrl(GlobalVars.cdnUrl + "/img/default/profile.jpg");
                     blog.setBackgroundUrl(GlobalVars.cdnUrl + "/img/default/background.jpg");
                     blog.setBackgroundColor("#ffffff");
-                    
-                    DatabaseHandler.getHandler().createOrUpdateBlog(blog);
+
+                    BlogDataHandler.get().createOrUpdateBlog(blog);
     
                     //Lets get that CNAME record created...
                     if (CloudFlareIntegrator.get().createCNAMEForBlog(blog)) {
@@ -216,8 +217,8 @@ public class BlogEndpoint {
             if (body.has("url")) {
                 //Get by URL
                 String url = Sanitizer.sanitizeBlogUrl(body.getString("url"));
-                
-                IBlog blog = DatabaseHandler.getHandler().getBlog(url);
+
+                IBlog blog = BlogDataHandler.get().getBlog(url);
                 
                 if (blog != null) {
                     response.setContentType("application/json");
@@ -240,7 +241,7 @@ public class BlogEndpoint {
             } else if (body.has("id")) {
                 //Get by blog ID
                 UUID id = UUID.fromString(body.getString("id"));
-                IBlog blog = DatabaseHandler.getHandler().getBlog(id);
+                IBlog blog = BlogDataHandler.get().getBlog(id);
     
                 if (blog != null) {
                     response.setContentType("application/json");
@@ -261,7 +262,7 @@ public class BlogEndpoint {
                     return ResponseUtils.getJsonResponseMessage("Blog not Found");
                 }
             } else if (body.has("all")) {
-                List<IBlog> blogs = DatabaseHandler.getHandler().getBlogs(authState.getId());
+                List<IBlog> blogs = BlogDataHandler.get().getBlogs(authState.getId());
     
                 JSONArray jBlogs = new JSONArray();
                 for (IBlog b : blogs) {
@@ -312,13 +313,13 @@ public class BlogEndpoint {
         }
         
         //Okay, now handle actual request.
-        Account account = DatabaseHandler.getHandler().getAccountFromId(authState.getId());
+        Account account = AccountDataHandler.get().getAccountFromId(authState.getId());
         
         try {
             JSONObject body = new JSONObject(requestBody);
             UUID blogId = UUID.fromString(body.getString("id"));
-            
-            IBlog blogRaw = DatabaseHandler.getHandler().getBlog(blogId);
+
+            IBlog blogRaw = BlogDataHandler.get().getBlog(blogId);
             if (blogRaw != null) {
                 if (blogRaw.getType() == BlogType.PERSONAL) {
                     PersonalBlog blog = (PersonalBlog) blogRaw;
@@ -350,8 +351,8 @@ public class BlogEndpoint {
                                 blog.setBackgroundUrl(file.getUrl());
                             }
                         }
-                        
-                        DatabaseHandler.getHandler().createOrUpdateBlog(blog);
+
+                        BlogDataHandler.get().createOrUpdateBlog(blog);
                         
                         //Respond to client
                         response.setContentType("application/json");
@@ -396,8 +397,8 @@ public class BlogEndpoint {
                                 blog.setBackgroundUrl(file.getUrl());
                             }
                         }
-                        
-                        DatabaseHandler.getHandler().createOrUpdateBlog(blog);
+
+                        BlogDataHandler.get().createOrUpdateBlog(blog);
                         
                         //Respond to client
                         response.setContentType("application/json");

@@ -1,7 +1,8 @@
 package org.dreamexposure.tap.backend.api.v1.endpoints;
 
 import org.dreamexposure.tap.backend.conf.GlobalVars;
-import org.dreamexposure.tap.backend.network.database.DatabaseHandler;
+import org.dreamexposure.tap.backend.network.database.AccountDataHandler;
+import org.dreamexposure.tap.backend.network.database.ConfirmationDataHandler;
 import org.dreamexposure.tap.core.objects.account.Account;
 import org.dreamexposure.tap.core.objects.confirmation.EmailConfirmation;
 import org.dreamexposure.tap.core.utils.Logger;
@@ -29,13 +30,13 @@ public class ConfirmEndpoint {
     public static String confirmEmail(HttpServletRequest request, HttpServletResponse response, @RequestParam Map<String, String> queryParams) {
         if (queryParams.containsKey("code")) {
             String code = queryParams.get("code");
-            EmailConfirmation con = DatabaseHandler.getHandler().getConfirmationInfo(code);
+            EmailConfirmation con = ConfirmationDataHandler.get().getConfirmationInfo(code);
             if (con != null) {
-                Account account = DatabaseHandler.getHandler().getAccountFromId(con.getUserId());
+                Account account = AccountDataHandler.get().getAccountFromId(con.getUserId());
                 account.setEmailConfirmed(true);
-                
-                DatabaseHandler.getHandler().removeConfirmationInfo(con.getCode());
-                DatabaseHandler.getHandler().updateAccount(account);
+
+                ConfirmationDataHandler.get().removeConfirmationInfo(con.getCode());
+                AccountDataHandler.get().updateAccount(account);
                 
                 Logger.getLogger().api("Confirmed user email: " + account.getAccountId().toString(), request.getRemoteAddr());
                 

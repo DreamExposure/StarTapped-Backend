@@ -2,7 +2,7 @@ package org.dreamexposure.tap.backend.api.v1.endpoints;
 
 import org.dreamexposure.novautils.crypto.KeyGenerator;
 import org.dreamexposure.tap.backend.conf.GlobalVars;
-import org.dreamexposure.tap.backend.network.database.DatabaseHandler;
+import org.dreamexposure.tap.backend.network.database.AuthorizationDataHandler;
 import org.dreamexposure.tap.backend.utils.ResponseUtils;
 import org.dreamexposure.tap.core.objects.auth.AccountAuthentication;
 import org.json.JSONObject;
@@ -31,8 +31,8 @@ public class Auth {
         if (request.getHeader("Authorization_Refresh") != null && request.getHeader("Authorization_Access") != null) {
             //Lets validate and return...
             String refresh = request.getHeader("Authorization_Refresh");
-            
-            AccountAuthentication auth = DatabaseHandler.getHandler().getAuthFromRefreshToken(refresh);
+
+            AccountAuthentication auth = AuthorizationDataHandler.get().getAuthFromRefreshToken(refresh);
             
             if (auth != null) {
                 if (auth.getExpire() >= System.currentTimeMillis()) {
@@ -44,7 +44,7 @@ public class Auth {
                 } else {
                     auth.setAccessToken(KeyGenerator.csRandomAlphaNumericString(32));
                     auth.setExpire(System.currentTimeMillis() + GlobalVars.oneDayMs);
-                    DatabaseHandler.getHandler().updateAuth(auth);
+                    AuthorizationDataHandler.get().updateAuth(auth);
                     
                     response.setStatus(200);
                     response.setContentType("application/json");

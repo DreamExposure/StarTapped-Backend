@@ -2,7 +2,7 @@ package org.dreamexposure.tap.backend.utils;
 
 import org.dreamexposure.novautils.crypto.KeyGenerator;
 import org.dreamexposure.tap.backend.conf.GlobalVars;
-import org.dreamexposure.tap.backend.network.database.DatabaseHandler;
+import org.dreamexposure.tap.backend.network.database.ConfirmationDataHandler;
 import org.dreamexposure.tap.core.objects.account.Account;
 
 /**
@@ -18,7 +18,7 @@ public class Generator {
         String code = KeyGenerator.csRandomAlphaNumericString(32);
         
         //Save to database
-        DatabaseHandler.getHandler().addPendingConfirmation(account, code);
+        ConfirmationDataHandler.get().addPendingConfirmation(account, code);
     
         return GlobalVars.apiUrl + "/confirm/email?code=" + code;
     }

@@ -5,7 +5,8 @@ import org.dreamexposure.novautils.crypto.KeyGenerator;
 import org.dreamexposure.tap.backend.conf.GlobalVars;
 import org.dreamexposure.tap.backend.conf.SiteSettings;
 import org.dreamexposure.tap.backend.network.auth.Authentication;
-import org.dreamexposure.tap.backend.network.database.DatabaseHandler;
+import org.dreamexposure.tap.backend.network.database.AccountDataHandler;
+import org.dreamexposure.tap.backend.network.database.AuthorizationDataHandler;
 import org.dreamexposure.tap.backend.network.email.EmailHandler;
 import org.dreamexposure.tap.backend.objects.auth.AuthenticationState;
 import org.dreamexposure.tap.backend.utils.Generator;
@@ -50,7 +51,7 @@ public class AccountEndpoint {
                 String username = Sanitizer.sanitizeUserInput(body.getString("username"));
                 String email = body.getString("email");
                 String birthday = body.getString("birthday");
-                if (!DatabaseHandler.getHandler().usernameOrEmailTaken(username, email)) {
+                if (!AccountDataHandler.get().usernameOrEmailTaken(username, email)) {
                     if (username.length() < 4 || username.length() > 64) {
                         response.setContentType("application/json");
                         response.setStatus(400);
@@ -81,9 +82,9 @@ public class AccountEndpoint {
                     //Generate hash and create account in the database.
                     BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
                     String hash = encoder.encode(body.getString("password"));
-                    
-                    DatabaseHandler.getHandler().createAccount(username, email, hash, birthday);
-                    Account account = DatabaseHandler.getHandler().getAccountFromEmail(email);
+
+                    AccountDataHandler.get().createAccount(username, email, hash, birthday);
+                    Account account = AccountDataHandler.get().getAccountFromEmail(email);
                     
                     //Send confirmation email!!!
                     EmailHandler.getHandler().sendEmailConfirm(email, Generator.generateEmailConfirmationLink(account));
@@ -94,7 +95,7 @@ public class AccountEndpoint {
                     auth.setAccessToken(KeyGenerator.csRandomAlphaNumericString(32));
                     auth.setRefreshToken(KeyGenerator.csRandomAlphaNumericString(32));
                     auth.setExpire(System.currentTimeMillis() + GlobalVars.oneDayMs); //Auth token good for 24 hours, unless manually revoked.
-                    DatabaseHandler.getHandler().saveAuth(auth);
+                    AuthorizationDataHandler.get().saveAuth(auth);
                     
                     Logger.getLogger().api("User registered account: " + account.getUsername(), request.getRemoteAddr());
                     
@@ -143,17 +144,17 @@ public class AccountEndpoint {
         if (body.has("email") && body.has("password") && body.has("gcap")) {
             if (new ReCaptcha(SiteSettings.RECAP_KEY_SITE.get()).isValid(body.getString("gcap")) || new ReCaptcha(SiteSettings.RECAP_KEY_ANDROID.get()).isValid(body.getString("gcap"))) {
                 String email = body.getString("email");
-                if (DatabaseHandler.getHandler().validLogin(email, body.getString("password"))) {
-                    
-                    Account account = DatabaseHandler.getHandler().getAccountFromEmail(email);
-                    
+                if (AccountDataHandler.get().validLogin(email, body.getString("password"))) {
+
+                    Account account = AccountDataHandler.get().getAccountFromEmail(email);
+
                     //Generate tokens...
                     AccountAuthentication auth = new AccountAuthentication();
                     auth.setAccountId(account.getAccountId());
                     auth.setAccessToken(KeyGenerator.csRandomAlphaNumericString(32));
                     auth.setRefreshToken(KeyGenerator.csRandomAlphaNumericString(32));
                     auth.setExpire(System.currentTimeMillis() + GlobalVars.oneDayMs); //Auth token good for 24 hours, unless manually revoked.
-                    DatabaseHandler.getHandler().saveAuth(auth);
+                    AuthorizationDataHandler.get().saveAuth(auth);
                     
                     Logger.getLogger().api("User logged into account: " + account.getUsername(), request.getRemoteAddr());
                     
@@ -200,14 +201,14 @@ public class AccountEndpoint {
             //User is currently logged in, we can now revoke access and confirm the logout.
             String accessToken = request.getHeader("Authorization_Access");
             String refreshToken = request.getHeader("Authorization_Refresh");
-            
-            AccountAuthentication auth = DatabaseHandler.getHandler().getAuthFromRefreshToken(refreshToken);
+
+            AccountAuthentication auth = AuthorizationDataHandler.get().getAuthFromRefreshToken(refreshToken);
             if (auth == null)
-                auth = DatabaseHandler.getHandler().getAuthFromAccessToken(accessToken);
+                auth = AuthorizationDataHandler.get().getAuthFromAccessToken(accessToken);
             
             if (auth != null) {
                 //Revoke credentials
-                DatabaseHandler.getHandler().removeAuthByRefreshToken(auth.getRefreshToken());
+                AuthorizationDataHandler.get().removeAuthByRefreshToken(auth.getRefreshToken());
                 
                 response.setContentType("application/json");
                 response.setStatus(200);
@@ -243,7 +244,7 @@ public class AccountEndpoint {
         }
 
         try {
-            Account account = DatabaseHandler.getHandler().getAccountFromId(authState.getId());
+            Account account = AccountDataHandler.get().getAccountFromId(authState.getId());
 
             response.setContentType("application/json");
             response.setStatus(200);
@@ -277,7 +278,7 @@ public class AccountEndpoint {
 
             UUID id = UUID.fromString(body.getString("id"));
 
-            Account account = DatabaseHandler.getHandler().getAccountFromId(id);
+            Account account = AccountDataHandler.get().getAccountFromId(id);
 
             if (account != null) {
                 response.setContentType("application/json");
@@ -323,11 +324,11 @@ public class AccountEndpoint {
         try {
             JSONObject body = new JSONObject(requestBody);
 
-            Account account = DatabaseHandler.getHandler().getAccountFromId(authState.getId());
+            Account account = AccountDataHandler.get().getAccountFromId(authState.getId());
             if (body.has("email")) {
                 if (new ReCaptcha(SiteSettings.RECAP_KEY_SITE.get()).isValid(body.getString("gcap")) || new ReCaptcha(SiteSettings.RECAP_KEY_ANDROID.get()).isValid(body.getString("gcap"))) {
-                    if (DatabaseHandler.getHandler().validLogin(account.getEmail(), body.getString("password"))) {
-                        if (!DatabaseHandler.getHandler().emailTaken(body.getString("email"))) {
+                    if (AccountDataHandler.get().validLogin(account.getEmail(), body.getString("password"))) {
+                        if (!AccountDataHandler.get().emailTaken(body.getString("email"))) {
                             if (!Validator.validEmail(body.getString("email"))) {
                                 response.setContentType("application/json");
                                 response.setStatus(400);
@@ -336,7 +337,7 @@ public class AccountEndpoint {
                             account.setEmail(body.getString("email"));
                             account.setEmailConfirmed(false);
 
-                            DatabaseHandler.getHandler().updateAccount(account);
+                            AccountDataHandler.get().updateAccount(account);
                             //Send confirmation email!!!
                             EmailHandler.getHandler().sendEmailConfirm(body.getString("email"), Generator.generateEmailConfirmationLink(account));
 
@@ -379,15 +380,15 @@ public class AccountEndpoint {
                 }
             } else if (body.has("password")) {
                 if (new ReCaptcha(SiteSettings.RECAP_KEY_SITE.get()).isValid(body.getString("gcap")) || new ReCaptcha(SiteSettings.RECAP_KEY_ANDROID.get()).isValid(body.getString("gcap"))) {
-                    if (DatabaseHandler.getHandler().validLogin(account.getEmail(), body.getString("old_password"))) {
+                    if (AccountDataHandler.get().validLogin(account.getEmail(), body.getString("old_password"))) {
                         //Update password...
                         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
                         String hash = encoder.encode(body.getString("password"));
 
-                        DatabaseHandler.getHandler().updateAccountHash(account, hash);
+                        AccountDataHandler.get().updateAccountHash(account, hash);
 
                         //Invalidate existing sessions...
-                        DatabaseHandler.getHandler().removeAuth(account.getAccountId());
+                        AuthorizationDataHandler.get().removeAuth(account.getAccountId());
 
                         //Generate new tokens...
                         AccountAuthentication auth = new AccountAuthentication();
@@ -395,7 +396,7 @@ public class AccountEndpoint {
                         auth.setAccessToken(KeyGenerator.csRandomAlphaNumericString(32));
                         auth.setRefreshToken(KeyGenerator.csRandomAlphaNumericString(32));
                         auth.setExpire(System.currentTimeMillis() + GlobalVars.oneDayMs); //Auth token good for 24 hours, unless manually revoked.
-                        DatabaseHandler.getHandler().saveAuth(auth);
+                        AuthorizationDataHandler.get().saveAuth(auth);
 
                         //Respond
                         response.setContentType("application/json");
@@ -429,7 +430,7 @@ public class AccountEndpoint {
             } else if (body.has("safe_search")) {
                 //Update safe search
                 account.setSafeSearch(body.getBoolean("safe_search"));
-                DatabaseHandler.getHandler().updateAccount(account);
+                AccountDataHandler.get().updateAccount(account);
 
                 //Respond
                 response.setContentType("application/json");
@@ -447,7 +448,7 @@ public class AccountEndpoint {
                 }
 
                 account.setPhoneNumber(body.getString("phone_number"));
-                DatabaseHandler.getHandler().updateAccount(account);
+                AccountDataHandler.get().updateAccount(account);
 
                 //Respond
                 response.setContentType("application/json");

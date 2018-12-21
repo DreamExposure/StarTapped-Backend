@@ -2,7 +2,7 @@ package org.dreamexposure.tap.backend.network.auth;
 
 import org.dreamexposure.novautils.crypto.KeyGenerator;
 import org.dreamexposure.tap.backend.conf.GlobalVars;
-import org.dreamexposure.tap.backend.network.database.DatabaseHandler;
+import org.dreamexposure.tap.backend.network.database.AuthorizationDataHandler;
 import org.dreamexposure.tap.backend.objects.auth.AuthenticationState;
 import org.dreamexposure.tap.core.objects.auth.AccountAuthentication;
 import org.dreamexposure.tap.core.utils.Logger;
@@ -27,8 +27,8 @@ public class Authentication {
         //Check authorization
         if (request.getHeader("Authorization_Access") != null) {
             String accessToken = request.getHeader("Authorization_Access");
-            
-            AccountAuthentication auth = DatabaseHandler.getHandler().getAuthFromAccessToken(accessToken);
+
+            AccountAuthentication auth = AuthorizationDataHandler.get().getAuthFromAccessToken(accessToken);
             
             if (auth != null) {
                 if (auth.getExpire() >= System.currentTimeMillis()) {
@@ -38,12 +38,12 @@ public class Authentication {
                     //Access code is bad, refresh required.
                     if (request.getHeader("Authorization_Refresh") != null) {
                         String refreshToken = request.getHeader("Authorization_Refresh");
-                        auth = DatabaseHandler.getHandler().getAuthFromRefreshToken(refreshToken);
+                        auth = AuthorizationDataHandler.get().getAuthFromRefreshToken(refreshToken);
                         
                         if (auth != null) {
                             auth.setAccessToken(KeyGenerator.csRandomAlphaNumericString(32));
                             auth.setExpire(System.currentTimeMillis() + GlobalVars.oneDayMs);
-                            DatabaseHandler.getHandler().updateAuth(auth);
+                            AuthorizationDataHandler.get().updateAuth(auth);
     
                             return new AuthenticationState(auth.getAccountId(), true).setStatus(200).setReason("Success. Access token regenerated.");
                         } else {
@@ -59,12 +59,12 @@ public class Authentication {
                 //Check if refresh token exists and is valid...
                 if (request.getHeader("Authorization_Refresh") != null) {
                     String refreshToken = request.getHeader("Authorization_Refresh");
-                    auth = DatabaseHandler.getHandler().getAuthFromRefreshToken(refreshToken);
+                    auth = AuthorizationDataHandler.get().getAuthFromRefreshToken(refreshToken);
                     
                     if (auth != null) {
                         auth.setAccessToken(KeyGenerator.csRandomAlphaNumericString(32));
                         auth.setExpire(System.currentTimeMillis() + GlobalVars.oneDayMs);
-                        DatabaseHandler.getHandler().updateAuth(auth);
+                        AuthorizationDataHandler.get().updateAuth(auth);
     
                         return new AuthenticationState(auth.getAccountId(), true).setStatus(200).setReason("Success. Access token regenerated.");
                     } else {

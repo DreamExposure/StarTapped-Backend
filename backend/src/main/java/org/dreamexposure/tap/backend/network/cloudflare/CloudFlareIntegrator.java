@@ -2,7 +2,7 @@ package org.dreamexposure.tap.backend.network.cloudflare;
 
 import okhttp3.*;
 import org.dreamexposure.tap.backend.conf.SiteSettings;
-import org.dreamexposure.tap.backend.network.database.DatabaseHandler;
+import org.dreamexposure.tap.backend.network.database.RecordDataHandler;
 import org.dreamexposure.tap.core.objects.blog.IBlog;
 import org.dreamexposure.tap.core.objects.cloudflare.DnsRecord;
 import org.dreamexposure.tap.core.utils.Logger;
@@ -66,8 +66,8 @@ public class CloudFlareIntegrator {
                     DnsRecord record = new DnsRecord();
                     record.setBlogId(blog.getBlogId());
                     record.setRecordId(responseBody.getJSONObject("result").getString("id"));
-                    
-                    return DatabaseHandler.getHandler().createRecord(record);
+
+                    return RecordDataHandler.get().createRecord(record);
                 }
             } else {
                 Logger.getLogger().debug("Failed to handle CNAME Creation", response.body().string(), this.getClass());
@@ -80,7 +80,7 @@ public class CloudFlareIntegrator {
     
     public boolean deleteCNAMEForBlog(IBlog blog) {
         try {
-            DnsRecord record = DatabaseHandler.getHandler().getRecord(blog.getBlogId());
+            DnsRecord record = RecordDataHandler.get().getRecord(blog.getBlogId());
             if (record != null) {
                 Request httpRequest = new Request.Builder()
                         .url("https://api.cloudflare.com/client/v4/zones/" + SiteSettings.CF_ZONE_ID.get() + "/dns_records/" + record.getRecordId())
@@ -94,7 +94,7 @@ public class CloudFlareIntegrator {
                 
                 if (response.code() == 200) {
                     //Success, delete from database
-                    return DatabaseHandler.getHandler().deleteRecord(blog.getBlogId());
+                    return RecordDataHandler.get().deleteRecord(blog.getBlogId());
                 }
             }
         } catch (Exception e) {
