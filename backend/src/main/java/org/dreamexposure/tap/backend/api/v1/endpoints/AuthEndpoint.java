@@ -24,7 +24,7 @@ import javax.servlet.http.HttpServletResponse;
 @SuppressWarnings("Duplicates")
 @RestController
 @RequestMapping("/v1/auth")
-public class Auth {
+public class AuthEndpoint {
     
     @PostMapping(value = "/refresh", produces = "application/json")
     public static String refresh(HttpServletRequest request, HttpServletResponse response) {

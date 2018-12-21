@@ -59,6 +59,7 @@ public class DatabaseHandler {
             AuthorizationDataHandler.get().init(databaseInfo);
             BlogDataHandler.get().init(databaseInfo);
             RecordDataHandler.get().init(databaseInfo);
+            FollowerDataHandler.get().init(databaseInfo);
             DataCountHandling.get().init(databaseInfo);
         } catch (Exception e) {
             System.out.println("Failed to connect to MySQL database! Is it properly configured?");
@@ -89,6 +90,7 @@ public class DatabaseHandler {
             String postTableName = String.format("%spost", databaseInfo.getSettings().getPrefix());
             String authTableName = String.format("%sauth", databaseInfo.getSettings().getPrefix());
             String recordTableName = String.format("%srecord", databaseInfo.getSettings().getPrefix());
+            String followTableName = String.format("%sfollow", databaseInfo.getSettings().getPrefix());
             
             String createAccountsTable = "CREATE TABLE IF NOT EXISTS " + accountsTableName +
                     "(id VARCHAR(255) not NULL, " +
@@ -147,6 +149,11 @@ public class DatabaseHandler {
                     "(blog_id VARCHAR(255) NOT NULL, " +
                     " record_id LONGTEXT NOT NULL, " +
                     " PRIMARY KEY (blog_id))";
+            String createFollowTable = "CREATE TABLE IF NOT EXISTS " + followTableName +
+                    "(id int auto_increment not null, " +
+                    "user_id VARCHAR(255) not null," +
+                    "following_id varchar(255) not null," +
+                    "PRIMARY KEY (id))";
             
             statement.execute(createAccountsTable);
             statement.execute(createConfirmationTable);
@@ -154,6 +161,7 @@ public class DatabaseHandler {
             statement.execute(createPostTable);
             statement.execute(createAuthTable);
             statement.execute(createRecordTable);
+            statement.execute(createFollowTable);
             
             statement.close();
             System.out.println("Successfully created needed tables in MySQL database!");

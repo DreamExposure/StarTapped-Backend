@@ -312,4 +312,54 @@ public class DataCountHandling {
         }
         return amount;
     }
+
+    public int getFollowingCount(UUID user) {
+        int amount = -1;
+        try {
+            if (databaseInfo.getMySQL().checkConnection()) {
+                String tableName = String.format("%sfollow", databaseInfo.getSettings().getPrefix());
+
+                String query = "SELECT COUNT(*) FROM " + tableName + " WHERE user_id = " + user.toString() + ";";
+                PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
+                ResultSet res = statement.executeQuery();
+
+                if (res.next())
+                    amount = res.getInt(1);
+                else
+                    amount = 0;
+
+
+                res.close();
+                statement.close();
+            }
+        } catch (SQLException e) {
+            Logger.getLogger().exception("Failed to get following count for user", e, this.getClass());
+        }
+        return amount;
+    }
+
+    public int getFollowerCount(UUID following) {
+        int amount = -1;
+        try {
+            if (databaseInfo.getMySQL().checkConnection()) {
+                String tableName = String.format("%sfollow", databaseInfo.getSettings().getPrefix());
+
+                String query = "SELECT COUNT(*) FROM " + tableName + " WHERE following_id = " + following.toString() + ";";
+                PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
+                ResultSet res = statement.executeQuery();
+
+                if (res.next())
+                    amount = res.getInt(1);
+                else
+                    amount = 0;
+
+
+                res.close();
+                statement.close();
+            }
+        } catch (SQLException e) {
+            Logger.getLogger().exception("Failed to get follower count for user", e, this.getClass());
+        }
+        return amount;
+    }
 }
