@@ -141,13 +141,16 @@ public class Account {
     public Account fromJson(JSONObject json) {
         accountId = UUID.fromString(json.getString("id"));
         username = json.getString("username");
-        email = json.getString("email");
+        if (json.has("email"))
+            email = json.getString("email");
         //Skip hashed password
-        phoneNumber = json.getString("phone_number");
+        if (json.has("phone_number"))
+            phoneNumber = json.getString("phone_number");
         birthday = json.getString("birthday");
         safeSearch = json.getBoolean("safe_search");
         verified = json.getBoolean("verified");
-        emailConfirmed = json.getBoolean("email_confirmed");
+        if (json.has("email_confirmed"))
+            emailConfirmed = json.getBoolean("email_confirmed");
         admin = json.getBoolean("admin");
         
         return this;

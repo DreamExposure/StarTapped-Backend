@@ -20,7 +20,7 @@ import java.util.UUID;
  * Company Website: https://www.dreamexposure.org
  * Contact: nova@dreamexposure.org
  */
-@SuppressWarnings("Duplicates")
+@SuppressWarnings({"UnusedReturnValue", "SqlNoDataSourceInspection", "Duplicates"})
 public class FollowerDataHandler {
     private static FollowerDataHandler instance;
 
@@ -35,7 +35,7 @@ public class FollowerDataHandler {
         return instance;
     }
 
-    public void init(DatabaseInfo _info) {
+    void init(DatabaseInfo _info) {
         databaseInfo = _info;
     }
 

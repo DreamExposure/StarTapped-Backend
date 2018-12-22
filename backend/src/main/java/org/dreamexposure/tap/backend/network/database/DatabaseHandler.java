@@ -19,7 +19,7 @@ import java.sql.Statement;
  * Company Website: https://www.dreamexposure.org
  * Contact: nova@dreamexposure.org
  */
-@SuppressWarnings({"UnusedReturnValue", "SqlNoDataSourceInspection", "SqlResolve", "Duplicates"})
+@SuppressWarnings({"UnusedReturnValue", "SqlNoDataSourceInspection", "Duplicates"})
 public class DatabaseHandler {
     private static DatabaseHandler instance;
     private DatabaseInfo databaseInfo;
@@ -60,6 +60,7 @@ public class DatabaseHandler {
             BlogDataHandler.get().init(databaseInfo);
             RecordDataHandler.get().init(databaseInfo);
             FollowerDataHandler.get().init(databaseInfo);
+            PostDataHandler.get().init(databaseInfo);
             DataCountHandling.get().init(databaseInfo);
         } catch (Exception e) {
             System.out.println("Failed to connect to MySQL database! Is it properly configured?");
@@ -135,6 +136,7 @@ public class DatabaseHandler {
                     " title LONGTEXT not NULL, " +
                     " body LONGTEXT not NULL, " +
                     " nsfw BOOLEAN not NULL, " +
+                    " parent VARCHAR(255) NULL, " +
                     " image_url LONGTEXT NULL, " +
                     " audio_url LONGTEXT NULL, " +
                     " video_url LONGTEXT NULL, " +

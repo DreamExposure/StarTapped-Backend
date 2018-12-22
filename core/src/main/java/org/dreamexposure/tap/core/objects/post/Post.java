@@ -3,6 +3,7 @@ package org.dreamexposure.tap.core.objects.post;
 import org.dreamexposure.tap.core.enums.post.PostType;
 import org.dreamexposure.tap.core.objects.account.Account;
 import org.dreamexposure.tap.core.objects.blog.Blog;
+import org.dreamexposure.tap.core.objects.blog.IBlog;
 import org.json.JSONObject;
 
 import java.util.UUID;
@@ -18,7 +19,7 @@ import java.util.UUID;
 public class Post implements IPost {
     private UUID id;
     private Account creator;
-    private Blog originBlog;
+    private IBlog originBlog;
     private String permaLink;
     private String fullUrl;
     private PostType type;
@@ -28,6 +29,8 @@ public class Post implements IPost {
     private String body;
     
     private boolean nsfw;
+
+    private UUID parent;
     
     
     //Getters
@@ -38,8 +41,8 @@ public class Post implements IPost {
     public Account getCreator() {
         return creator;
     }
-    
-    public Blog getOriginBlog() {
+
+    public IBlog getOriginBlog() {
         return originBlog;
     }
     
@@ -71,7 +74,12 @@ public class Post implements IPost {
     public boolean isNsfw() {
         return nsfw;
     }
-    
+
+    @Override
+    public UUID getParent() {
+        return parent;
+    }
+
     //Setters
     public void setId(UUID _id) {
         id = _id;
@@ -80,8 +88,8 @@ public class Post implements IPost {
     public void setCreator(Account _creator) {
         creator = _creator;
     }
-    
-    public void setOriginBlog(Blog _blog) {
+
+    public void setOriginBlog(IBlog _blog) {
         originBlog = _blog;
     }
     
@@ -112,12 +120,17 @@ public class Post implements IPost {
     public void setNsfw(boolean _nsfw) {
         nsfw = _nsfw;
     }
-    
+
+    @Override
+    public void setParent(UUID _parent) {
+        parent = _parent;
+    }
+
     public JSONObject toJson() {
         JSONObject json = new JSONObject();
         
         json.put("id", id.toString());
-        json.put("creator", creator.toJson());
+        json.put("creator", creator.toJsonNoPersonal());
         json.put("origin_blog", originBlog.toJson());
         json.put("permalink", permaLink);
         json.put("full_url", fullUrl);
@@ -126,6 +139,8 @@ public class Post implements IPost {
         json.put("title", title);
         json.put("body", body);
         json.put("nsfw", nsfw);
+        if (parent != null)
+            json.put("parent", parent);
         
         return json;
     }
@@ -141,6 +156,8 @@ public class Post implements IPost {
         title = json.getString("title");
         body = json.getString("body");
         nsfw = json.getBoolean("nsfw");
+        if (json.has("parent"))
+            parent = UUID.fromString(json.getString("parent"));
         
         return this;
     }

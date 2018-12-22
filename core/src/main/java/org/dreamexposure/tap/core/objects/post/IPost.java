@@ -2,7 +2,7 @@ package org.dreamexposure.tap.core.objects.post;
 
 import org.dreamexposure.tap.core.enums.post.PostType;
 import org.dreamexposure.tap.core.objects.account.Account;
-import org.dreamexposure.tap.core.objects.blog.Blog;
+import org.dreamexposure.tap.core.objects.blog.IBlog;
 import org.json.JSONObject;
 
 import java.util.UUID;
@@ -21,8 +21,8 @@ public interface IPost {
     UUID getId();
     
     Account getCreator();
-    
-    Blog getOriginBlog();
+
+    IBlog getOriginBlog();
     
     String getPermaLink();
     
@@ -37,13 +37,15 @@ public interface IPost {
     String getBody();
     
     boolean isNsfw();
+
+    UUID getParent();
     
     //Setters
     void setId(UUID _id);
     
     void setCreator(Account _creator);
-    
-    void setOriginBlog(Blog _blog);
+
+    void setOriginBlog(IBlog _blog);
     
     void setPermaLink(String _permaLink);
     
@@ -58,6 +60,8 @@ public interface IPost {
     void setBody(String _body);
     
     void setNsfw(boolean _nsfw);
+
+    void setParent(UUID _parent);
     
     JSONObject toJson();
     

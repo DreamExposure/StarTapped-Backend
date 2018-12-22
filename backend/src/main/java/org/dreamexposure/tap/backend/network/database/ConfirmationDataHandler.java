@@ -18,6 +18,7 @@ import java.util.UUID;
  * Company Website: https://www.dreamexposure.org
  * Contact: nova@dreamexposure.org
  */
+@SuppressWarnings({"UnusedReturnValue", "SqlNoDataSourceInspection", "Duplicates"})
 public class ConfirmationDataHandler {
     private static ConfirmationDataHandler instance;
 
@@ -32,7 +33,7 @@ public class ConfirmationDataHandler {
         return instance;
     }
 
-    public void init(DatabaseInfo _info) {
+    void init(DatabaseInfo _info) {
         databaseInfo = _info;
     }
 
