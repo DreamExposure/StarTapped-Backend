@@ -146,7 +146,7 @@ public class Blog implements IBlog {
         type = BlogType.valueOf(json.getString("type"));
         name = json.getString("name");
         description = json.getString("description");
-        iconUrl = json.getString("icon-url");
+        iconUrl = json.getString("icon_url");
         backgroundColor = json.getString("background_color");
         backgroundUrl = json.getString("background_url");
         allowUnder18 = json.getBoolean("allow_under_18");
