@@ -3,6 +3,7 @@ package org.dreamexposure.tap.core.objects.blog;
 import org.dreamexposure.tap.core.enums.blog.BlogType;
 import org.json.JSONObject;
 
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -36,6 +37,8 @@ public interface IBlog {
     boolean isAllowUnder18();
     
     boolean isNsfw();
+
+    List<UUID> getFollowers();
     
     //Setters
     void setBlogId(UUID _blogId);

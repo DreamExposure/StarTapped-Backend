@@ -163,6 +163,7 @@ public class BlogDataHandler {
                             blog.getOwners().add(UUID.fromString(s));
                         }
 
+                        blog.getFollowers().addAll(FollowerDataHandler.get().getFollowersIdList(blog.getBlogId()));
 
                         statement.close();
                         return blog;
@@ -182,6 +183,8 @@ public class BlogDataHandler {
 
                         blog.setOwnerId(UUID.fromString(res.getString("owner")));
                         blog.setDisplayAge(res.getBoolean("show_age"));
+
+                        blog.getFollowers().addAll(FollowerDataHandler.get().getFollowersIdList(blog.getBlogId()));
 
                         statement.close();
                         return blog;
@@ -229,6 +232,7 @@ public class BlogDataHandler {
                             blog.getOwners().add(UUID.fromString(s));
                         }
 
+                        blog.getFollowers().addAll(FollowerDataHandler.get().getFollowersIdList(blog.getBlogId()));
 
                         statement.close();
                         return blog;
@@ -248,6 +252,8 @@ public class BlogDataHandler {
 
                         blog.setOwnerId(UUID.fromString(res.getString("owner")));
                         blog.setDisplayAge(res.getBoolean("show_age"));
+
+                        blog.getFollowers().addAll(FollowerDataHandler.get().getFollowersIdList(blog.getBlogId()));
 
                         statement.close();
                         return blog;
@@ -295,6 +301,8 @@ public class BlogDataHandler {
                         blog.getOwners().add(UUID.fromString(s));
                     }
 
+                    blog.getFollowers().addAll(FollowerDataHandler.get().getFollowersIdList(blog.getBlogId()));
+
 
                     statement.close();
                     return blog;
@@ -336,6 +344,8 @@ public class BlogDataHandler {
 
                     blog.setOwnerId(UUID.fromString(res.getString("owner")));
                     blog.setDisplayAge(res.getBoolean("show_age"));
+
+                    blog.getFollowers().addAll(FollowerDataHandler.get().getFollowersIdList(blog.getBlogId()));
 
                     statement.close();
                     return blog;
@@ -399,6 +409,8 @@ public class BlogDataHandler {
 
                         blog.setOwnerId(UUID.fromString(res.getString("owner")));
                         blog.setDisplayAge(res.getBoolean("show_age"));
+
+                        blog.getFollowers().addAll(FollowerDataHandler.get().getFollowersIdList(blog.getBlogId()));
 
                         blogs.add(blog);
                     }
