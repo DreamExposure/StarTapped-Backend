@@ -47,7 +47,7 @@ public class AccountEndpoint {
         
         JSONObject body = new JSONObject(requestBody);
         if (body.has("username") && body.has("email") && body.has("password") && body.has("gcap") && body.has("birthday")) {
-            if (new ReCaptcha(SiteSettings.RECAP_KEY_SITE.get()).isValid(body.getString("gcap")) || new ReCaptcha(SiteSettings.RECAP_KEY_ANDROID.get()).isValid(body.getString("gcap"))) {
+            if (new ReCaptcha(SiteSettings.RECAP_KEY_SITE.get()).isValid(body.getString("gcap")) || new ReCaptcha(SiteSettings.RECAP_KEY_ANDROID.get()).isValid(body.getString("gcap")) || new ReCaptcha(SiteSettings.RECAP_KEY_IOS.get()).isValid(body.getString("gcap"))) {
                 String username = Sanitizer.sanitizeUserInput(body.getString("username"));
                 String email = body.getString("email");
                 String birthday = body.getString("birthday");
@@ -142,7 +142,7 @@ public class AccountEndpoint {
         
         JSONObject body = new JSONObject(requestBody);
         if (body.has("email") && body.has("password") && body.has("gcap")) {
-            if (new ReCaptcha(SiteSettings.RECAP_KEY_SITE.get()).isValid(body.getString("gcap")) || new ReCaptcha(SiteSettings.RECAP_KEY_ANDROID.get()).isValid(body.getString("gcap"))) {
+            if (new ReCaptcha(SiteSettings.RECAP_KEY_SITE.get()).isValid(body.getString("gcap")) || new ReCaptcha(SiteSettings.RECAP_KEY_ANDROID.get()).isValid(body.getString("gcap")) || new ReCaptcha(SiteSettings.RECAP_KEY_IOS.get()).isValid(body.getString("gcap"))) {
                 String email = body.getString("email");
                 if (AccountDataHandler.get().validLogin(email, body.getString("password"))) {
 
@@ -326,7 +326,7 @@ public class AccountEndpoint {
 
             Account account = AccountDataHandler.get().getAccountFromId(authState.getId());
             if (body.has("email")) {
-                if (new ReCaptcha(SiteSettings.RECAP_KEY_SITE.get()).isValid(body.getString("gcap")) || new ReCaptcha(SiteSettings.RECAP_KEY_ANDROID.get()).isValid(body.getString("gcap"))) {
+                if (new ReCaptcha(SiteSettings.RECAP_KEY_SITE.get()).isValid(body.getString("gcap")) || new ReCaptcha(SiteSettings.RECAP_KEY_ANDROID.get()).isValid(body.getString("gcap")) || new ReCaptcha(SiteSettings.RECAP_KEY_IOS.get()).isValid(body.getString("gcap"))) {
                     if (AccountDataHandler.get().validLogin(account.getEmail(), body.getString("password"))) {
                         if (!AccountDataHandler.get().emailTaken(body.getString("email"))) {
                             if (!Validator.validEmail(body.getString("email"))) {
@@ -379,7 +379,7 @@ public class AccountEndpoint {
                     return responseBody.toString();
                 }
             } else if (body.has("password")) {
-                if (new ReCaptcha(SiteSettings.RECAP_KEY_SITE.get()).isValid(body.getString("gcap")) || new ReCaptcha(SiteSettings.RECAP_KEY_ANDROID.get()).isValid(body.getString("gcap"))) {
+                if (new ReCaptcha(SiteSettings.RECAP_KEY_SITE.get()).isValid(body.getString("gcap")) || new ReCaptcha(SiteSettings.RECAP_KEY_ANDROID.get()).isValid(body.getString("gcap")) || new ReCaptcha(SiteSettings.RECAP_KEY_IOS.get()).isValid(body.getString("gcap"))) {
                     if (AccountDataHandler.get().validLogin(account.getEmail(), body.getString("old_password"))) {
                         //Update password...
                         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
