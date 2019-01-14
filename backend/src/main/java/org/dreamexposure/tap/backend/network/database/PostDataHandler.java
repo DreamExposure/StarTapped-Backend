@@ -4,6 +4,7 @@ import org.dreamexposure.novautils.database.DatabaseInfo;
 import org.dreamexposure.tap.core.enums.post.PostType;
 import org.dreamexposure.tap.core.objects.post.*;
 import org.dreamexposure.tap.core.utils.Logger;
+import org.dreamexposure.tap.core.utils.PostUtils;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -255,6 +256,21 @@ public class PostDataHandler {
         } catch (SQLException e) {
             Logger.getLogger().exception("Failed to get post", e, this.getClass());
         }
+
+        //Now loop through this for like infinite times yay!
+        List<IPost> toAdd = new ArrayList<>();
+
+        for (IPost p : posts) {
+            List<IPost> parentTree = getParentTree(p);
+            for (IPost pa : parentTree) {
+                if (PostUtils.doesNotHavePost(posts, pa.getId()) && PostUtils.doesNotHavePost(toAdd, pa.getId())) {
+                    toAdd.add(pa);
+                }
+            }
+        }
+
+        posts.addAll(toAdd);
+
         return posts;
     }
 
@@ -364,6 +380,21 @@ public class PostDataHandler {
         } catch (SQLException e) {
             Logger.getLogger().exception("Failed to get post", e, this.getClass());
         }
+
+        //Now loop through this for like infinite times yay!
+        List<IPost> toAdd = new ArrayList<>();
+
+        for (IPost p : posts) {
+            List<IPost> parentTree = getParentTree(p);
+            for (IPost pa : parentTree) {
+                if (PostUtils.doesNotHavePost(posts, pa.getId()) && PostUtils.doesNotHavePost(toAdd, pa.getId())) {
+                    toAdd.add(pa);
+                }
+            }
+        }
+
+        posts.addAll(toAdd);
+
         return posts;
     }
 
@@ -583,6 +614,24 @@ public class PostDataHandler {
         return posts;
     }
 
+    private List<IPost> getParentTree(IPost post) {
+        List<IPost> parents = new ArrayList<>();
+
+        if (post.getParent() != null) {
+            IPost postOn = post;
+
+            while (postOn.getParent() != null) {
+                IPost pp = getPost(postOn.getParent());
+
+                if (PostUtils.doesNotHavePost(parents, pp.getId()))
+                    parents.add(pp);
+                postOn = pp;
+            }
+        }
+
+        return parents;
+    }
+
     //Setters
     public boolean addPost(IPost post) {
         try {
@@ -716,4 +765,5 @@ public class PostDataHandler {
         }
         return false;
     }
+
 }

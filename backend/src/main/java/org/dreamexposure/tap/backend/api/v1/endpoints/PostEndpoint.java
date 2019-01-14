@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -286,6 +287,7 @@ public class PostEndpoint {
 
             //Get from database...
             List<IPost> posts = PostDataHandler.get().getPostsByBlog(blogId, start.getMillis(), stop.getMillis());
+            Collections.sort(posts);
 
             JSONObject responseBody = new JSONObject();
             responseBody.put("message", "Success");

@@ -16,7 +16,7 @@ import java.util.UUID;
  * Company Website: https://www.dreamexposure.org
  * Contact: nova@dreamexposure.org
  */
-public class Post implements IPost {
+public class Post implements IPost, Comparable<IPost> {
     private UUID id;
     private Account creator;
     private IBlog originBlog;
@@ -160,5 +160,11 @@ public class Post implements IPost {
             parent = UUID.fromString(json.getString("parent"));
         
         return this;
+    }
+
+    @SuppressWarnings("NullableProblems")
+    @Override
+    public int compareTo(IPost o) {
+        return Long.compare(getTimestamp(), o.getTimestamp());
     }
 }

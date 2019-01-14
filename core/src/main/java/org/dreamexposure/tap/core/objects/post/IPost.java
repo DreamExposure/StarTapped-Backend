@@ -15,7 +15,7 @@ import java.util.UUID;
  * Company Website: https://www.dreamexposure.org
  * Contact: nova@dreamexposure.org
  */
-public interface IPost {
+public interface IPost extends Comparable<IPost> {
     
     //Getters
     UUID getId();
@@ -66,4 +66,7 @@ public interface IPost {
     JSONObject toJson();
     
     IPost fromJson(JSONObject json);
+
+    @SuppressWarnings("NullableProblems")
+    int compareTo(IPost o);
 }
