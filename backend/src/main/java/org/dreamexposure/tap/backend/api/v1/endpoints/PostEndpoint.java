@@ -4,6 +4,7 @@ import org.dreamexposure.tap.backend.conf.GlobalVars;
 import org.dreamexposure.tap.backend.network.auth.Authentication;
 import org.dreamexposure.tap.backend.network.database.AccountDataHandler;
 import org.dreamexposure.tap.backend.network.database.BlogDataHandler;
+import org.dreamexposure.tap.backend.network.database.FollowerDataHandler;
 import org.dreamexposure.tap.backend.network.database.PostDataHandler;
 import org.dreamexposure.tap.backend.objects.auth.AuthenticationState;
 import org.dreamexposure.tap.backend.utils.FileUploadHandler;
@@ -16,6 +17,7 @@ import org.dreamexposure.tap.core.objects.blog.IBlog;
 import org.dreamexposure.tap.core.objects.file.UploadedFile;
 import org.dreamexposure.tap.core.objects.post.*;
 import org.dreamexposure.tap.core.utils.Logger;
+import org.dreamexposure.tap.core.utils.PostUtils;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.json.JSONArray;
@@ -28,6 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -287,6 +290,86 @@ public class PostEndpoint {
 
             //Get from database...
             List<IPost> posts = PostDataHandler.get().getPostsByBlog(blogId, start.getMillis(), stop.getMillis());
+            Collections.sort(posts);
+
+            JSONObject responseBody = new JSONObject();
+            responseBody.put("message", "Success");
+
+            JSONArray jPosts = new JSONArray();
+            for (IPost p : posts) {
+                jPosts.put(p.toJson());
+            }
+            responseBody.put("posts", jPosts);
+            responseBody.put("count", jPosts.length());
+
+            //Respond to client.
+            response.setContentType("application/json");
+            response.setStatus(200);
+
+            return responseBody.toString();
+
+        } catch (JSONException | IllegalArgumentException e) {
+            response.setContentType("application/json");
+            response.setStatus(400);
+
+            return ResponseUtils.getJsonResponseMessage("Bad Request");
+        } catch (Exception e) {
+            response.setContentType("application/json");
+            response.setStatus(500);
+
+            Logger.getLogger().exception("Failed to handle post get by blog", e, PostEndpoint.class);
+            return ResponseUtils.getJsonResponseMessage("Internal Server Error");
+        }
+    }
+
+    @PostMapping(value = "/get/hub", produces = "application/json")
+    public static String getForHub(HttpServletRequest request, HttpServletResponse response, @RequestBody String requestBody) {
+        //Authenticate...
+        AuthenticationState authState = Authentication.authenticate(request);
+        if (!authState.isSuccess()) {
+            response.setStatus(authState.getStatus());
+            response.setContentType("application/json");
+            return authState.toJson();
+        }
+
+
+        try {
+            JSONObject body = new JSONObject(requestBody);
+            int year = body.getInt("year");
+            int month = body.getInt("month");
+
+            //Check to make sure the year and month are not in the future.
+            if (month < 0 || month > 11) {
+                //Invalid month specified...
+                response.setContentType("application/json");
+                response.setStatus(400);
+
+                return ResponseUtils.getJsonResponseMessage("Bad Request");
+            }
+
+            DateTime start = new DateTime(year, month, 1, 0, 0, 0, DateTimeZone.UTC).withTimeAtStartOfDay();
+            DateTime stop = start.plusMonths(1);
+
+            if (start.isAfterNow()) {
+                //In future, cannot get those posts because they don't exist. Why would anyone request future posts.
+                response.setContentType("application/json");
+                response.setStatus(400);
+
+                return ResponseUtils.getJsonResponseMessage("Bad Request");
+            }
+
+            //Get from database...
+            List<UUID> following = FollowerDataHandler.get().getFollowingIdList(authState.getId());
+            List<IPost> posts = new ArrayList<>();
+
+            for (UUID bId : following) {
+                List<IPost> newPosts = PostDataHandler.get().getPostsByBlog(bId, start.getMillis(), stop.getMillis());
+                for (IPost p : newPosts) {
+                    if (PostUtils.doesNotHavePost(posts, p.getId()))
+                        posts.add(p);
+                }
+            }
+
             Collections.sort(posts);
 
             JSONObject responseBody = new JSONObject();
