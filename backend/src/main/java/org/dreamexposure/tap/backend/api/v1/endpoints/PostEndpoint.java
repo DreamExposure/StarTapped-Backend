@@ -277,7 +277,7 @@ public class PostEndpoint {
                 return ResponseUtils.getJsonResponseMessage("Bad Request");
             }
 
-            DateTime start = new DateTime(year, month, 1, 0, 0, 0, DateTimeZone.UTC).withTimeAtStartOfDay();
+            DateTime start = new DateTime(year, month + 1, 1, 0, 0, 0, DateTimeZone.UTC).withTimeAtStartOfDay();
             DateTime stop = start.plusMonths(1);
 
             if (start.isAfterNow()) {
@@ -347,7 +347,7 @@ public class PostEndpoint {
                 return ResponseUtils.getJsonResponseMessage("Bad Request");
             }
 
-            DateTime start = new DateTime(year, month, 1, 0, 0, 0, DateTimeZone.UTC).withTimeAtStartOfDay();
+            DateTime start = new DateTime(year, month + 1, 1, 0, 0, 0, DateTimeZone.UTC).withTimeAtStartOfDay();
             DateTime stop = start.plusMonths(1);
 
             if (start.isAfterNow()) {
@@ -392,12 +392,14 @@ public class PostEndpoint {
             response.setContentType("application/json");
             response.setStatus(400);
 
+            Logger.getLogger().exception("Bad Request on post for hub endpoint", e, PostEndpoint.class);
+
             return ResponseUtils.getJsonResponseMessage("Bad Request");
         } catch (Exception e) {
             response.setContentType("application/json");
             response.setStatus(500);
 
-            Logger.getLogger().exception("Failed to handle post get by blog", e, PostEndpoint.class);
+            Logger.getLogger().exception("Failed to handle post get for hub", e, PostEndpoint.class);
             return ResponseUtils.getJsonResponseMessage("Internal Server Error");
         }
     }
