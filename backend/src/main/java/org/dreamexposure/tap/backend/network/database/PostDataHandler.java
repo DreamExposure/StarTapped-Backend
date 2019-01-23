@@ -250,8 +250,8 @@ public class PostDataHandler {
                                 break;
                         }
                     }
-                    ps.close();
                 }
+                ps.close();
             }
         } catch (SQLException e) {
             Logger.getLogger().exception("Failed to get post", e, this.getClass());
@@ -374,8 +374,8 @@ public class PostDataHandler {
                                 break;
                         }
                     }
-                    ps.close();
                 }
+                ps.close();
             }
         } catch (SQLException e) {
             Logger.getLogger().exception("Failed to get post", e, this.getClass());
@@ -496,8 +496,8 @@ public class PostDataHandler {
                                 break;
                         }
                     }
-                    ps.close();
                 }
+                ps.close();
             }
         } catch (SQLException e) {
             Logger.getLogger().exception("Failed to get post", e, this.getClass());
@@ -605,8 +605,8 @@ public class PostDataHandler {
                                 break;
                         }
                     }
-                    ps.close();
                 }
+                ps.close();
             }
         } catch (SQLException e) {
             Logger.getLogger().exception("Failed to get post", e, this.getClass());
