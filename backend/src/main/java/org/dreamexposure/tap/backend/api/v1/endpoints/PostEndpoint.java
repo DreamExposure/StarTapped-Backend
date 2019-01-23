@@ -73,7 +73,7 @@ public class PostEndpoint {
                     textPost.setFullUrl("https://" + blog.getBaseUrl() + ".startapped.com" + "/post/" + textPost.getId().toString());
                     textPost.setTimestamp(System.currentTimeMillis());
                     textPost.setTitle(Sanitizer.sanitizeUserInput(body.getString("title")));
-                    textPost.setBody(Sanitizer.sanitizeBlogUrl(body.getString("body")));
+                    textPost.setBody(Sanitizer.sanitizeUserInput(body.getString("body")));
                     textPost.setNsfw(body.getBoolean("nsfw"));
                     if (body.has("parent"))
                         textPost.setParent(UUID.fromString(body.getString("parent")));
@@ -106,7 +106,7 @@ public class PostEndpoint {
                     imagePost.setFullUrl("https://" + blog.getBaseUrl() + ".startapped.com" + "/post/" + imagePost.getId().toString());
                     imagePost.setTimestamp(System.currentTimeMillis());
                     imagePost.setTitle(Sanitizer.sanitizeUserInput(body.getString("title")));
-                    imagePost.setBody(Sanitizer.sanitizeBlogUrl(body.getString("body")));
+                    imagePost.setBody(Sanitizer.sanitizeUserInput(body.getString("body")));
                     imagePost.setNsfw(body.getBoolean("nsfw"));
                     if (body.has("parent"))
                         imagePost.setParent(UUID.fromString(body.getString("parent")));
@@ -150,7 +150,7 @@ public class PostEndpoint {
                     audioPost.setFullUrl("https://" + blog.getBaseUrl() + ".startapped.com" + "/post/" + audioPost.getId().toString());
                     audioPost.setTimestamp(System.currentTimeMillis());
                     audioPost.setTitle(Sanitizer.sanitizeUserInput(body.getString("title")));
-                    audioPost.setBody(Sanitizer.sanitizeBlogUrl(body.getString("body")));
+                    audioPost.setBody(Sanitizer.sanitizeUserInput(body.getString("body")));
                     audioPost.setNsfw(body.getBoolean("nsfw"));
                     if (body.has("parent"))
                         audioPost.setParent(UUID.fromString(body.getString("parent")));
@@ -194,7 +194,7 @@ public class PostEndpoint {
                     videoPost.setFullUrl("https://" + blog.getBaseUrl() + ".startapped.com" + "/post/" + videoPost.getId().toString());
                     videoPost.setTimestamp(System.currentTimeMillis());
                     videoPost.setTitle(Sanitizer.sanitizeUserInput(body.getString("title")));
-                    videoPost.setBody(Sanitizer.sanitizeBlogUrl(body.getString("body")));
+                    videoPost.setBody(Sanitizer.sanitizeUserInput(body.getString("body")));
                     videoPost.setNsfw(body.getBoolean("nsfw"));
                     if (body.has("parent"))
                         videoPost.setParent(UUID.fromString(body.getString("parent")));
