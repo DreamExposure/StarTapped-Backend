@@ -360,6 +360,10 @@ public class PostEndpoint {
 
             //Get from database...
             List<UUID> following = FollowerDataHandler.get().getFollowingIdList(authState.getId());
+            //Add the blogs the user owns to show in the hub too...
+            for (IBlog b : BlogDataHandler.get().getBlogs(authState.getId())) {
+                following.add(b.getBlogId());
+            }
             List<IPost> posts = new ArrayList<>();
 
             for (UUID bId : following) {
