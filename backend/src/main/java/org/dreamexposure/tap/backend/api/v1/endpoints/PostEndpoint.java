@@ -240,6 +240,8 @@ public class PostEndpoint {
             response.setContentType("application/json");
             response.setStatus(400);
 
+            Logger.getLogger().exception("Possible JSON error in post create", e, PostEndpoint.class);
+
             return ResponseUtils.getJsonResponseMessage("Bad Request");
         } catch (Exception e) {
             response.setContentType("application/json");

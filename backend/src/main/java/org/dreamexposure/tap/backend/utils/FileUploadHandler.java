@@ -1,5 +1,7 @@
 package org.dreamexposure.tap.backend.utils;
 
+import com.j256.simplemagic.ContentInfo;
+import com.j256.simplemagic.ContentInfoUtil;
 import org.dreamexposure.novautils.crypto.KeyGenerator;
 import org.dreamexposure.tap.backend.conf.GlobalVars;
 import org.dreamexposure.tap.backend.conf.SiteSettings;
@@ -11,7 +13,6 @@ import org.json.JSONObject;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.*;
-import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.Base64;
@@ -42,7 +43,7 @@ public class FileUploadHandler {
         String hash = KeyGenerator.csRandomString(11, VALID_CHARACTERS_2);
         
         String base64 = json.getString("encoded");
-        String unconfirmedContentType = json.getString("type");
+        String unconfirmedContentType = json.has("type") ? json.getString("type") : "none";
         
         String contentType = unconfirmedContentType;
         
@@ -70,7 +71,10 @@ public class FileUploadHandler {
             
             //Validate content type...
             InputStream is = new BufferedInputStream(new FileInputStream(tmpFile));
-            String mimeType = URLConnection.guessContentTypeFromStream(is);
+
+            ContentInfoUtil util = new ContentInfoUtil();
+            ContentInfo info = util.findMatch(is);
+            String mimeType = info.getMimeType();
             is.close();
             if (!mimeType.equals(unconfirmedContentType))
                 contentType = mimeType;
