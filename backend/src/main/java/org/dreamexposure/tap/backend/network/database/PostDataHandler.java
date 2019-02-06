@@ -257,36 +257,21 @@ public class PostDataHandler {
             Logger.getLogger().exception("Failed to get post", e, this.getClass());
         }
 
-        //Now loop through this for like infinite times yay!
-        List<IPost> toAdd = new ArrayList<>();
-
-        for (IPost p : posts) {
-            List<IPost> parentTree = getParentTree(p);
-            for (IPost pa : parentTree) {
-                if (PostUtils.doesNotHavePost(posts, pa.getId()) && PostUtils.doesNotHavePost(toAdd, pa.getId())) {
-                    toAdd.add(pa);
-                }
-            }
-        }
-
-        posts.addAll(toAdd);
-
         return posts;
     }
 
-    public List<IPost> getPostsByBlog(UUID blogId, long start, long end) {
+    public List<IPost> getPostsByBlog(UUID blogId, long before, int inclusiveLimit) {
         List<IPost> posts = new ArrayList<>();
         try {
             if (databaseInfo.getMySQL().checkConnection()) {
-                String query = "SELECT * FROM " + tableName + " WHERE origin_blog_id = ? AND timestamp BETWEEN ? AND ?";
+                String query = "SELECT * FROM " + tableName + " WHERE origin_blog_id = ? AND timestamp < ?";
                 PreparedStatement ps = databaseInfo.getConnection().prepareStatement(query);
                 ps.setString(1, blogId.toString());
-                ps.setLong(2, start);
-                ps.setLong(3, end);
+                ps.setLong(2, before);
 
                 ResultSet res = ps.executeQuery();
 
-                while (res.next()) {
+                while (res.next() && posts.size() <= inclusiveLimit) {
                     if (res.getString("id") != null) {
                         //Data present, let's grab it.
                         switch (PostType.valueOf(res.getString("post_type"))) {
@@ -380,20 +365,6 @@ public class PostDataHandler {
         } catch (SQLException e) {
             Logger.getLogger().exception("Failed to get post", e, this.getClass());
         }
-
-        //Now loop through this for like infinite times yay!
-        List<IPost> toAdd = new ArrayList<>();
-
-        for (IPost p : posts) {
-            List<IPost> parentTree = getParentTree(p);
-            for (IPost pa : parentTree) {
-                if (PostUtils.doesNotHavePost(posts, pa.getId()) && PostUtils.doesNotHavePost(toAdd, pa.getId())) {
-                    toAdd.add(pa);
-                }
-            }
-        }
-
-        posts.addAll(toAdd);
 
         return posts;
     }
@@ -505,19 +476,18 @@ public class PostDataHandler {
         return posts;
     }
 
-    public List<IPost> getPostsByAccount(UUID accountId, long start, long end) {
+    public List<IPost> getPostsByAccount(UUID accountId, long before, int inclusiveLimit) {
         List<IPost> posts = new ArrayList<>();
         try {
             if (databaseInfo.getMySQL().checkConnection()) {
-                String query = "SELECT * FROM " + tableName + " WHERE creator_id = ? AND timestamp BETWEEN  ? AND ?";
+                String query = "SELECT * FROM " + tableName + " WHERE creator_id = ? AND timestamp < ?";
                 PreparedStatement ps = databaseInfo.getConnection().prepareStatement(query);
                 ps.setString(1, accountId.toString());
-                ps.setLong(2, start);
-                ps.setLong(3, end);
+                ps.setLong(2, before);
 
                 ResultSet res = ps.executeQuery();
 
-                while (res.next()) {
+                while (res.next() && posts.size() <= inclusiveLimit) {
                     if (res.getString("id") != null) {
                         //Data present, let's grab it.
                         switch (PostType.valueOf(res.getString("post_type"))) {
@@ -614,7 +584,7 @@ public class PostDataHandler {
         return posts;
     }
 
-    private List<IPost> getParentTree(IPost post) {
+    public List<IPost> getParentTree(IPost post) {
         List<IPost> parents = new ArrayList<>();
 
         if (post.getParent() != null) {

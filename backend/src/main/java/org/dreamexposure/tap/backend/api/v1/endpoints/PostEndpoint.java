@@ -18,8 +18,6 @@ import org.dreamexposure.tap.core.objects.file.UploadedFile;
 import org.dreamexposure.tap.core.objects.post.*;
 import org.dreamexposure.tap.core.utils.Logger;
 import org.dreamexposure.tap.core.utils.PostUtils;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -267,11 +265,11 @@ public class PostEndpoint {
         try {
             JSONObject body = new JSONObject(requestBody);
             UUID blogId = UUID.fromString(body.getString("blog_id"));
-            int year = body.getInt("year");
-            int month = body.getInt("month");
+            int limit = body.getInt("limit");
+            long before = body.getLong("before");
 
-            //Check to make sure the year and month are not in the future.
-            if (month < 0 || month > 11) {
+            //Limit must be between 1 and 20 (inclusive)
+            if (limit < 1 || limit > 20) {
                 //Invalid month specified...
                 response.setContentType("application/json");
                 response.setStatus(400);
@@ -279,19 +277,40 @@ public class PostEndpoint {
                 return ResponseUtils.getJsonResponseMessage("Bad Request");
             }
 
-            DateTime start = new DateTime(year, month + 1, 1, 0, 0, 0, DateTimeZone.UTC).withTimeAtStartOfDay();
-            DateTime stop = start.plusMonths(1);
-
-            if (start.isAfterNow()) {
-                //In future, cannot get those posts because they don't exist. Why would anyone request future posts.
+            if (before <= GlobalVars.starTappedEpoch) {
+                //StarTapped epoch hit. No posts could be created before then.
                 response.setContentType("application/json");
-                response.setStatus(400);
+                response.setStatus(417); //Using this code to signify Epoch hit for clients.
 
-                return ResponseUtils.getJsonResponseMessage("Bad Request");
+                return ResponseUtils.getJsonResponseMessage("StarTapped Epoch hit. No further posts can be retrieved.");
             }
 
             //Get from database...
-            List<IPost> posts = PostDataHandler.get().getPostsByBlog(blogId, start.getMillis(), stop.getMillis());
+            List<IPost> posts = PostDataHandler.get().getPostsByBlog(blogId, before, limit);
+
+            //Get our upper and lower times...
+            Collections.sort(posts);
+
+            JSONObject range = new JSONObject();
+            range.put("lowest", posts.get(0).getTimestamp());
+            range.put("highest", posts.get(posts.size() - 1).getTimestamp());
+
+            //Get all of the parents
+            List<IPost> toAdd = new ArrayList<>();
+
+            for (IPost p : posts) {
+                List<IPost> parentTree = PostDataHandler.get().getParentTree(p);
+                for (IPost pa : parentTree) {
+                    if (PostUtils.doesNotHavePost(posts, pa.getId()) && PostUtils.doesNotHavePost(toAdd, pa.getId())) {
+                        toAdd.add(pa);
+                    }
+                }
+            }
+
+            posts.addAll(toAdd);
+
+
+            //Okay, now handle the JSON
             Collections.sort(posts);
 
             JSONObject responseBody = new JSONObject();
@@ -303,6 +322,7 @@ public class PostEndpoint {
             }
             responseBody.put("posts", jPosts);
             responseBody.put("count", jPosts.length());
+            responseBody.put("range", range);
 
             //Respond to client.
             response.setContentType("application/json");
@@ -337,11 +357,11 @@ public class PostEndpoint {
 
         try {
             JSONObject body = new JSONObject(requestBody);
-            int year = body.getInt("year");
-            int month = body.getInt("month");
+            int limit = body.getInt("limit");
+            long before = body.getLong("before");
 
-            //Check to make sure the year and month are not in the future.
-            if (month < 0 || month > 11) {
+            //Limit must be between 1 and 20 (inclusive)
+            if (limit < 1 || limit > 20) {
                 //Invalid month specified...
                 response.setContentType("application/json");
                 response.setStatus(400);
@@ -349,15 +369,12 @@ public class PostEndpoint {
                 return ResponseUtils.getJsonResponseMessage("Bad Request");
             }
 
-            DateTime start = new DateTime(year, month + 1, 1, 0, 0, 0, DateTimeZone.UTC).withTimeAtStartOfDay();
-            DateTime stop = start.plusMonths(1);
-
-            if (start.isAfterNow()) {
-                //In future, cannot get those posts because they don't exist. Why would anyone request future posts.
+            if (before <= GlobalVars.starTappedEpoch) {
+                //StarTapped epoch hit. No posts could be created before then.
                 response.setContentType("application/json");
-                response.setStatus(400);
+                response.setStatus(417); //Using this code to signify Epoch hit for clients.
 
-                return ResponseUtils.getJsonResponseMessage("Bad Request");
+                return ResponseUtils.getJsonResponseMessage("StarTapped Epoch hit. No further posts can be retrieved.");
             }
 
             //Get from database...
@@ -368,8 +385,9 @@ public class PostEndpoint {
             }
             List<IPost> posts = new ArrayList<>();
 
+            //This gets WAY more than 20 posts, this gets the limit of posts from each blog, we will have to trim this.
             for (UUID bId : following) {
-                List<IPost> newPosts = PostDataHandler.get().getPostsByBlog(bId, start.getMillis(), stop.getMillis());
+                List<IPost> newPosts = PostDataHandler.get().getPostsByBlog(bId, before, limit);
                 for (IPost p : newPosts) {
                     if (PostUtils.doesNotHavePost(posts, p.getId()))
                         posts.add(p);
@@ -378,6 +396,35 @@ public class PostEndpoint {
 
             Collections.sort(posts);
 
+            //Trim posts...
+            int trimTo = posts.size() - 1;
+            if (posts.size() > limit) {
+                trimTo = limit;
+            }
+            posts = posts.subList(0, trimTo);
+
+            //Get our upper and lower times...
+            Collections.sort(posts);
+
+            JSONObject range = new JSONObject();
+            range.put("lowest", posts.get(0).getTimestamp());
+            range.put("highest", posts.get(posts.size() - 1).getTimestamp());
+
+            //Get all of the parents
+            List<IPost> toAdd = new ArrayList<>();
+
+            for (IPost p : posts) {
+                List<IPost> parentTree = PostDataHandler.get().getParentTree(p);
+                for (IPost pa : parentTree) {
+                    if (PostUtils.doesNotHavePost(posts, pa.getId()) && PostUtils.doesNotHavePost(toAdd, pa.getId())) {
+                        toAdd.add(pa);
+                    }
+                }
+            }
+
+            posts.addAll(toAdd);
+
+            //Okay, now handle the JSON.
             JSONObject responseBody = new JSONObject();
             responseBody.put("message", "Success");
 
@@ -387,6 +434,7 @@ public class PostEndpoint {
             }
             responseBody.put("posts", jPosts);
             responseBody.put("count", jPosts.length());
+            responseBody.put("range", range);
 
             //Respond to client.
             response.setContentType("application/json");

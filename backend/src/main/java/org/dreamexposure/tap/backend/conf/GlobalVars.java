@@ -19,4 +19,6 @@ public class GlobalVars {
     public static final long oneMinuteMs = 60000;
     public static final long oneHourMs = 3600000;
     public static final long oneDayMs = 86400000;
+
+    public static final long starTappedEpoch = 1546300800; //January 1st, 2019 @ 12:00am (UTC)
 }
