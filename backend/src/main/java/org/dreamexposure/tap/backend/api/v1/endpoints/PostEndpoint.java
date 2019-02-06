@@ -293,11 +293,11 @@ public class PostEndpoint {
 
             JSONObject range = new JSONObject();
             if (!posts.isEmpty()) {
-                range.put("lowest", posts.get(0).getTimestamp());
-                range.put("highest", posts.get(posts.size() - 1).getTimestamp());
+                range.put("latest", posts.get(0).getTimestamp());
+                range.put("oldest", posts.get(posts.size() - 1).getTimestamp());
             } else {
-                range.put("lowest", 0);
-                range.put("highest", 0);
+                range.put("latest", 0);
+                range.put("oldest", 0);
             }
 
             //Get all of the parents
@@ -402,22 +402,20 @@ public class PostEndpoint {
             Collections.sort(posts);
 
             //Trim posts...
-            int trimTo = posts.size() - 1;
             if (posts.size() > limit) {
-                trimTo = limit;
+                posts = posts.subList(0, limit);
             }
-            posts = posts.subList(0, trimTo);
 
             //Get our upper and lower times...
             Collections.sort(posts);
 
             JSONObject range = new JSONObject();
             if (!posts.isEmpty()) {
-                range.put("lowest", posts.get(0).getTimestamp());
-                range.put("highest", posts.get(posts.size() - 1).getTimestamp());
+                range.put("latest", posts.get(0).getTimestamp());
+                range.put("oldest", posts.get(posts.size() - 1).getTimestamp());
             } else {
-                range.put("lowest", 0);
-                range.put("highest", 0);
+                range.put("latest", 0);
+                range.put("oldest", 0);
             }
 
             //Get all of the parents

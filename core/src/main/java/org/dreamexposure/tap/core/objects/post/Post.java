@@ -165,6 +165,6 @@ public class Post implements IPost, Comparable<IPost> {
     @SuppressWarnings("NullableProblems")
     @Override
     public int compareTo(IPost o) {
-        return Long.compare(getTimestamp(), o.getTimestamp());
+        return Long.compare(o.getTimestamp(), getTimestamp());
     }
 }
