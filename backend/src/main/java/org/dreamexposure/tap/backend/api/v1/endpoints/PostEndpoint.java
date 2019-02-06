@@ -292,8 +292,13 @@ public class PostEndpoint {
             Collections.sort(posts);
 
             JSONObject range = new JSONObject();
-            range.put("lowest", posts.get(0).getTimestamp());
-            range.put("highest", posts.get(posts.size() - 1).getTimestamp());
+            if (!posts.isEmpty()) {
+                range.put("lowest", posts.get(0).getTimestamp());
+                range.put("highest", posts.get(posts.size() - 1).getTimestamp());
+            } else {
+                range.put("lowest", 0);
+                range.put("highest", 0);
+            }
 
             //Get all of the parents
             List<IPost> toAdd = new ArrayList<>();
@@ -407,8 +412,13 @@ public class PostEndpoint {
             Collections.sort(posts);
 
             JSONObject range = new JSONObject();
-            range.put("lowest", posts.get(0).getTimestamp());
-            range.put("highest", posts.get(posts.size() - 1).getTimestamp());
+            if (!posts.isEmpty()) {
+                range.put("lowest", posts.get(0).getTimestamp());
+                range.put("highest", posts.get(posts.size() - 1).getTimestamp());
+            } else {
+                range.put("lowest", 0);
+                range.put("highest", 0);
+            }
 
             //Get all of the parents
             List<IPost> toAdd = new ArrayList<>();
