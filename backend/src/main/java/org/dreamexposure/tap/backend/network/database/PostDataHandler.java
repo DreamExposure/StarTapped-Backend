@@ -96,7 +96,7 @@ public class PostDataHandler {
                             } catch (Exception ignore) {
                                 //No parent.
                             }
-                            imagePost.setImageUrl(res.getString("image_url"));
+                            imagePost.setImage(FileDataHandler.get().getFileFromUrl(res.getString("image_url")));
 
                             ps.close();
                             return imagePost;
@@ -117,7 +117,7 @@ public class PostDataHandler {
                             } catch (Exception ignore) {
                                 //No parent.
                             }
-                            videoPost.setVideoUrl(res.getString("video_url"));
+                            videoPost.setVideo(FileDataHandler.get().getFileFromUrl(res.getString("video_url")));
 
                             ps.close();
                             return videoPost;
@@ -138,7 +138,7 @@ public class PostDataHandler {
                             } catch (Exception ignore) {
                                 //No parent.
                             }
-                            audioPost.setAudioUrl(res.getString("audio_url"));
+                            audioPost.setAudio(FileDataHandler.get().getFileFromUrl(res.getString("audio_url")));
 
                             ps.close();
                             return audioPost;
@@ -202,7 +202,7 @@ public class PostDataHandler {
                                 } catch (Exception ignore) {
                                     //No parent.
                                 }
-                                imagePost.setImageUrl(res.getString("image_url"));
+                                imagePost.setImage(FileDataHandler.get().getFileFromUrl(res.getString("image_url")));
 
                                 posts.add(imagePost);
                                 break;
@@ -223,7 +223,7 @@ public class PostDataHandler {
                                 } catch (Exception ignore) {
                                     //No parent.
                                 }
-                                videoPost.setVideoUrl(res.getString("video_url"));
+                                videoPost.setVideo(FileDataHandler.get().getFileFromUrl(res.getString("video_url")));
 
                                 posts.add(videoPost);
                                 break;
@@ -244,7 +244,7 @@ public class PostDataHandler {
                                 } catch (Exception ignore) {
                                     //No parent.
                                 }
-                                audioPost.setAudioUrl(res.getString("audio_url"));
+                                audioPost.setAudio(FileDataHandler.get().getFileFromUrl(res.getString("audio_url")));
 
                                 posts.add(audioPost);
                                 break;
@@ -311,7 +311,7 @@ public class PostDataHandler {
                                 } catch (Exception ignore) {
                                     //No parent.
                                 }
-                                imagePost.setImageUrl(res.getString("image_url"));
+                                imagePost.setImage(FileDataHandler.get().getFileFromUrl(res.getString("image_url")));
 
                                 posts.add(imagePost);
                                 break;
@@ -332,7 +332,7 @@ public class PostDataHandler {
                                 } catch (Exception ignore) {
                                     //No parent.
                                 }
-                                videoPost.setVideoUrl(res.getString("video_url"));
+                                videoPost.setVideo(FileDataHandler.get().getFileFromUrl(res.getString("video_url")));
 
                                 posts.add(videoPost);
                                 break;
@@ -353,7 +353,7 @@ public class PostDataHandler {
                                 } catch (Exception ignore) {
                                     //No parent.
                                 }
-                                audioPost.setAudioUrl(res.getString("audio_url"));
+                                audioPost.setAudio(FileDataHandler.get().getFileFromUrl(res.getString("audio_url")));
 
                                 posts.add(audioPost);
                                 break;
@@ -419,7 +419,7 @@ public class PostDataHandler {
                                 } catch (Exception ignore) {
                                     //No parent.
                                 }
-                                imagePost.setImageUrl(res.getString("image_url"));
+                                imagePost.setImage(FileDataHandler.get().getFileFromUrl(res.getString("image_url")));
 
                                 posts.add(imagePost);
                                 break;
@@ -440,7 +440,7 @@ public class PostDataHandler {
                                 } catch (Exception ignore) {
                                     //No parent.
                                 }
-                                videoPost.setVideoUrl(res.getString("video_url"));
+                                videoPost.setVideo(FileDataHandler.get().getFileFromUrl(res.getString("video_url")));
 
                                 posts.add(videoPost);
                                 break;
@@ -461,7 +461,7 @@ public class PostDataHandler {
                                 } catch (Exception ignore) {
                                     //No parent.
                                 }
-                                audioPost.setAudioUrl(res.getString("audio_url"));
+                                audioPost.setAudio(FileDataHandler.get().getFileFromUrl(res.getString("audio_url")));
 
                                 posts.add(audioPost);
                                 break;
@@ -527,7 +527,7 @@ public class PostDataHandler {
                                 } catch (Exception ignore) {
                                     //No parent.
                                 }
-                                imagePost.setImageUrl(res.getString("image_url"));
+                                imagePost.setImage(FileDataHandler.get().getFileFromUrl(res.getString("image_url")));
 
                                 posts.add(imagePost);
                                 break;
@@ -548,7 +548,7 @@ public class PostDataHandler {
                                 } catch (Exception ignore) {
                                     //No parent.
                                 }
-                                videoPost.setVideoUrl(res.getString("video_url"));
+                                videoPost.setVideo(FileDataHandler.get().getFileFromUrl(res.getString("video_url")));
 
                                 posts.add(videoPost);
                                 break;
@@ -569,7 +569,7 @@ public class PostDataHandler {
                                 } catch (Exception ignore) {
                                     //No parent.
                                 }
-                                audioPost.setAudioUrl(res.getString("audio_url"));
+                                audioPost.setAudio(FileDataHandler.get().getFileFromUrl(res.getString("audio_url")));
 
                                 posts.add(audioPost);
                                 break;
@@ -640,25 +640,20 @@ public class PostDataHandler {
 
                     //Specific post type handling
                     switch (post.getPostType()) {
-                        case TEXT:
-                            ps.setString(12, null);
-                            ps.setString(13, null);
-                            ps.setString(14, null);
-                            break;
                         case IMAGE:
-                            ps.setString(12, ((ImagePost) post).getImageUrl());
+                            ps.setString(12, ((ImagePost) post).getImage().getUrl());
                             ps.setString(13, null);
                             ps.setString(14, null);
                             break;
                         case AUDIO:
                             ps.setString(12, null);
-                            ps.setString(13, ((AudioPost) post).getAudioUrl());
+                            ps.setString(13, ((AudioPost) post).getAudio().getUrl());
                             ps.setString(14, null);
                             break;
                         case VIDEO:
                             ps.setString(12, null);
                             ps.setString(13, null);
-                            ps.setString(14, ((VideoPost) post).getVideoUrl());
+                            ps.setString(14, ((VideoPost) post).getVideo().getUrl());
                             break;
                         default:
                             ps.setString(12, null);
@@ -696,25 +691,20 @@ public class PostDataHandler {
 
                     //Specific post type handling
                     switch (post.getPostType()) {
-                        case TEXT:
-                            ps.setString(11, null);
-                            ps.setString(12, null);
-                            ps.setString(13, null);
-                            break;
                         case IMAGE:
-                            ps.setString(11, ((ImagePost) post).getImageUrl());
+                            ps.setString(11, ((ImagePost) post).getImage().getUrl());
                             ps.setString(12, null);
                             ps.setString(13, null);
                             break;
                         case AUDIO:
                             ps.setString(11, null);
-                            ps.setString(12, ((AudioPost) post).getAudioUrl());
+                            ps.setString(12, ((AudioPost) post).getAudio().getUrl());
                             ps.setString(13, null);
                             break;
                         case VIDEO:
                             ps.setString(11, null);
                             ps.setString(12, null);
-                            ps.setString(13, ((VideoPost) post).getVideoUrl());
+                            ps.setString(13, ((VideoPost) post).getVideo().getUrl());
                             break;
                         default:
                             ps.setString(11, null);

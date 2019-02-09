@@ -1,6 +1,7 @@
 package org.dreamexposure.tap.core.objects.blog;
 
 import org.dreamexposure.tap.core.enums.blog.BlogType;
+import org.dreamexposure.tap.core.objects.file.UploadedFile;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -26,10 +27,10 @@ public class Blog implements IBlog {
     
     private String name;
     private String description;
-    
-    private String iconUrl;
+
+    private UploadedFile iconImage;
     private String backgroundColor;
-    private String backgroundUrl;
+    private UploadedFile backgroundImage;
     
     private boolean allowUnder18;
     private boolean nsfw;
@@ -60,17 +61,17 @@ public class Blog implements IBlog {
     public String getDescription() {
         return description;
     }
-    
-    public String getIconUrl() {
-        return iconUrl;
+
+    public UploadedFile getIconImage() {
+        return iconImage;
     }
     
     public String getBackgroundColor() {
         return backgroundColor;
     }
-    
-    public String getBackgroundUrl() {
-        return backgroundUrl;
+
+    public UploadedFile getBackgroundImage() {
+        return backgroundImage;
     }
     
     public boolean isAllowUnder18() {
@@ -109,17 +110,17 @@ public class Blog implements IBlog {
     public void setDescription(String _description) {
         description = _description;
     }
-    
-    public void setIconUrl(String _iconUrl) {
-        iconUrl = _iconUrl;
+
+    public void setIconImage(UploadedFile _iconImage) {
+        iconImage = _iconImage;
     }
     
     public void setBackgroundColor(String _backgroundColor) {
         backgroundColor = _backgroundColor;
     }
-    
-    public void setBackgroundUrl(String _backgroundUrl) {
-        backgroundUrl = _backgroundUrl;
+
+    public void setBackgroundImage(UploadedFile _backgroundImage) {
+        backgroundImage = _backgroundImage;
     }
     
     public void setAllowUnder18(boolean _allowUnder18) {
@@ -139,9 +140,9 @@ public class Blog implements IBlog {
         json.put("type", type.name());
         json.put("name", name);
         json.put("description", description);
-        json.put("icon_url", iconUrl);
+        json.put("icon_image", iconImage.toJson());
         json.put("background_color", backgroundColor);
-        json.put("background_url", backgroundUrl);
+        json.put("background_image", backgroundImage.toJson());
         json.put("allow_under_18", allowUnder18);
         json.put("nsfw", nsfw);
 
@@ -161,9 +162,9 @@ public class Blog implements IBlog {
         type = BlogType.valueOf(json.getString("type"));
         name = json.getString("name");
         description = json.getString("description");
-        iconUrl = json.getString("icon_url");
+        iconImage = new UploadedFile().fromJson(json.getJSONObject("icon_image"));
         backgroundColor = json.getString("background_color");
-        backgroundUrl = json.getString("background_url");
+        backgroundImage = new UploadedFile().fromJson(json.getJSONObject("background_image"));
         allowUnder18 = json.getBoolean("allow_under_18");
         nsfw = json.getBoolean("nsfw");
 

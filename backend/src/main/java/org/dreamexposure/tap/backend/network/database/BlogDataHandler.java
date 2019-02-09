@@ -67,9 +67,9 @@ public class BlogDataHandler {
                     ps.setString(4, blog.getType().name());
                     ps.setString(5, blog.getName());
                     ps.setString(6, blog.getDescription());
-                    ps.setString(7, blog.getIconUrl());
+                    ps.setString(7, blog.getIconImage().getUrl());
                     ps.setString(8, blog.getBackgroundColor());
-                    ps.setString(9, blog.getBackgroundUrl());
+                    ps.setString(9, blog.getBackgroundImage().getUrl());
                     ps.setBoolean(10, blog.isAllowUnder18());
                     ps.setBoolean(11, blog.isNsfw());
                     if (blog instanceof GroupBlog) {
@@ -100,9 +100,9 @@ public class BlogDataHandler {
                     ps.setString(3, blog.getType().name());
                     ps.setString(4, blog.getName());
                     ps.setString(5, blog.getDescription());
-                    ps.setString(6, blog.getIconUrl());
+                    ps.setString(6, blog.getIconImage().getUrl());
                     ps.setString(7, blog.getBackgroundColor());
-                    ps.setString(8, blog.getBackgroundUrl());
+                    ps.setString(8, blog.getBackgroundImage().getUrl());
                     ps.setBoolean(9, blog.isAllowUnder18());
                     ps.setBoolean(10, blog.isNsfw());
                     if (blog instanceof GroupBlog) {
@@ -150,9 +150,9 @@ public class BlogDataHandler {
                         blog.setCompleteUrl(res.getString("complete_url"));
                         blog.setName(res.getString("name"));
                         blog.setDescription(res.getString("description"));
-                        blog.setIconUrl(res.getString("icon_url"));
+                        blog.setIconImage(FileDataHandler.get().getFileFromUrl(res.getString("icon_url")));
                         blog.setBackgroundColor(res.getString("background_color"));
-                        blog.setBackgroundUrl(res.getString("background_url"));
+                        blog.setBackgroundImage(FileDataHandler.get().getFileFromUrl(res.getString("background_url")));
                         blog.setAllowUnder18(res.getBoolean("allow_under_18"));
                         blog.setNsfw(res.getBoolean("nsfw"));
 
@@ -175,9 +175,9 @@ public class BlogDataHandler {
                         blog.setCompleteUrl(res.getString("complete_url"));
                         blog.setName(res.getString("name"));
                         blog.setDescription(res.getString("description"));
-                        blog.setIconUrl(res.getString("icon_url"));
+                        blog.setIconImage(FileDataHandler.get().getFileFromUrl(res.getString("icon_url")));
                         blog.setBackgroundColor(res.getString("background_color"));
-                        blog.setBackgroundUrl(res.getString("background_url"));
+                        blog.setBackgroundImage(FileDataHandler.get().getFileFromUrl(res.getString("background_url")));
                         blog.setAllowUnder18(res.getBoolean("allow_under_18"));
                         blog.setNsfw(res.getBoolean("nsfw"));
 
@@ -219,9 +219,9 @@ public class BlogDataHandler {
                         blog.setCompleteUrl(res.getString("complete_url"));
                         blog.setName(res.getString("name"));
                         blog.setDescription(res.getString("description"));
-                        blog.setIconUrl(res.getString("icon_url"));
+                        blog.setIconImage(FileDataHandler.get().getFileFromUrl(res.getString("icon_url")));
                         blog.setBackgroundColor(res.getString("background_color"));
-                        blog.setBackgroundUrl(res.getString("background_url"));
+                        blog.setBackgroundImage(FileDataHandler.get().getFileFromUrl(res.getString("background_url")));
                         blog.setAllowUnder18(res.getBoolean("allow_under_18"));
                         blog.setNsfw(res.getBoolean("nsfw"));
 
@@ -244,9 +244,9 @@ public class BlogDataHandler {
                         blog.setCompleteUrl(res.getString("complete_url"));
                         blog.setName(res.getString("name"));
                         blog.setDescription(res.getString("description"));
-                        blog.setIconUrl(res.getString("icon_url"));
+                        blog.setIconImage(FileDataHandler.get().getFileFromUrl(res.getString("icon_url")));
                         blog.setBackgroundColor(res.getString("background_color"));
-                        blog.setBackgroundUrl(res.getString("background_url"));
+                        blog.setBackgroundImage(FileDataHandler.get().getFileFromUrl(res.getString("background_url")));
                         blog.setAllowUnder18(res.getBoolean("allow_under_18"));
                         blog.setNsfw(res.getBoolean("nsfw"));
 
@@ -288,9 +288,9 @@ public class BlogDataHandler {
                     blog.setCompleteUrl(res.getString("complete_url"));
                     blog.setName(res.getString("name"));
                     blog.setDescription(res.getString("description"));
-                    blog.setIconUrl(res.getString("icon_url"));
+                    blog.setIconImage(FileDataHandler.get().getFileFromUrl(res.getString("icon_url")));
                     blog.setBackgroundColor(res.getString("background_color"));
-                    blog.setBackgroundUrl(res.getString("background_url"));
+                    blog.setBackgroundImage(FileDataHandler.get().getFileFromUrl(res.getString("background_url")));
                     blog.setAllowUnder18(res.getBoolean("allow_under_18"));
                     blog.setNsfw(res.getBoolean("nsfw"));
 
@@ -336,9 +336,9 @@ public class BlogDataHandler {
                     blog.setCompleteUrl(res.getString("complete_url"));
                     blog.setName(res.getString("name"));
                     blog.setDescription(res.getString("description"));
-                    blog.setIconUrl(res.getString("icon_url"));
+                    blog.setIconImage(FileDataHandler.get().getFileFromUrl(res.getString("icon_url")));
                     blog.setBackgroundColor(res.getString("background_color"));
-                    blog.setBackgroundUrl(res.getString("background_url"));
+                    blog.setBackgroundImage(FileDataHandler.get().getFileFromUrl(res.getString("background_url")));
                     blog.setAllowUnder18(res.getBoolean("allow_under_18"));
                     blog.setNsfw(res.getBoolean("nsfw"));
 
@@ -379,9 +379,9 @@ public class BlogDataHandler {
                         blog.setCompleteUrl(res.getString("complete_url"));
                         blog.setName(res.getString("name"));
                         blog.setDescription(res.getString("description"));
-                        blog.setIconUrl(res.getString("icon_url"));
+                        blog.setIconImage(FileDataHandler.get().getFileFromUrl(res.getString("icon_url")));
                         blog.setBackgroundColor(res.getString("background_color"));
-                        blog.setBackgroundUrl(res.getString("background_url"));
+                        blog.setBackgroundImage(FileDataHandler.get().getFileFromUrl(res.getString("background_url")));
                         blog.setAllowUnder18(res.getBoolean("allow_under_18"));
                         blog.setNsfw(res.getBoolean("nsfw"));
 
@@ -401,9 +401,9 @@ public class BlogDataHandler {
                         blog.setCompleteUrl(res.getString("complete_url"));
                         blog.setName(res.getString("name"));
                         blog.setDescription(res.getString("description"));
-                        blog.setIconUrl(res.getString("icon_url"));
+                        blog.setIconImage(FileDataHandler.get().getFileFromUrl(res.getString("icon_url")));
                         blog.setBackgroundColor(res.getString("background_color"));
-                        blog.setBackgroundUrl(res.getString("background_url"));
+                        blog.setBackgroundImage(FileDataHandler.get().getFileFromUrl(res.getString("background_url")));
                         blog.setAllowUnder18(res.getBoolean("allow_under_18"));
                         blog.setNsfw(res.getBoolean("nsfw"));
 

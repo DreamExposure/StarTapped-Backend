@@ -1,6 +1,7 @@
 package org.dreamexposure.tap.core.objects.post;
 
 import org.dreamexposure.tap.core.enums.post.PostType;
+import org.dreamexposure.tap.core.objects.file.UploadedFile;
 import org.json.JSONObject;
 
 /**
@@ -12,27 +13,27 @@ import org.json.JSONObject;
  * Contact: nova@dreamexposure.org
  */
 public class AudioPost extends Post {
-    private String audioUrl;
+    private UploadedFile audio;
     
     public AudioPost() {
         setPostType(PostType.AUDIO);
     }
     
     //Getters
-    public String getAudioUrl() {
-        return audioUrl;
+    public UploadedFile getAudio() {
+        return audio;
     }
     
     //Setters
-    public void setAudioUrl(String _audioUrl) {
-        audioUrl = _audioUrl;
+    public void setAudio(UploadedFile _audio) {
+        audio = _audio;
     }
     
     @Override
     public JSONObject toJson() {
         JSONObject base = super.toJson();
-    
-        base.put("audio_url", audioUrl);
+
+        base.put("audio", audio.toJson());
         
         return base;
     }
@@ -40,8 +41,8 @@ public class AudioPost extends Post {
     @Override
     public AudioPost fromJson(JSONObject json) {
         super.fromJson(json);
-    
-        audioUrl = json.getString("audio_url");
+
+        audio = new UploadedFile().fromJson(json.getJSONObject("audio"));
         
         return this;
     }

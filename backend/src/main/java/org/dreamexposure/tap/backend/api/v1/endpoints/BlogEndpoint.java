@@ -5,6 +5,7 @@ import org.dreamexposure.tap.backend.network.auth.Authentication;
 import org.dreamexposure.tap.backend.network.cloudflare.CloudFlareIntegrator;
 import org.dreamexposure.tap.backend.network.database.AccountDataHandler;
 import org.dreamexposure.tap.backend.network.database.BlogDataHandler;
+import org.dreamexposure.tap.backend.network.database.FileDataHandler;
 import org.dreamexposure.tap.backend.objects.auth.AuthenticationState;
 import org.dreamexposure.tap.backend.utils.*;
 import org.dreamexposure.tap.core.enums.blog.BlogType;
@@ -95,8 +96,8 @@ public class BlogEndpoint {
                     blog.setAllowUnder18(true);
                     
                     //set default images and colors
-                    blog.setIconUrl(GlobalVars.cdnUrl + "/img/default/profile.jpg");
-                    blog.setBackgroundUrl(GlobalVars.cdnUrl + "/img/default/background.jpg");
+                    blog.setIconImage(FileDataHandler.get().getFileFromUrl(GlobalVars.cdnUrl + "/img/default/profile.jpg"));
+                    blog.setBackgroundImage(FileDataHandler.get().getFileFromUrl(GlobalVars.cdnUrl + "/img/default/background.jpg"));
                     blog.setBackgroundColor("#ffffff");
 
                     BlogDataHandler.get().createOrUpdateBlog(blog);
@@ -146,8 +147,8 @@ public class BlogEndpoint {
                     blog.setAllowUnder18(true);
                     
                     //set default images and colors
-                    blog.setIconUrl(GlobalVars.cdnUrl + "/img/default/profile.jpg");
-                    blog.setBackgroundUrl(GlobalVars.cdnUrl + "/img/default/background.jpg");
+                    blog.setIconImage(FileDataHandler.get().getFileFromUrl(GlobalVars.cdnUrl + "/img/default/profile.jpg"));
+                    blog.setBackgroundImage(FileDataHandler.get().getFileFromUrl(GlobalVars.cdnUrl + "/img/default/background.jpg"));
                     blog.setBackgroundColor("#ffffff");
 
                     BlogDataHandler.get().createOrUpdateBlog(blog);
@@ -343,12 +344,12 @@ public class BlogEndpoint {
                         if (body.has("icon_image")) {
                             UploadedFile file = FileUploadHandler.handleBase64Upload(body.getJSONObject("icon_image"), request, account.getAccountId(), MimeType.IMAGE);
                             if (file != null)
-                                blog.setIconUrl(file.getUrl());
+                                blog.setIconImage(file);
                         }
                         if (body.has("background_image")) {
                             UploadedFile file = FileUploadHandler.handleBase64Upload(body.getJSONObject("background_image"), request, account.getAccountId(), MimeType.IMAGE);
                             if (file != null) {
-                                blog.setBackgroundUrl(file.getUrl());
+                                blog.setBackgroundImage(file);
                             }
                         }
 
@@ -389,12 +390,12 @@ public class BlogEndpoint {
                         if (body.has("icon_image")) {
                             UploadedFile file = FileUploadHandler.handleBase64Upload(body.getJSONObject("icon_image"), request, account.getAccountId(), MimeType.IMAGE);
                             if (file != null)
-                                blog.setIconUrl(file.getUrl());
+                                blog.setIconImage(file);
                         }
                         if (body.has("background_image")) {
                             UploadedFile file = FileUploadHandler.handleBase64Upload(body.getJSONObject("background_image"), request, account.getAccountId(), MimeType.IMAGE);
                             if (file != null) {
-                                blog.setBackgroundUrl(file.getUrl());
+                                blog.setBackgroundImage(file);
                             }
                         }
 

@@ -1,6 +1,7 @@
 package org.dreamexposure.tap.core.objects.post;
 
 import org.dreamexposure.tap.core.enums.post.PostType;
+import org.dreamexposure.tap.core.objects.file.UploadedFile;
 import org.json.JSONObject;
 
 /**
@@ -12,27 +13,27 @@ import org.json.JSONObject;
  * Contact: nova@dreamexposure.org
  */
 public class ImagePost extends Post {
-    private String imageUrl;
+    private UploadedFile image;
     
     public ImagePost() {
         setPostType(PostType.IMAGE);
     }
     
     //Getters
-    public String getImageUrl() {
-        return imageUrl;
+    public UploadedFile getImage() {
+        return image;
     }
     
     //Setters
-    public void setImageUrl(String _imageUrl) {
-        imageUrl = _imageUrl;
+    public void setImage(UploadedFile _image) {
+        image = _image;
     }
     
     @Override
     public JSONObject toJson() {
         JSONObject base = super.toJson();
-    
-        base.put("image_url", imageUrl);
+
+        base.put("image", image.toJson());
         
         return base;
     }
@@ -40,8 +41,8 @@ public class ImagePost extends Post {
     @Override
     public ImagePost fromJson(JSONObject json) {
         super.fromJson(json);
-    
-        imageUrl = json.getString("image_url");
+
+        image = new UploadedFile().fromJson(json.getJSONObject("image"));
         
         return this;
     }

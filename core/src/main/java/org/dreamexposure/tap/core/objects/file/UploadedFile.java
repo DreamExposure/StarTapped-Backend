@@ -18,6 +18,8 @@ public class UploadedFile {
     private String type;
     private String url;
     private UUID uploader;
+    private long timestamp;
+    private String name;
     
     //Getters
     public String getHash() {
@@ -38,6 +40,14 @@ public class UploadedFile {
     
     public UUID getUploader() {
         return uploader;
+    }
+
+    public long getTimestamp() {
+        return timestamp;
+    }
+
+    public String getName() {
+        return name;
     }
     
     //Setters
@@ -60,6 +70,14 @@ public class UploadedFile {
     public void setUploader(UUID _uploader) {
         uploader = _uploader;
     }
+
+    public void setTimestamp(long _timestamp) {
+        timestamp = _timestamp;
+    }
+
+    public void setName(String _name) {
+        name = _name;
+    }
     
     public JSONObject toJson() {
         JSONObject json = new JSONObject();
@@ -69,6 +87,8 @@ public class UploadedFile {
         json.put("type", type);
         json.put("url", url);
         json.put("uploader", uploader.toString());
+        json.put("timestamp", timestamp);
+        json.put("name", name);
         
         return json;
     }
@@ -79,6 +99,8 @@ public class UploadedFile {
         type = json.getString("type");
         url = json.getString("url");
         uploader = UUID.fromString(json.getString("uploader"));
+        timestamp = json.getLong("timestamp");
+        name = json.getString("name");
         
         return this;
     }

@@ -1,6 +1,7 @@
 package org.dreamexposure.tap.core.objects.blog;
 
 import org.dreamexposure.tap.core.enums.blog.BlogType;
+import org.dreamexposure.tap.core.objects.file.UploadedFile;
 import org.json.JSONObject;
 
 import java.util.List;
@@ -27,12 +28,12 @@ public interface IBlog {
     String getName();
     
     String getDescription();
-    
-    String getIconUrl();
+
+    UploadedFile getIconImage();
     
     String getBackgroundColor();
-    
-    String getBackgroundUrl();
+
+    UploadedFile getBackgroundImage();
     
     boolean isAllowUnder18();
     
@@ -52,12 +53,12 @@ public interface IBlog {
     void setName(String _name);
     
     void setDescription(String _description);
-    
-    void setIconUrl(String _iconUrl);
+
+    void setIconImage(UploadedFile _iconImage);
     
     void setBackgroundColor(String _backgroundColor);
-    
-    void setBackgroundUrl(String _backgroundUrl);
+
+    void setBackgroundImage(UploadedFile _backgroundImage);
     
     void setAllowUnder18(boolean _allowUnder18);
     

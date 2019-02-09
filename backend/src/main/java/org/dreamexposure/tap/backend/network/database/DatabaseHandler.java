@@ -62,6 +62,7 @@ public class DatabaseHandler {
             FollowerDataHandler.get().init(databaseInfo);
             PostDataHandler.get().init(databaseInfo);
             DataCountHandling.get().init(databaseInfo);
+            FileDataHandler.get().init(databaseInfo);
         } catch (Exception e) {
             System.out.println("Failed to connect to MySQL database! Is it properly configured?");
             e.printStackTrace();
@@ -92,6 +93,7 @@ public class DatabaseHandler {
             String authTableName = String.format("%sauth", databaseInfo.getSettings().getPrefix());
             String recordTableName = String.format("%srecord", databaseInfo.getSettings().getPrefix());
             String followTableName = String.format("%sfollow", databaseInfo.getSettings().getPrefix());
+            String fileTableName = String.format("%sfile", databaseInfo.getSettings().getPrefix());
             
             String createAccountsTable = "CREATE TABLE IF NOT EXISTS " + accountsTableName +
                     "(id VARCHAR(255) not NULL, " +
@@ -156,6 +158,14 @@ public class DatabaseHandler {
                     "user_id VARCHAR(255) not null," +
                     "following_id varchar(255) not null," +
                     "PRIMARY KEY (id))";
+            String createFileTable = "CREATE TABLE IF NOT EXISTS " + fileTableName +
+                    "(hash VARCHAR(255) not NULL, " +
+                    " uploader_id VARCHAR(255) not NULL, " +
+                    " name LONGTEXT not NULL, " +
+                    " url LONGTEXT not NULL, " +
+                    " path LONGTEXT not NULL, " +
+                    " timestamp LONG not NULL, " +
+                    " PRIMARY KEY (hash))";
             
             statement.execute(createAccountsTable);
             statement.execute(createConfirmationTable);
@@ -164,6 +174,7 @@ public class DatabaseHandler {
             statement.execute(createAuthTable);
             statement.execute(createRecordTable);
             statement.execute(createFollowTable);
+            statement.execute(createFileTable);
             
             statement.close();
             System.out.println("Successfully created needed tables in MySQL database!");

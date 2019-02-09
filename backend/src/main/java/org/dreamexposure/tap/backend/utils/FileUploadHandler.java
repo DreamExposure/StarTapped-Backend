@@ -5,6 +5,7 @@ import com.j256.simplemagic.ContentInfoUtil;
 import org.dreamexposure.novautils.crypto.KeyGenerator;
 import org.dreamexposure.tap.backend.conf.GlobalVars;
 import org.dreamexposure.tap.backend.conf.SiteSettings;
+import org.dreamexposure.tap.backend.network.database.FileDataHandler;
 import org.dreamexposure.tap.core.enums.file.MimeType;
 import org.dreamexposure.tap.core.objects.file.UploadedFile;
 import org.dreamexposure.tap.core.utils.Logger;
@@ -44,6 +45,7 @@ public class FileUploadHandler {
         
         String base64 = json.getString("encoded");
         String unconfirmedContentType = json.has("type") ? json.getString("type") : "none";
+        String originalName = json.has("name") ? json.getString("name") : hash;
         
         String contentType = unconfirmedContentType;
         
@@ -104,8 +106,11 @@ public class FileUploadHandler {
                 uploadedFile.setType(mimeType);
                 uploadedFile.setUrl(GlobalVars.cdnUrl + "/" + allowedType.getFolder() + "/" + hash); //Ex cdn.startapped.com/image/blah
                 uploadedFile.setUploader(uploader);
-                
-                //TODO: Add to database (is this really needed?)
+                uploadedFile.setName(originalName);
+                uploadedFile.setTimestamp(System.currentTimeMillis());
+
+                //Add to database
+                FileDataHandler.get().addFile(uploadedFile);
                 
                 return uploadedFile;
             } else {

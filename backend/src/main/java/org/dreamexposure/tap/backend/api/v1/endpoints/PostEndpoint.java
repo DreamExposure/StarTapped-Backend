@@ -112,7 +112,7 @@ public class PostEndpoint {
                         imagePost.setParent(null);
                     UploadedFile image = FileUploadHandler.handleBase64Upload(body.getJSONObject("image"), request, authState.getId(), MimeType.IMAGE);
                     if (image != null)
-                        imagePost.setImageUrl(image.getUrl());
+                        imagePost.setImage(image);
                     else {
                         //Send failure response...
                         response.setContentType("application/json");
@@ -156,7 +156,7 @@ public class PostEndpoint {
                         audioPost.setParent(null);
                     UploadedFile audio = FileUploadHandler.handleBase64Upload(body.getJSONObject("audio"), request, authState.getId(), MimeType.AUDIO);
                     if (audio != null)
-                        audioPost.setAudioUrl(audio.getUrl());
+                        audioPost.setAudio(audio);
                     else {
                         //Send failure response...
                         response.setContentType("application/json");
@@ -200,7 +200,7 @@ public class PostEndpoint {
                         videoPost.setParent(null);
                     UploadedFile video = FileUploadHandler.handleBase64Upload(body.getJSONObject("video"), request, authState.getId(), MimeType.VIDEO);
                     if (video != null)
-                        videoPost.setVideoUrl(video.getUrl());
+                        videoPost.setVideo(video);
                     else {
                         //Send failure response...
                         response.setContentType("application/json");
