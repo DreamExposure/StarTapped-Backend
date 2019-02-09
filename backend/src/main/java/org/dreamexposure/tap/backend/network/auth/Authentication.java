@@ -44,8 +44,8 @@ public class Authentication {
                             auth.setAccessToken(KeyGenerator.csRandomAlphaNumericString(32));
                             auth.setExpire(System.currentTimeMillis() + GlobalVars.oneDayMs);
                             AuthorizationDataHandler.get().updateAuth(auth);
-    
-                            return new AuthenticationState(auth.getAccountId(), true).setStatus(200).setReason("Success. Access token regenerated.");
+
+                            return new AuthenticationState(auth.getAccountId(), true).setStatus(201).setReason("Success. Access token regenerated.").setAuth(auth);
                         } else {
                             //Token expired. Re log is required.
                             return new AuthenticationState(null, false).setStatus(405).setReason("Token Expired. Re-login is required.");
@@ -65,8 +65,8 @@ public class Authentication {
                         auth.setAccessToken(KeyGenerator.csRandomAlphaNumericString(32));
                         auth.setExpire(System.currentTimeMillis() + GlobalVars.oneDayMs);
                         AuthorizationDataHandler.get().updateAuth(auth);
-    
-                        return new AuthenticationState(auth.getAccountId(), true).setStatus(200).setReason("Success. Access token regenerated.");
+
+                        return new AuthenticationState(auth.getAccountId(), true).setStatus(201).setReason("Success. Access token regenerated.").setAuth(auth);
                     } else {
                         //Token expired. Re log is required.
                         return new AuthenticationState(null, false).setStatus(405).setReason("Token Expired. Re-login is required.");
