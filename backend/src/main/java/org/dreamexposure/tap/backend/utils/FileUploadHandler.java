@@ -77,6 +77,8 @@ public class FileUploadHandler {
             ContentInfoUtil util = new ContentInfoUtil();
             ContentInfo info = util.findMatch(is);
             String mimeType = info.getMimeType();
+            String extension = MimeType.getExtension(mimeType);
+
             is.close();
             if (!mimeType.equals(unconfirmedContentType))
                 contentType = mimeType;
@@ -95,16 +97,16 @@ public class FileUploadHandler {
                     return null;
                 }
                 //Save file to CDN
-                Files.move(tmpFile.toPath(), new File(SiteSettings.UPLOAD_FOLDER.get() + "/" + allowedType.getFolder() + "/" + hash).toPath(), StandardCopyOption.ATOMIC_MOVE);
-                
-                File uploaded = new File(SiteSettings.UPLOAD_FOLDER.get() + "/" + allowedType.getFolder() + "/" + hash);
+                Files.move(tmpFile.toPath(), new File(SiteSettings.UPLOAD_FOLDER.get() + "/" + allowedType.getFolder() + "/" + hash + extension).toPath(), StandardCopyOption.ATOMIC_MOVE);
+
+                File uploaded = new File(SiteSettings.UPLOAD_FOLDER.get() + "/" + allowedType.getFolder() + "/" + hash + extension);
                 
                 //Save details to database
                 UploadedFile uploadedFile = new UploadedFile();
                 uploadedFile.setHash(hash);
                 uploadedFile.setPath(uploaded.getPath());
                 uploadedFile.setType(mimeType);
-                uploadedFile.setUrl(GlobalVars.cdnUrl + "/" + allowedType.getFolder() + "/" + hash); //Ex cdn.startapped.com/image/blah
+                uploadedFile.setUrl(GlobalVars.cdnUrl + "/" + allowedType.getFolder() + "/" + hash + extension); //Ex cdn.startapped.com/image/blah
                 uploadedFile.setUploader(uploader);
                 uploadedFile.setName(originalName);
                 uploadedFile.setTimestamp(System.currentTimeMillis());
