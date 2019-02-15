@@ -139,6 +139,7 @@ public class DatabaseHandler {
                     " body LONGTEXT not NULL, " +
                     " nsfw BOOLEAN not NULL, " +
                     " parent VARCHAR(255) NULL, " +
+                    " tags LONGTEXT not NULL, " +
                     " image_url LONGTEXT NULL, " +
                     " audio_url LONGTEXT NULL, " +
                     " video_url LONGTEXT NULL, " +

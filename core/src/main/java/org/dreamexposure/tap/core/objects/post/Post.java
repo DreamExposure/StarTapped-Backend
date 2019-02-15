@@ -4,8 +4,12 @@ import org.dreamexposure.tap.core.enums.post.PostType;
 import org.dreamexposure.tap.core.objects.account.Account;
 import org.dreamexposure.tap.core.objects.blog.Blog;
 import org.dreamexposure.tap.core.objects.blog.IBlog;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -31,6 +35,8 @@ public class Post implements IPost, Comparable<IPost> {
     private boolean nsfw;
 
     private UUID parent;
+
+    private List<String> tags = new ArrayList<>();
     
     
     //Getters
@@ -80,6 +86,20 @@ public class Post implements IPost, Comparable<IPost> {
         return parent;
     }
 
+    public List<String> getTags() {
+        return tags;
+    }
+
+    @Override
+    public String tagsToString() {
+        if (tags.isEmpty()) {
+            return "";
+        } else {
+            String tagString = tags.toString();
+            return tagString.substring(1, tagString.length() - 1); //This removes leading and trailing []
+        }
+    }
+
     //Setters
     public void setId(UUID _id) {
         id = _id;
@@ -126,6 +146,11 @@ public class Post implements IPost, Comparable<IPost> {
         parent = _parent;
     }
 
+    @Override
+    public void tagsFromString(String tagString) {
+        tags.addAll(Arrays.asList(tagString.split(",")));
+    }
+
     public JSONObject toJson() {
         JSONObject json = new JSONObject();
         
@@ -141,6 +166,12 @@ public class Post implements IPost, Comparable<IPost> {
         json.put("nsfw", nsfw);
         if (parent != null)
             json.put("parent", parent);
+
+        JSONArray jTags = new JSONArray();
+        for (String t : tags) {
+            jTags.put(t);
+        }
+        json.put("tags", jTags);
         
         return json;
     }
@@ -158,11 +189,15 @@ public class Post implements IPost, Comparable<IPost> {
         nsfw = json.getBoolean("nsfw");
         if (json.has("parent"))
             parent = UUID.fromString(json.getString("parent"));
-        
+
+        JSONArray jTags = json.getJSONArray("tags");
+        for (int i = 0; i < jTags.length(); i++) {
+            tags.add(jTags.getString(i));
+        }
+
         return this;
     }
 
-    @SuppressWarnings("NullableProblems")
     @Override
     public int compareTo(IPost o) {
         return Long.compare(o.getTimestamp(), getTimestamp());

@@ -77,7 +77,14 @@ public class PostEndpoint {
                         textPost.setParent(UUID.fromString(body.getString("parent")));
                     else
                         textPost.setParent(null);
-                    //TODO: Handle post tags.
+
+                    //Handle tags
+                    if (body.has("tags")) {
+                        JSONArray jTags = body.getJSONArray("tags");
+                        for (int i = 0; i < jTags.length(); i++) {
+                            textPost.getTags().add(jTags.getString(i));
+                        }
+                    }
 
                     if (PostDataHandler.get().addPost(textPost)) {
                         response.setContentType("application/json");
@@ -121,7 +128,13 @@ public class PostEndpoint {
                         return ResponseUtils.getJsonResponseMessage("Failed to handle image upload");
                     }
 
-                    //TODO: Handle post tags.
+                    //Handle tags
+                    if (body.has("tags")) {
+                        JSONArray jTags = body.getJSONArray("tags");
+                        for (int i = 0; i < jTags.length(); i++) {
+                            imagePost.getTags().add(jTags.getString(i));
+                        }
+                    }
 
                     if (PostDataHandler.get().addPost(imagePost)) {
                         response.setContentType("application/json");
@@ -165,7 +178,13 @@ public class PostEndpoint {
                         return ResponseUtils.getJsonResponseMessage("Failed to handle audio upload");
                     }
 
-                    //TODO: Handle post tags.
+                    //Handle tags
+                    if (body.has("tags")) {
+                        JSONArray jTags = body.getJSONArray("tags");
+                        for (int i = 0; i < jTags.length(); i++) {
+                            audioPost.getTags().add(jTags.getString(i));
+                        }
+                    }
 
                     if (PostDataHandler.get().addPost(audioPost)) {
                         response.setContentType("application/json");
@@ -209,7 +228,13 @@ public class PostEndpoint {
                         return ResponseUtils.getJsonResponseMessage("Failed to handle video upload");
                     }
 
-                    //TODO: Handle post tags.
+                    //Handle tags
+                    if (body.has("tags")) {
+                        JSONArray jTags = body.getJSONArray("tags");
+                        for (int i = 0; i < jTags.length(); i++) {
+                            videoPost.getTags().add(jTags.getString(i));
+                        }
+                    }
 
                     if (PostDataHandler.get().addPost(videoPost)) {
                         response.setContentType("application/json");

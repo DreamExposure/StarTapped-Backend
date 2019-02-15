@@ -5,6 +5,7 @@ import org.dreamexposure.tap.core.objects.account.Account;
 import org.dreamexposure.tap.core.objects.blog.IBlog;
 import org.json.JSONObject;
 
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -39,6 +40,10 @@ public interface IPost extends Comparable<IPost> {
     boolean isNsfw();
 
     UUID getParent();
+
+    List<String> getTags();
+
+    String tagsToString();
     
     //Setters
     void setId(UUID _id);
@@ -62,6 +67,8 @@ public interface IPost extends Comparable<IPost> {
     void setNsfw(boolean _nsfw);
 
     void setParent(UUID _parent);
+
+    void tagsFromString(String tagString);
     
     JSONObject toJson();
     

@@ -69,6 +69,7 @@ public class PostDataHandler {
                             textPost.setTitle(res.getString("title"));
                             textPost.setBody(res.getString("body"));
                             textPost.setNsfw(res.getBoolean("nsfw"));
+                            textPost.tagsFromString(res.getString("tags"));
                             try {
                                 UUID parent = UUID.fromString(res.getString("parent"));
                                 textPost.setParent(parent);
@@ -90,6 +91,7 @@ public class PostDataHandler {
                             imagePost.setTitle(res.getString("title"));
                             imagePost.setBody(res.getString("body"));
                             imagePost.setNsfw(res.getBoolean("nsfw"));
+                            imagePost.tagsFromString(res.getString("tags"));
                             try {
                                 UUID parent = UUID.fromString(res.getString("parent"));
                                 imagePost.setParent(parent);
@@ -111,6 +113,7 @@ public class PostDataHandler {
                             videoPost.setTitle(res.getString("title"));
                             videoPost.setBody(res.getString("body"));
                             videoPost.setNsfw(res.getBoolean("nsfw"));
+                            videoPost.tagsFromString(res.getString("tags"));
                             try {
                                 UUID parent = UUID.fromString(res.getString("parent"));
                                 videoPost.setParent(parent);
@@ -132,6 +135,7 @@ public class PostDataHandler {
                             audioPost.setTitle(res.getString("title"));
                             audioPost.setBody(res.getString("body"));
                             audioPost.setNsfw(res.getBoolean("nsfw"));
+                            audioPost.tagsFromString(res.getString("tags"));
                             try {
                                 UUID parent = UUID.fromString(res.getString("parent"));
                                 audioPost.setParent(parent);
@@ -177,6 +181,7 @@ public class PostDataHandler {
                                 textPost.setTitle(res.getString("title"));
                                 textPost.setBody(res.getString("body"));
                                 textPost.setNsfw(res.getBoolean("nsfw"));
+                                textPost.tagsFromString(res.getString("tags"));
                                 try {
                                     UUID parent = UUID.fromString(res.getString("parent"));
                                     textPost.setParent(parent);
@@ -196,6 +201,7 @@ public class PostDataHandler {
                                 imagePost.setTitle(res.getString("title"));
                                 imagePost.setBody(res.getString("body"));
                                 imagePost.setNsfw(res.getBoolean("nsfw"));
+                                imagePost.tagsFromString(res.getString("tags"));
                                 try {
                                     UUID parent = UUID.fromString(res.getString("parent"));
                                     imagePost.setParent(parent);
@@ -217,6 +223,7 @@ public class PostDataHandler {
                                 videoPost.setTitle(res.getString("title"));
                                 videoPost.setBody(res.getString("body"));
                                 videoPost.setNsfw(res.getBoolean("nsfw"));
+                                videoPost.tagsFromString(res.getString("tags"));
                                 try {
                                     UUID parent = UUID.fromString(res.getString("parent"));
                                     videoPost.setParent(parent);
@@ -238,6 +245,7 @@ public class PostDataHandler {
                                 audioPost.setTitle(res.getString("title"));
                                 audioPost.setBody(res.getString("body"));
                                 audioPost.setNsfw(res.getBoolean("nsfw"));
+                                audioPost.tagsFromString(res.getString("tags"));
                                 try {
                                     UUID parent = UUID.fromString(res.getString("parent"));
                                     audioPost.setParent(parent);
@@ -286,6 +294,7 @@ public class PostDataHandler {
                                 textPost.setTitle(res.getString("title"));
                                 textPost.setBody(res.getString("body"));
                                 textPost.setNsfw(res.getBoolean("nsfw"));
+                                textPost.tagsFromString(res.getString("tags"));
                                 try {
                                     UUID parent = UUID.fromString(res.getString("parent"));
                                     textPost.setParent(parent);
@@ -305,6 +314,7 @@ public class PostDataHandler {
                                 imagePost.setTitle(res.getString("title"));
                                 imagePost.setBody(res.getString("body"));
                                 imagePost.setNsfw(res.getBoolean("nsfw"));
+                                imagePost.tagsFromString(res.getString("tags"));
                                 try {
                                     UUID parent = UUID.fromString(res.getString("parent"));
                                     imagePost.setParent(parent);
@@ -326,6 +336,7 @@ public class PostDataHandler {
                                 videoPost.setTitle(res.getString("title"));
                                 videoPost.setBody(res.getString("body"));
                                 videoPost.setNsfw(res.getBoolean("nsfw"));
+                                videoPost.tagsFromString(res.getString("tags"));
                                 try {
                                     UUID parent = UUID.fromString(res.getString("parent"));
                                     videoPost.setParent(parent);
@@ -347,6 +358,7 @@ public class PostDataHandler {
                                 audioPost.setTitle(res.getString("title"));
                                 audioPost.setBody(res.getString("body"));
                                 audioPost.setNsfw(res.getBoolean("nsfw"));
+                                audioPost.tagsFromString(res.getString("tags"));
                                 try {
                                     UUID parent = UUID.fromString(res.getString("parent"));
                                     audioPost.setParent(parent);
@@ -394,6 +406,7 @@ public class PostDataHandler {
                                 textPost.setTitle(res.getString("title"));
                                 textPost.setBody(res.getString("body"));
                                 textPost.setNsfw(res.getBoolean("nsfw"));
+                                textPost.tagsFromString(res.getString("tags"));
                                 try {
                                     UUID parent = UUID.fromString(res.getString("parent"));
                                     textPost.setParent(parent);
@@ -413,6 +426,7 @@ public class PostDataHandler {
                                 imagePost.setTitle(res.getString("title"));
                                 imagePost.setBody(res.getString("body"));
                                 imagePost.setNsfw(res.getBoolean("nsfw"));
+                                imagePost.tagsFromString(res.getString("tags"));
                                 try {
                                     UUID parent = UUID.fromString(res.getString("parent"));
                                     imagePost.setParent(parent);
@@ -434,6 +448,7 @@ public class PostDataHandler {
                                 videoPost.setTitle(res.getString("title"));
                                 videoPost.setBody(res.getString("body"));
                                 videoPost.setNsfw(res.getBoolean("nsfw"));
+                                videoPost.tagsFromString(res.getString("tags"));
                                 try {
                                     UUID parent = UUID.fromString(res.getString("parent"));
                                     videoPost.setParent(parent);
@@ -455,6 +470,7 @@ public class PostDataHandler {
                                 audioPost.setTitle(res.getString("title"));
                                 audioPost.setBody(res.getString("body"));
                                 audioPost.setNsfw(res.getBoolean("nsfw"));
+                                audioPost.tagsFromString(res.getString("tags"));
                                 try {
                                     UUID parent = UUID.fromString(res.getString("parent"));
                                     audioPost.setParent(parent);
@@ -502,6 +518,7 @@ public class PostDataHandler {
                                 textPost.setTitle(res.getString("title"));
                                 textPost.setBody(res.getString("body"));
                                 textPost.setNsfw(res.getBoolean("nsfw"));
+                                textPost.tagsFromString(res.getString("tags"));
                                 try {
                                     UUID parent = UUID.fromString(res.getString("parent"));
                                     textPost.setParent(parent);
@@ -521,6 +538,7 @@ public class PostDataHandler {
                                 imagePost.setTitle(res.getString("title"));
                                 imagePost.setBody(res.getString("body"));
                                 imagePost.setNsfw(res.getBoolean("nsfw"));
+                                imagePost.tagsFromString(res.getString("tags"));
                                 try {
                                     UUID parent = UUID.fromString(res.getString("parent"));
                                     imagePost.setParent(parent);
@@ -542,6 +560,7 @@ public class PostDataHandler {
                                 videoPost.setTitle(res.getString("title"));
                                 videoPost.setBody(res.getString("body"));
                                 videoPost.setNsfw(res.getBoolean("nsfw"));
+                                videoPost.tagsFromString(res.getString("tags"));
                                 try {
                                     UUID parent = UUID.fromString(res.getString("parent"));
                                     videoPost.setParent(parent);
@@ -563,6 +582,7 @@ public class PostDataHandler {
                                 audioPost.setTitle(res.getString("title"));
                                 audioPost.setBody(res.getString("body"));
                                 audioPost.setNsfw(res.getBoolean("nsfw"));
+                                audioPost.tagsFromString(res.getString("tags"));
                                 try {
                                     UUID parent = UUID.fromString(res.getString("parent"));
                                     audioPost.setParent(parent);
@@ -618,9 +638,9 @@ public class PostDataHandler {
                     //No data present, add
                     String insert = "INSERT INTO " + tableName +
                             " (id, creator_id, origin_blog_id, permalink, full_url, post_type, " +
-                            " timestamp, title, body, nsfw, parent, " +
+                            " timestamp, title, body, nsfw, parent, tags, " +
                             " image_url, audio_url, video_url)" +
-                            " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                            " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
                     PreparedStatement ps = databaseInfo.getConnection().prepareStatement(insert);
 
                     ps.setString(1, post.getId().toString());
@@ -637,6 +657,59 @@ public class PostDataHandler {
                         ps.setString(11, post.getParent().toString());
                     else
                         ps.setString(11, null);
+                    ps.setString(12, post.tagsToString());
+
+                    //Specific post type handling
+                    switch (post.getPostType()) {
+                        case IMAGE:
+                            ps.setString(13, ((ImagePost) post).getImage().getUrl());
+                            ps.setString(14, null);
+                            ps.setString(15, null);
+                            break;
+                        case AUDIO:
+                            ps.setString(13, null);
+                            ps.setString(14, ((AudioPost) post).getAudio().getUrl());
+                            ps.setString(15, null);
+                            break;
+                        case VIDEO:
+                            ps.setString(13, null);
+                            ps.setString(14, null);
+                            ps.setString(15, ((VideoPost) post).getVideo().getUrl());
+                            break;
+                        default:
+                            ps.setString(13, null);
+                            ps.setString(14, null);
+                            ps.setString(15, null);
+                            break;
+                    }
+
+                    ps.execute();
+                    ps.close();
+                    statement.close();
+                    return true;
+                } else {
+                    //Data present, update
+                    String update = "UPDATE " + tableName + " SET " +
+                            "creator_id = ?, origin_blog_id = ?, permalink = ?, full_url = ?, post_type = ?, " +
+                            "timestamp = ?, title = ?, body = ?, nsfw = ?, parent = ?, tags = ?, " +
+                            " image_url = ?, audio_url = ?, video_url = ? " +
+                            " WHERE id = ?";
+                    PreparedStatement ps = databaseInfo.getConnection().prepareStatement(update);
+
+                    ps.setString(1, post.getCreator().getAccountId().toString());
+                    ps.setString(2, post.getOriginBlog().getBlogId().toString());
+                    ps.setString(3, post.getPermaLink());
+                    ps.setString(4, post.getFullUrl());
+                    ps.setString(5, post.getPostType().name());
+                    ps.setLong(6, post.getTimestamp());
+                    ps.setString(7, post.getTitle());
+                    ps.setString(8, post.getBody());
+                    ps.setBoolean(9, post.isNsfw());
+                    if (post.getParent() != null)
+                        ps.setString(10, post.getParent().toString());
+                    else
+                        ps.setString(10, null);
+                    ps.setString(11, post.tagsToString());
 
                     //Specific post type handling
                     switch (post.getPostType()) {
@@ -661,58 +734,7 @@ public class PostDataHandler {
                             ps.setString(14, null);
                             break;
                     }
-
-                    ps.execute();
-                    ps.close();
-                    statement.close();
-                    return true;
-                } else {
-                    //Data present, update
-                    String update = "UPDATE " + tableName + " SET " +
-                            "creator_id = ?, origin_blog_id = ?, permalink = ?, full_url = ?, post_type = ?, " +
-                            "timestamp = ?, title = ?, body = ?, nsfw = ?, parent = ?, " +
-                            " image_url = ?, audio_url = ?, video_url = ? " +
-                            " WHERE id = ?";
-                    PreparedStatement ps = databaseInfo.getConnection().prepareStatement(update);
-
-                    ps.setString(1, post.getCreator().getAccountId().toString());
-                    ps.setString(2, post.getOriginBlog().getBlogId().toString());
-                    ps.setString(3, post.getPermaLink());
-                    ps.setString(4, post.getFullUrl());
-                    ps.setString(5, post.getPostType().name());
-                    ps.setLong(6, post.getTimestamp());
-                    ps.setString(7, post.getTitle());
-                    ps.setString(8, post.getBody());
-                    ps.setBoolean(9, post.isNsfw());
-                    if (post.getParent() != null)
-                        ps.setString(10, post.getParent().toString());
-                    else
-                        ps.setString(10, null);
-
-                    //Specific post type handling
-                    switch (post.getPostType()) {
-                        case IMAGE:
-                            ps.setString(11, ((ImagePost) post).getImage().getUrl());
-                            ps.setString(12, null);
-                            ps.setString(13, null);
-                            break;
-                        case AUDIO:
-                            ps.setString(11, null);
-                            ps.setString(12, ((AudioPost) post).getAudio().getUrl());
-                            ps.setString(13, null);
-                            break;
-                        case VIDEO:
-                            ps.setString(11, null);
-                            ps.setString(12, null);
-                            ps.setString(13, ((VideoPost) post).getVideo().getUrl());
-                            break;
-                        default:
-                            ps.setString(11, null);
-                            ps.setString(12, null);
-                            ps.setString(13, null);
-                            break;
-                    }
-                    ps.setString(14, post.getId().toString());
+                    ps.setString(15, post.getId().toString());
 
                     ps.execute();
                     ps.close();
@@ -725,5 +747,4 @@ public class PostDataHandler {
         }
         return false;
     }
-
 }
