@@ -4,6 +4,7 @@ import org.dreamexposure.tap.backend.network.auth.Authentication;
 import org.dreamexposure.tap.backend.objects.auth.AuthenticationState;
 import org.dreamexposure.tap.backend.utils.ResponseUtils;
 import org.json.JSONObject;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,6 +21,7 @@ import javax.servlet.http.HttpServletResponse;
  * Contact: nova@dreamexposure.org
  */
 @SuppressWarnings("Duplicates")
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/v1/auth")
 public class AuthEndpoint {

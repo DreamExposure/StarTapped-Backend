@@ -37,7 +37,7 @@ public class ServletConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 CorsRegistration reg = registry.addMapping("/v1/**");
-                reg.allowedOrigins("https://www.startapped.com");
+                reg.allowedOrigins("*");
             }
         };
     }
