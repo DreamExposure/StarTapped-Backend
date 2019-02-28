@@ -10,6 +10,7 @@ import org.dreamexposure.tap.backend.objects.auth.AuthenticationState;
 import org.dreamexposure.tap.backend.utils.FileUploadHandler;
 import org.dreamexposure.tap.backend.utils.ResponseUtils;
 import org.dreamexposure.tap.backend.utils.Sanitizer;
+import org.dreamexposure.tap.backend.utils.Validator;
 import org.dreamexposure.tap.core.enums.file.MimeType;
 import org.dreamexposure.tap.core.enums.post.PostType;
 import org.dreamexposure.tap.core.objects.account.Account;
@@ -306,6 +307,21 @@ public class PostEndpoint {
                 response.setStatus(417); //Using this code to signify Epoch hit for clients.
 
                 return ResponseUtils.getJsonResponseMessage("StarTapped Epoch hit. No further posts can be retrieved.");
+            }
+
+            //Check if user is minor or has safe search on and blog is NSFW and/or is adults only.
+            Account acc = AccountDataHandler.get().getAccountFromId(authState.getId());
+            IBlog blog = BlogDataHandler.get().getBlog(blogId);
+            if (acc.isSafeSearch() && blog.isNsfw()) {
+                response.setContentType("application/json");
+                response.setStatus(403);
+
+                return ResponseUtils.getJsonResponseMessage("This blog is marked as NSFW. Disable safe search in order to view posts by this blog.");
+            } else if (!blog.isAllowUnder18() && Validator.determineAge(acc.getBirthday()) < 18) {
+                response.setContentType("application/json");
+                response.setStatus(403);
+
+                return ResponseUtils.getJsonResponseMessage("This blog does not allow minors to view its content. Please come back when you are at least 18 years old.");
             }
 
             //Get from database...

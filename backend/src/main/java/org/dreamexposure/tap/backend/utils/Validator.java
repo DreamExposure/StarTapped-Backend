@@ -1,9 +1,13 @@
 package org.dreamexposure.tap.backend.utils;
 
 import org.apache.commons.validator.routines.EmailValidator;
+import org.joda.time.LocalDate;
+import org.joda.time.Years;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -16,6 +20,7 @@ import java.util.regex.Pattern;
  * Contact: nova@dreamexposure.org
  */
 public class Validator {
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public static boolean validEmail(String input) {
         return EmailValidator.getInstance(false).isValid(input);
     }
@@ -44,5 +49,20 @@ public class Validator {
         Pattern colorPattern = Pattern.compile("#([0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})");
         Matcher m = colorPattern.matcher(input);
         return m.matches();
+    }
+
+    public static int determineAge(String birthday) {
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+            Date date = sdf.parse(birthday);
+
+            LocalDate birth = new LocalDate(date);
+            LocalDate now = new LocalDate();
+            Years age = Years.yearsBetween(birth, now);
+
+            return age.getYears();
+        } catch (ParseException ignore) {
+        }
+        return -1;
     }
 }

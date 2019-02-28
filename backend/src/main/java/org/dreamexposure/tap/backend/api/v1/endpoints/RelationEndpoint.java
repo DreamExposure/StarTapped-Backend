@@ -2,9 +2,11 @@ package org.dreamexposure.tap.backend.api.v1.endpoints;
 
 import org.dreamexposure.tap.backend.network.auth.Authentication;
 import org.dreamexposure.tap.backend.network.database.AccountDataHandler;
+import org.dreamexposure.tap.backend.network.database.BlogDataHandler;
 import org.dreamexposure.tap.backend.network.database.FollowerDataHandler;
 import org.dreamexposure.tap.backend.objects.auth.AuthenticationState;
 import org.dreamexposure.tap.backend.utils.ResponseUtils;
+import org.dreamexposure.tap.backend.utils.Validator;
 import org.dreamexposure.tap.core.objects.account.Account;
 import org.dreamexposure.tap.core.objects.blog.GroupBlog;
 import org.dreamexposure.tap.core.objects.blog.IBlog;
@@ -48,6 +50,15 @@ public class RelationEndpoint {
             Account account = AccountDataHandler.get().getAccountFromId(authState.getId());
 
             UUID blogToFollow = UUID.fromString(body.getString("blog_id"));
+
+            //Check and see if the user is a minor and the blog disallows minors...
+            IBlog blog = BlogDataHandler.get().getBlog(blogToFollow);
+            if (!blog.isAllowUnder18() && Validator.determineAge(account.getBirthday()) < 18) {
+                response.setContentType("application/json");
+                response.setStatus(403);
+
+                return ResponseUtils.getJsonResponseMessage("You cannot follow this blog as it is an adults only blog. Please come back when you are at least 18 years old");
+            }
 
             FollowerDataHandler.get().follow(account.getAccountId(), blogToFollow);
 
