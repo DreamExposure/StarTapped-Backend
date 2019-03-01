@@ -291,6 +291,13 @@ public class PostEndpoint {
             UUID blogId = UUID.fromString(body.getString("blog_id"));
             int limit = body.getInt("limit");
             long before = body.getLong("before");
+            List<String> tags = new ArrayList<>();
+            if (body.has("filters")) {
+                JSONArray jTags = body.getJSONArray("filters");
+                for (int i = 0; i < jTags.length(); i++) {
+                    tags.add(jTags.getString(i));
+                }
+            }
 
             //Limit must be between 1 and 20 (inclusive)
             if (limit < 1 || limit > 20) {
@@ -325,7 +332,125 @@ public class PostEndpoint {
             }
 
             //Get from database...
-            List<IPost> posts = PostDataHandler.get().getPostsByBlog(blogId, before, limit);
+            List<IPost> posts = PostDataHandler.get().getPostsByBlog(blogId, before, limit, tags);
+
+            //Get our upper and lower times...
+            Collections.sort(posts);
+
+            JSONObject range = new JSONObject();
+            if (!posts.isEmpty()) {
+                range.put("latest", posts.get(0).getTimestamp());
+                range.put("oldest", posts.get(posts.size() - 1).getTimestamp());
+            } else {
+                range.put("latest", 0);
+                range.put("oldest", 0);
+            }
+
+            //Get all of the parents
+            List<IPost> toAdd = new ArrayList<>();
+
+            for (IPost p : posts) {
+                List<IPost> parentTree = PostDataHandler.get().getParentTree(p);
+                for (IPost pa : parentTree) {
+                    if (PostUtils.doesNotHavePost(posts, pa.getId()) && PostUtils.doesNotHavePost(toAdd, pa.getId())) {
+                        toAdd.add(pa);
+                    }
+                }
+            }
+
+            posts.addAll(toAdd);
+
+
+            //Okay, now handle the JSON
+            Collections.sort(posts);
+
+            JSONObject responseBody = new JSONObject();
+            responseBody.put("message", "Success");
+
+            JSONArray jPosts = new JSONArray();
+            for (IPost p : posts) {
+                jPosts.put(p.toJson());
+            }
+            responseBody.put("posts", jPosts);
+            responseBody.put("count", jPosts.length());
+            responseBody.put("range", range);
+
+            //Respond to client.
+            response.setContentType("application/json");
+            response.setStatus(200);
+
+            return responseBody.toString();
+
+        } catch (JSONException | IllegalArgumentException e) {
+            response.setContentType("application/json");
+            response.setStatus(400);
+
+            return ResponseUtils.getJsonResponseMessage("Bad Request");
+        } catch (Exception e) {
+            response.setContentType("application/json");
+            response.setStatus(500);
+
+            Logger.getLogger().exception("Failed to handle post get by blog", e, PostEndpoint.class);
+            return ResponseUtils.getJsonResponseMessage("Internal Server Error");
+        }
+    }
+
+    @PostMapping(value = "/get/search", produces = "application/json")
+    public static String getForSearch(HttpServletRequest request, HttpServletResponse response, @RequestBody String requestBody) {
+        //Authenticate...
+        AuthenticationState authState = Authentication.authenticate(request);
+        if (!authState.isSuccess()) {
+            response.setStatus(authState.getStatus());
+            response.setContentType("application/json");
+            return authState.toJson();
+        }
+
+
+        try {
+            JSONObject body = new JSONObject(requestBody);
+            int limit = body.getInt("limit");
+            long before = body.getLong("before");
+            List<String> tags = new ArrayList<>();
+            if (body.has("filters")) {
+                JSONArray jTags = body.getJSONArray("filters");
+                for (int i = 0; i < jTags.length(); i++) {
+                    tags.add(jTags.getString(i));
+                }
+            }
+
+            //Limit must be between 1 and 20 (inclusive)
+            if (limit < 1 || limit > 20) {
+                //Invalid month specified...
+                response.setContentType("application/json");
+                response.setStatus(400);
+
+                return ResponseUtils.getJsonResponseMessage("Bad Request");
+            }
+
+            if (before <= GlobalVars.starTappedEpoch) {
+                //StarTapped epoch hit. No posts could be created before then.
+                response.setContentType("application/json");
+                response.setStatus(417); //Using this code to signify Epoch hit for clients.
+
+                return ResponseUtils.getJsonResponseMessage("StarTapped Epoch hit. No further posts can be retrieved.");
+            }
+
+            //Get from database...
+            List<IPost> posts = PostDataHandler.get().getPostsSearch(before, limit, tags);
+
+            //Remove NSFW posts if safe search and/or remove posts from blogs that don't allow minors
+            Account acc = AccountDataHandler.get().getAccountFromId(authState.getId());
+            int age = Validator.determineAge(acc.getBirthday());
+
+            List<IPost> toRemove = new ArrayList<>();
+            for (IPost p : posts) {
+                if (p.isNsfw() && acc.isSafeSearch()) {
+                    toRemove.add(p);
+                } else if (age < 18 && !p.getOriginBlog().isAllowUnder18()) {
+                    toRemove.add(p);
+                }
+            }
+            posts.removeAll(toRemove);
 
             //Get our upper and lower times...
             Collections.sort(posts);
@@ -403,6 +528,13 @@ public class PostEndpoint {
             JSONObject body = new JSONObject(requestBody);
             int limit = body.getInt("limit");
             long before = body.getLong("before");
+            List<String> tags = new ArrayList<>();
+            if (body.has("filters")) {
+                JSONArray jTags = body.getJSONArray("filters");
+                for (int i = 0; i < jTags.length(); i++) {
+                    tags.add(jTags.getString(i));
+                }
+            }
 
             //Limit must be between 1 and 20 (inclusive)
             if (limit < 1 || limit > 20) {
@@ -431,7 +563,7 @@ public class PostEndpoint {
 
             //This gets WAY more than 20 posts, this gets the limit of posts from each blog, we will have to trim this.
             for (UUID bId : following) {
-                List<IPost> newPosts = PostDataHandler.get().getPostsByBlog(bId, before, limit);
+                List<IPost> newPosts = PostDataHandler.get().getPostsByBlog(bId, before, limit, tags);
                 for (IPost p : newPosts) {
                     if (PostUtils.doesNotHavePost(posts, p.getId()))
                         posts.add(p);

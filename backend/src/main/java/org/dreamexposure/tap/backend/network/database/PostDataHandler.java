@@ -156,6 +156,135 @@ public class PostDataHandler {
         return null;
     }
 
+    public List<IPost> getPostsSearch(long before, int inclusiveLimit, List<String> filters) {
+        List<IPost> posts = new ArrayList<>();
+        try {
+            if (databaseInfo.getMySQL().checkConnection()) {
+                //Build query
+                StringBuilder query = new StringBuilder("SELECT * FROM " + tableName + " WHERE timestamp < ?");
+                if (filters.size() > 0) {
+                    for (String ignored : filters) {
+                        query.append(" AND tags LIKE ?");
+                    }
+                }
+                query.append(" ORDER BY timestamp DESC"); //This should fix issues...
+                PreparedStatement ps = databaseInfo.getConnection().prepareStatement(query.toString());
+                ps.setLong(1, before);
+
+                //Add filters
+                if (filters.size() > 0) {
+                    int index = 2;
+                    for (String s : filters) {
+                        ps.setString(index, "%" + s + "%");
+                        index++;
+                    }
+                }
+
+                //Process data
+                ResultSet res = ps.executeQuery();
+
+                while (res.next() && posts.size() <= inclusiveLimit) {
+                    if (res.getString("id") != null) {
+                        //Data present, let's grab it.
+                        switch (PostType.valueOf(res.getString("post_type"))) {
+                            case TEXT:
+                                TextPost textPost = new TextPost();
+                                textPost.setId(UUID.fromString(res.getString("id")));
+                                textPost.setCreator(AccountDataHandler.get().getAccountFromId(UUID.fromString(res.getString("creator_id"))));
+                                textPost.setOriginBlog(BlogDataHandler.get().getBlog(UUID.fromString(res.getString("origin_blog_id"))));
+                                textPost.setPermaLink(res.getString("permalink"));
+                                textPost.setFullUrl(res.getString("full_url"));
+                                textPost.setTimestamp(res.getLong("timestamp"));
+                                textPost.setTitle(res.getString("title"));
+                                textPost.setBody(res.getString("body"));
+                                textPost.setNsfw(res.getBoolean("nsfw"));
+                                textPost.tagsFromString(res.getString("tags"));
+                                try {
+                                    UUID parent = UUID.fromString(res.getString("parent"));
+                                    textPost.setParent(parent);
+                                } catch (Exception ignore) {
+                                    //No parent.
+                                }
+                                posts.add(textPost);
+                                break;
+                            case IMAGE:
+                                ImagePost imagePost = new ImagePost();
+                                imagePost.setId(UUID.fromString(res.getString("id")));
+                                imagePost.setCreator(AccountDataHandler.get().getAccountFromId(UUID.fromString(res.getString("creator_id"))));
+                                imagePost.setOriginBlog(BlogDataHandler.get().getBlog(UUID.fromString(res.getString("origin_blog_id"))));
+                                imagePost.setPermaLink(res.getString("permalink"));
+                                imagePost.setFullUrl(res.getString("full_url"));
+                                imagePost.setTimestamp(res.getLong("timestamp"));
+                                imagePost.setTitle(res.getString("title"));
+                                imagePost.setBody(res.getString("body"));
+                                imagePost.setNsfw(res.getBoolean("nsfw"));
+                                imagePost.tagsFromString(res.getString("tags"));
+                                try {
+                                    UUID parent = UUID.fromString(res.getString("parent"));
+                                    imagePost.setParent(parent);
+                                } catch (Exception ignore) {
+                                    //No parent.
+                                }
+                                imagePost.setImage(FileDataHandler.get().getFileFromUrl(res.getString("image_url")));
+
+                                posts.add(imagePost);
+                                break;
+                            case VIDEO:
+                                VideoPost videoPost = new VideoPost();
+                                videoPost.setId(UUID.fromString(res.getString("id")));
+                                videoPost.setCreator(AccountDataHandler.get().getAccountFromId(UUID.fromString(res.getString("creator_id"))));
+                                videoPost.setOriginBlog(BlogDataHandler.get().getBlog(UUID.fromString(res.getString("origin_blog_id"))));
+                                videoPost.setPermaLink(res.getString("permalink"));
+                                videoPost.setFullUrl(res.getString("full_url"));
+                                videoPost.setTimestamp(res.getLong("timestamp"));
+                                videoPost.setTitle(res.getString("title"));
+                                videoPost.setBody(res.getString("body"));
+                                videoPost.setNsfw(res.getBoolean("nsfw"));
+                                videoPost.tagsFromString(res.getString("tags"));
+                                try {
+                                    UUID parent = UUID.fromString(res.getString("parent"));
+                                    videoPost.setParent(parent);
+                                } catch (Exception ignore) {
+                                    //No parent.
+                                }
+                                videoPost.setVideo(FileDataHandler.get().getFileFromUrl(res.getString("video_url")));
+
+                                posts.add(videoPost);
+                                break;
+                            case AUDIO:
+                                AudioPost audioPost = new AudioPost();
+                                audioPost.setId(UUID.fromString(res.getString("id")));
+                                audioPost.setCreator(AccountDataHandler.get().getAccountFromId(UUID.fromString(res.getString("creator_id"))));
+                                audioPost.setOriginBlog(BlogDataHandler.get().getBlog(UUID.fromString(res.getString("origin_blog_id"))));
+                                audioPost.setPermaLink(res.getString("permalink"));
+                                audioPost.setFullUrl(res.getString("full_url"));
+                                audioPost.setTimestamp(res.getLong("timestamp"));
+                                audioPost.setTitle(res.getString("title"));
+                                audioPost.setBody(res.getString("body"));
+                                audioPost.setNsfw(res.getBoolean("nsfw"));
+                                audioPost.tagsFromString(res.getString("tags"));
+                                try {
+                                    UUID parent = UUID.fromString(res.getString("parent"));
+                                    audioPost.setParent(parent);
+                                } catch (Exception ignore) {
+                                    //No parent.
+                                }
+                                audioPost.setAudio(FileDataHandler.get().getFileFromUrl(res.getString("audio_url")));
+
+                                posts.add(audioPost);
+                                break;
+                        }
+                    }
+                }
+                ps.close();
+            }
+        } catch (SQLException e) {
+            Logger.getLogger().exception("Failed to get post", e, this.getClass());
+        }
+
+        return posts;
+    }
+
     public List<IPost> getPostsByBlog(UUID blogId) {
         List<IPost> posts = new ArrayList<>();
         try {
@@ -268,15 +397,32 @@ public class PostDataHandler {
         return posts;
     }
 
-    public List<IPost> getPostsByBlog(UUID blogId, long before, int inclusiveLimit) {
+    public List<IPost> getPostsByBlog(UUID blogId, long before, int inclusiveLimit, List<String> filters) {
         List<IPost> posts = new ArrayList<>();
         try {
             if (databaseInfo.getMySQL().checkConnection()) {
-                String query = "SELECT * FROM " + tableName + " WHERE origin_blog_id = ? AND timestamp < ?";
-                PreparedStatement ps = databaseInfo.getConnection().prepareStatement(query);
+                //Build query
+                StringBuilder query = new StringBuilder("SELECT * FROM " + tableName + " WHERE origin_blog_id = ? AND timestamp < ?");
+                if (filters.size() > 0) {
+                    for (String ignored : filters) {
+                        query.append(" AND tags LIKE ?");
+                    }
+                }
+                query.append(" ORDER BY timestamp DESC"); //This should fix issues...
+                PreparedStatement ps = databaseInfo.getConnection().prepareStatement(query.toString());
                 ps.setString(1, blogId.toString());
                 ps.setLong(2, before);
 
+                //Add filters
+                if (filters.size() > 0) {
+                    int index = 3;
+                    for (String s : filters) {
+                        ps.setString(index, "%" + s + "%");
+                        index++;
+                    }
+                }
+
+                //Process data
                 ResultSet res = ps.executeQuery();
 
                 while (res.next() && posts.size() <= inclusiveLimit) {
