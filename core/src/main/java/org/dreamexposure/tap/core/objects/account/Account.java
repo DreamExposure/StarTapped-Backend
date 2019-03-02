@@ -1,5 +1,6 @@
 package org.dreamexposure.tap.core.objects.account;
 
+import org.dreamexposure.tap.core.utils.MathsUtils;
 import org.json.JSONObject;
 
 import java.util.UUID;
@@ -130,7 +131,7 @@ public class Account {
         JSONObject json = new JSONObject();
         json.put("id", accountId.toString());
         json.put("username", username);
-        json.put("birthday", birthday);
+        json.put("age", MathsUtils.determineAge(birthday));
         json.put("safe_search", safeSearch);
         json.put("verified", verified);
         json.put("admin", admin);
@@ -146,7 +147,8 @@ public class Account {
         //Skip hashed password
         if (json.has("phone_number"))
             phoneNumber = json.getString("phone_number");
-        birthday = json.getString("birthday");
+        if (json.has("birthday"))
+            birthday = json.getString("birthday");
         safeSearch = json.getBoolean("safe_search");
         verified = json.getBoolean("verified");
         if (json.has("email_confirmed"))

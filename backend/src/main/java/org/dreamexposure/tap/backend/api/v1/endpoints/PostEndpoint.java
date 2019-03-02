@@ -10,7 +10,6 @@ import org.dreamexposure.tap.backend.objects.auth.AuthenticationState;
 import org.dreamexposure.tap.backend.utils.FileUploadHandler;
 import org.dreamexposure.tap.backend.utils.ResponseUtils;
 import org.dreamexposure.tap.backend.utils.Sanitizer;
-import org.dreamexposure.tap.backend.utils.Validator;
 import org.dreamexposure.tap.core.enums.file.MimeType;
 import org.dreamexposure.tap.core.enums.post.PostType;
 import org.dreamexposure.tap.core.objects.account.Account;
@@ -18,6 +17,7 @@ import org.dreamexposure.tap.core.objects.blog.IBlog;
 import org.dreamexposure.tap.core.objects.file.UploadedFile;
 import org.dreamexposure.tap.core.objects.post.*;
 import org.dreamexposure.tap.core.utils.Logger;
+import org.dreamexposure.tap.core.utils.MathsUtils;
 import org.dreamexposure.tap.core.utils.PostUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -324,7 +324,7 @@ public class PostEndpoint {
                 response.setStatus(403);
 
                 return ResponseUtils.getJsonResponseMessage("This blog is marked as NSFW. Disable safe search in order to view posts by this blog.");
-            } else if (!blog.isAllowUnder18() && Validator.determineAge(acc.getBirthday()) < 18) {
+            } else if (!blog.isAllowUnder18() && MathsUtils.determineAge(acc.getBirthday()) < 18) {
                 response.setContentType("application/json");
                 response.setStatus(403);
 
@@ -440,7 +440,7 @@ public class PostEndpoint {
 
             //Remove NSFW posts if safe search and/or remove posts from blogs that don't allow minors
             Account acc = AccountDataHandler.get().getAccountFromId(authState.getId());
-            int age = Validator.determineAge(acc.getBirthday());
+            int age = MathsUtils.determineAge(acc.getBirthday());
 
             List<IPost> toRemove = new ArrayList<>();
             for (IPost p : posts) {

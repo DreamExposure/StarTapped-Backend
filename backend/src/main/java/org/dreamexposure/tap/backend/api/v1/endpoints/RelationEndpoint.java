@@ -6,12 +6,12 @@ import org.dreamexposure.tap.backend.network.database.BlogDataHandler;
 import org.dreamexposure.tap.backend.network.database.FollowerDataHandler;
 import org.dreamexposure.tap.backend.objects.auth.AuthenticationState;
 import org.dreamexposure.tap.backend.utils.ResponseUtils;
-import org.dreamexposure.tap.backend.utils.Validator;
 import org.dreamexposure.tap.core.objects.account.Account;
 import org.dreamexposure.tap.core.objects.blog.GroupBlog;
 import org.dreamexposure.tap.core.objects.blog.IBlog;
 import org.dreamexposure.tap.core.objects.blog.PersonalBlog;
 import org.dreamexposure.tap.core.utils.Logger;
+import org.dreamexposure.tap.core.utils.MathsUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -53,7 +53,7 @@ public class RelationEndpoint {
 
             //Check and see if the user is a minor and the blog disallows minors...
             IBlog blog = BlogDataHandler.get().getBlog(blogToFollow);
-            if (!blog.isAllowUnder18() && Validator.determineAge(account.getBirthday()) < 18) {
+            if (!blog.isAllowUnder18() && MathsUtils.determineAge(account.getBirthday()) < 18) {
                 response.setContentType("application/json");
                 response.setStatus(403);
 
