@@ -41,6 +41,12 @@
             <artifactId>commons-validator</artifactId>
             <version>1.6</version>
         </dependency>
+        <!--Google Cloud Vision Client Library-->
+        <dependency>
+            <groupId>com.google.cloud</groupId>
+            <artifactId>google-cloud-vision</artifactId>
+            <version>1.59.0</version>
+        </dependency>
 
     </dependencies>
 

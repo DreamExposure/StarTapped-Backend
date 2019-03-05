@@ -6,6 +6,7 @@ import org.dreamexposure.tap.backend.network.database.AccountDataHandler;
 import org.dreamexposure.tap.backend.network.database.BlogDataHandler;
 import org.dreamexposure.tap.backend.network.database.FollowerDataHandler;
 import org.dreamexposure.tap.backend.network.database.PostDataHandler;
+import org.dreamexposure.tap.backend.network.google.vision.ImageAnalysis;
 import org.dreamexposure.tap.backend.objects.auth.AuthenticationState;
 import org.dreamexposure.tap.backend.utils.FileUploadHandler;
 import org.dreamexposure.tap.backend.utils.ResponseUtils;
@@ -136,6 +137,11 @@ public class PostEndpoint {
                     }
 
                     if (PostDataHandler.get().addPost(imagePost)) {
+                        //Handle image scan, even if image scan fails its fine as long as we catch the majority.
+                        ImageAnalysis.get().handleImageScan(imagePost);
+
+
+                        //Return success back to client.
                         response.setContentType("application/json");
                         response.setStatus(200);
 

@@ -61,15 +61,18 @@ public class Logger {
     
     public void exception(String message, Exception e, Class clazz) {
         String timeStamp = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(Calendar.getInstance().getTime());
-        StringWriter sw = new StringWriter();
-        PrintWriter pw = new PrintWriter(sw);
-        e.printStackTrace(pw);
-        String error = sw.toString(); // stack trace as a string
-        pw.close();
-        try {
-            sw.close();
-        } catch (IOException e1) {
-            //Can ignore silently...
+        String error = "no error provided";
+        if (e != null) {
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            e.printStackTrace(pw);
+            error = sw.toString(); // stack trace as a string
+            pw.close();
+            try {
+                sw.close();
+            } catch (IOException e1) {
+                //Can ignore silently...
+            }
         }
         
         try {
