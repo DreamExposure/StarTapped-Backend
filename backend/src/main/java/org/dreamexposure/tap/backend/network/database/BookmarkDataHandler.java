@@ -50,6 +50,9 @@ public class BookmarkDataHandler {
                     b.setAccountId(accountId);
                     b.setPostId(postId);
                     b.setTimestamp(res.getLong("timestamp"));
+
+                    statement.close();
+                    return b;
                 }
             }
         } catch (SQLException e) {
@@ -79,6 +82,8 @@ public class BookmarkDataHandler {
                         bookmarks.add(b);
                     }
                 }
+
+                ps.close();
             }
         } catch (SQLException e) {
             Logger.getLogger().exception("Failed to get bookmarks", e, this.getClass());
