@@ -642,7 +642,7 @@ public class PostDataHandler {
         List<IPost> posts = new ArrayList<>();
         try {
             if (databaseInfo.getMySQL().checkConnection()) {
-                String query = "SELECT * FROM " + tableName + " WHERE creator_id = ? AND timestamp < ?";
+                String query = "SELECT * FROM " + tableName + " WHERE creator_id = ? AND timestamp < ? ORDER BY timestamp DESC";
                 PreparedStatement ps = databaseInfo.getConnection().prepareStatement(query);
                 ps.setString(1, accountId.toString());
                 ps.setLong(2, before);

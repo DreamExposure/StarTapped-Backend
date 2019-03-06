@@ -63,6 +63,7 @@ public class DatabaseHandler {
             PostDataHandler.get().init(databaseInfo);
             DataCountHandling.get().init(databaseInfo);
             FileDataHandler.get().init(databaseInfo);
+            BookmarkDataHandler.get().init(databaseInfo);
         } catch (Exception e) {
             System.out.println("Failed to connect to MySQL database! Is it properly configured?");
             e.printStackTrace();
@@ -94,6 +95,7 @@ public class DatabaseHandler {
             String recordTableName = String.format("%srecord", databaseInfo.getSettings().getPrefix());
             String followTableName = String.format("%sfollow", databaseInfo.getSettings().getPrefix());
             String fileTableName = String.format("%sfile", databaseInfo.getSettings().getPrefix());
+            String bookmarkTableName = String.format("%sbookmark", databaseInfo.getSettings().getPrefix());
             
             String createAccountsTable = "CREATE TABLE IF NOT EXISTS " + accountsTableName +
                     "(id VARCHAR(255) not NULL, " +
@@ -167,6 +169,12 @@ public class DatabaseHandler {
                     " path LONGTEXT not NULL, " +
                     " timestamp LONG not NULL, " +
                     " PRIMARY KEY (hash))";
+            String createBookmarkTable = "CREATE TABLE IF NOT EXISTS " + bookmarkTableName +
+                    "(id int auto_increment NOT NULL, " +
+                    " user_id VARCHAR(255) NOT NULL, " +
+                    " post_id VARCHAR(255) NOT NULL, " +
+                    " timestamp LONG NOT NULL," +
+                    " PRIMARY KEY (id))";
             
             statement.execute(createAccountsTable);
             statement.execute(createConfirmationTable);
@@ -176,6 +184,7 @@ public class DatabaseHandler {
             statement.execute(createRecordTable);
             statement.execute(createFollowTable);
             statement.execute(createFileTable);
+            statement.execute(createBookmarkTable);
             
             statement.close();
             System.out.println("Successfully created needed tables in MySQL database!");
