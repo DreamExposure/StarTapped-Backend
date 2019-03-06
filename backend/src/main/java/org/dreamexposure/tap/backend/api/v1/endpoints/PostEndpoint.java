@@ -2,10 +2,7 @@ package org.dreamexposure.tap.backend.api.v1.endpoints;
 
 import org.dreamexposure.tap.backend.conf.GlobalVars;
 import org.dreamexposure.tap.backend.network.auth.Authentication;
-import org.dreamexposure.tap.backend.network.database.AccountDataHandler;
-import org.dreamexposure.tap.backend.network.database.BlogDataHandler;
-import org.dreamexposure.tap.backend.network.database.FollowerDataHandler;
-import org.dreamexposure.tap.backend.network.database.PostDataHandler;
+import org.dreamexposure.tap.backend.network.database.*;
 import org.dreamexposure.tap.backend.network.google.vision.ImageAnalysis;
 import org.dreamexposure.tap.backend.objects.auth.AuthenticationState;
 import org.dreamexposure.tap.backend.utils.FileUploadHandler;
@@ -15,6 +12,7 @@ import org.dreamexposure.tap.core.enums.file.MimeType;
 import org.dreamexposure.tap.core.enums.post.PostType;
 import org.dreamexposure.tap.core.objects.account.Account;
 import org.dreamexposure.tap.core.objects.blog.IBlog;
+import org.dreamexposure.tap.core.objects.bookmark.Bookmark;
 import org.dreamexposure.tap.core.objects.file.UploadedFile;
 import org.dreamexposure.tap.core.objects.post.*;
 import org.dreamexposure.tap.core.utils.Logger;
@@ -279,6 +277,125 @@ public class PostEndpoint {
             return ResponseUtils.getJsonResponseMessage("Internal Server Error");
         }
 
+    }
+
+    @PostMapping(value = "/get/bookmark", produces = "application/json")
+    public static String getByBookmark(HttpServletRequest request, HttpServletResponse response, @RequestBody String requestBody) {
+        //Authenticate...
+        AuthenticationState authState = Authentication.authenticate(request);
+        if (!authState.isSuccess()) {
+            response.setStatus(authState.getStatus());
+            response.setContentType("application/json");
+            return authState.toJson();
+        }
+
+
+        try {
+            JSONObject body = new JSONObject(requestBody);
+            int limit = body.getInt("limit");
+            long before = body.getLong("before");
+
+            //Limit must be between 1 and 20 (inclusive)
+            if (limit < 1 || limit > 20) {
+                //Invalid month specified...
+                response.setContentType("application/json");
+                response.setStatus(400);
+
+                return ResponseUtils.getJsonResponseMessage("Bad Request");
+            }
+
+            if (before <= GlobalVars.starTappedEpoch) {
+                //StarTapped epoch hit. No posts could be created before then.
+                response.setContentType("application/json");
+                response.setStatus(417); //Using this code to signify Epoch hit for clients.
+
+                return ResponseUtils.getJsonResponseMessage("StarTapped Epoch hit. No further posts can be retrieved.");
+            }
+
+            //Get bookmarks from database...
+            List<Bookmark> bookmarks = BookmarkDataHandler.get().getBookmarks(authState.getId(), before, limit);
+
+
+            List<IPost> posts = new ArrayList<>();
+
+            //This gets WAY more than 20 posts, this gets the limit of posts from each blog, we will have to trim this.
+            for (Bookmark bookmark : bookmarks) {
+                IPost p = PostDataHandler.get().getPost(bookmark.getPostId());
+                if (PostUtils.doesNotHavePost(posts, p.getId()))
+                    posts.add(p);
+            }
+
+            Collections.sort(posts);
+
+            //Trim posts...
+            if (posts.size() > limit) {
+                posts = posts.subList(0, limit);
+            }
+
+            //Get our upper and lower times...
+            Collections.sort(posts);
+
+            JSONObject range = new JSONObject();
+            if (!posts.isEmpty()) {
+                range.put("latest", posts.get(0).getTimestamp());
+                range.put("oldest", posts.get(posts.size() - 1).getTimestamp());
+            } else {
+                range.put("latest", 0);
+                range.put("oldest", 0);
+            }
+
+            //Get all of the parents
+            List<IPost> toAdd = new ArrayList<>();
+
+            for (IPost p : posts) {
+                List<IPost> parentTree = PostDataHandler.get().getParentTree(p);
+                for (IPost pa : parentTree) {
+                    if (PostUtils.doesNotHavePost(posts, pa.getId()) && PostUtils.doesNotHavePost(toAdd, pa.getId())) {
+                        toAdd.add(pa);
+                    }
+                }
+            }
+
+            posts.addAll(toAdd);
+
+            //Okay, now handle the JSON.
+            JSONObject responseBody = new JSONObject();
+            responseBody.put("message", "Success");
+
+            JSONArray jPosts = new JSONArray();
+            for (IPost p : posts) {
+                jPosts.put(p.toJson());
+            }
+            responseBody.put("posts", jPosts);
+            JSONArray jBookmarks = new JSONArray();
+            for (Bookmark b : bookmarks) {
+                jBookmarks.put(b.toJson());
+            }
+            responseBody.put("bookmarks", jBookmarks); //Add the bookmarks so client knows what to display
+            responseBody.put("count", jPosts.length());
+            responseBody.put("count_bookmarks", jBookmarks.length());
+            responseBody.put("range", range);
+
+            //Respond to client.
+            response.setContentType("application/json");
+            response.setStatus(200);
+
+            return responseBody.toString();
+
+        } catch (JSONException | IllegalArgumentException e) {
+            response.setContentType("application/json");
+            response.setStatus(400);
+
+            Logger.getLogger().exception("Bad Request on post for get bookmarks endpoint", e, PostEndpoint.class);
+
+            return ResponseUtils.getJsonResponseMessage("Bad Request");
+        } catch (Exception e) {
+            response.setContentType("application/json");
+            response.setStatus(500);
+
+            Logger.getLogger().exception("Failed to handle post get for bookmarks", e, PostEndpoint.class);
+            return ResponseUtils.getJsonResponseMessage("Internal Server Error");
+        }
     }
 
     @PostMapping(value = "/get/blog", produces = "application/json")
@@ -688,6 +805,117 @@ public class PostEndpoint {
             response.setStatus(500);
 
             Logger.getLogger().exception("Failed to handle post get single", e, PostEndpoint.class);
+            return ResponseUtils.getJsonResponseMessage("Internal Server Error");
+        }
+    }
+
+    @PostMapping(value = "/bookmark/add", produces = "application/json")
+    public static String addBookmark(HttpServletRequest request, HttpServletResponse response, @RequestBody String requestBody) {
+        //Authenticate...
+        AuthenticationState authState = Authentication.authenticate(request);
+        if (!authState.isSuccess()) {
+            response.setStatus(authState.getStatus());
+            response.setContentType("application/json");
+            return authState.toJson();
+        }
+
+
+        try {
+            JSONObject body = new JSONObject(requestBody);
+            UUID postId = UUID.fromString(body.getString("post_id"));
+
+            //Check if post actually exists.
+            IPost post = PostDataHandler.get().getPost(postId);
+
+            if (post == null) {
+                response.setContentType("application/json");
+                response.setStatus(404);
+
+                return ResponseUtils.getJsonResponseMessage("Post not Found");
+            }
+
+            //Bookmark post...
+            Bookmark b = new Bookmark();
+            b.setAccountId(authState.getId());
+            b.setPostId(postId);
+            b.setTimestamp(post.getTimestamp());
+
+            if (BookmarkDataHandler.get().addBookmark(b)) {
+                //Respond to client.
+                response.setContentType("application/json");
+                response.setStatus(200);
+
+                return ResponseUtils.getJsonResponseMessage("Success");
+            } else {
+                //Respond to client.
+                response.setContentType("application/json");
+                response.setStatus(500);
+
+                return ResponseUtils.getJsonResponseMessage("Failed to bookmark post.");
+            }
+        } catch (JSONException | IllegalArgumentException e) {
+            response.setContentType("application/json");
+            response.setStatus(400);
+
+            return ResponseUtils.getJsonResponseMessage("Bad Request");
+        } catch (Exception e) {
+            response.setContentType("application/json");
+            response.setStatus(500);
+
+            Logger.getLogger().exception("Failed to handle adding bookmark on post", e, PostEndpoint.class);
+            return ResponseUtils.getJsonResponseMessage("Internal Server Error");
+        }
+    }
+
+    @PostMapping(value = "/bookmark/remove", produces = "application/json")
+    public static String removeBookmark(HttpServletRequest request, HttpServletResponse response, @RequestBody String requestBody) {
+        //Authenticate...
+        AuthenticationState authState = Authentication.authenticate(request);
+        if (!authState.isSuccess()) {
+            response.setStatus(authState.getStatus());
+            response.setContentType("application/json");
+            return authState.toJson();
+        }
+
+
+        try {
+            JSONObject body = new JSONObject(requestBody);
+            UUID postId = UUID.fromString(body.getString("post_id"));
+
+            //Check if bookmark actually exists.
+            Bookmark bookmark = BookmarkDataHandler.get().getBookmark(authState.getId(), postId);
+
+            if (bookmark == null) {
+                response.setContentType("application/json");
+                response.setStatus(404);
+
+                return ResponseUtils.getJsonResponseMessage("Bookmark not Found");
+            }
+
+            //Remove bookmark
+            if (BookmarkDataHandler.get().removeBookmark(bookmark)) {
+                //Respond to client.
+                response.setContentType("application/json");
+                response.setStatus(200);
+
+                return ResponseUtils.getJsonResponseMessage("Success");
+            } else {
+                //Respond to client.
+                response.setContentType("application/json");
+                response.setStatus(500);
+
+                return ResponseUtils.getJsonResponseMessage("Failed to remove bookmark on post.");
+            }
+        } catch (JSONException | IllegalArgumentException e) {
+            response.setContentType("application/json");
+            response.setStatus(400);
+
+            return ResponseUtils.getJsonResponseMessage("Bad Request");
+        } catch (Exception e) {
+            response.setContentType("application/json");
+            response.setStatus(500);
+
+            Logger.getLogger().exception("Failed to handle removing bookmark on post", e, PostEndpoint.class);
             return ResponseUtils.getJsonResponseMessage("Internal Server Error");
         }
     }
