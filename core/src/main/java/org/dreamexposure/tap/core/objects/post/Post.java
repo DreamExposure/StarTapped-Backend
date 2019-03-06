@@ -35,6 +35,7 @@ public class Post implements IPost, Comparable<IPost> {
     private boolean nsfw;
 
     private UUID parent;
+    private boolean bookmarked;
 
     private List<String> tags = new ArrayList<>();
     
@@ -84,6 +85,10 @@ public class Post implements IPost, Comparable<IPost> {
     @Override
     public UUID getParent() {
         return parent;
+    }
+
+    public boolean isBookmarked() {
+        return bookmarked;
     }
 
     public List<String> getTags() {
@@ -146,6 +151,10 @@ public class Post implements IPost, Comparable<IPost> {
         parent = _parent;
     }
 
+    public void setBookmarked(boolean _bookmarked) {
+        bookmarked = _bookmarked;
+    }
+
     @Override
     public void tagsFromString(String tagString) {
         tags.addAll(Arrays.asList(tagString.split(",")));
@@ -166,6 +175,7 @@ public class Post implements IPost, Comparable<IPost> {
         json.put("nsfw", nsfw);
         if (parent != null)
             json.put("parent", parent);
+        json.put("bookmarked", bookmarked);
 
         JSONArray jTags = new JSONArray();
         for (String t : tags) {
@@ -189,6 +199,7 @@ public class Post implements IPost, Comparable<IPost> {
         nsfw = json.getBoolean("nsfw");
         if (json.has("parent"))
             parent = UUID.fromString(json.getString("parent"));
+        bookmarked = json.getBoolean("bookmarked");
 
         JSONArray jTags = json.getJSONArray("tags");
         for (int i = 0; i < jTags.length(); i++) {

@@ -43,9 +43,9 @@ public class BookmarkDataHandler {
 
                 ResultSet res = statement.executeQuery();
 
-                boolean hasData = res.next();
+                boolean hasNext = res.next();
 
-                if (res.next() && res.getString("user_id") != null) {
+                if (hasNext && res.getString("user_id") != null) {
                     Bookmark b = new Bookmark();
                     b.setAccountId(accountId);
                     b.setPostId(postId);
@@ -143,6 +143,5 @@ public class BookmarkDataHandler {
         }
         return false;
     }
-
 }
 

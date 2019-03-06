@@ -320,7 +320,7 @@ public class PostEndpoint {
 
             //This gets WAY more than 20 posts, this gets the limit of posts from each blog, we will have to trim this.
             for (Bookmark bookmark : bookmarks) {
-                IPost p = PostDataHandler.get().getPost(bookmark.getPostId());
+                IPost p = PostDataHandler.get().getPost(bookmark.getPostId(), authState.getId());
                 if (PostUtils.doesNotHavePost(posts, p.getId()))
                     posts.add(p);
             }
@@ -348,7 +348,7 @@ public class PostEndpoint {
             List<IPost> toAdd = new ArrayList<>();
 
             for (IPost p : posts) {
-                List<IPost> parentTree = PostDataHandler.get().getParentTree(p);
+                List<IPost> parentTree = PostDataHandler.get().getParentTree(p, authState.getId());
                 for (IPost pa : parentTree) {
                     if (PostUtils.doesNotHavePost(posts, pa.getId()) && PostUtils.doesNotHavePost(toAdd, pa.getId())) {
                         toAdd.add(pa);
@@ -455,7 +455,7 @@ public class PostEndpoint {
             }
 
             //Get from database...
-            List<IPost> posts = PostDataHandler.get().getPostsByBlog(blogId, before, limit, tags);
+            List<IPost> posts = PostDataHandler.get().getPostsByBlog(blogId, before, limit, tags, authState.getId());
 
             //Get our upper and lower times...
             Collections.sort(posts);
@@ -473,7 +473,7 @@ public class PostEndpoint {
             List<IPost> toAdd = new ArrayList<>();
 
             for (IPost p : posts) {
-                List<IPost> parentTree = PostDataHandler.get().getParentTree(p);
+                List<IPost> parentTree = PostDataHandler.get().getParentTree(p, authState.getId());
                 for (IPost pa : parentTree) {
                     if (PostUtils.doesNotHavePost(posts, pa.getId()) && PostUtils.doesNotHavePost(toAdd, pa.getId())) {
                         toAdd.add(pa);
@@ -559,7 +559,7 @@ public class PostEndpoint {
             }
 
             //Get from database...
-            List<IPost> posts = PostDataHandler.get().getPostsSearch(before, limit, tags);
+            List<IPost> posts = PostDataHandler.get().getPostsSearch(before, limit, tags, authState.getId());
 
             //Remove NSFW posts if safe search and/or remove posts from blogs that don't allow minors
             Account acc = AccountDataHandler.get().getAccountFromId(authState.getId());
@@ -591,7 +591,7 @@ public class PostEndpoint {
             List<IPost> toAdd = new ArrayList<>();
 
             for (IPost p : posts) {
-                List<IPost> parentTree = PostDataHandler.get().getParentTree(p);
+                List<IPost> parentTree = PostDataHandler.get().getParentTree(p, authState.getId());
                 for (IPost pa : parentTree) {
                     if (PostUtils.doesNotHavePost(posts, pa.getId()) && PostUtils.doesNotHavePost(toAdd, pa.getId())) {
                         toAdd.add(pa);
@@ -686,7 +686,7 @@ public class PostEndpoint {
 
             //This gets WAY more than 20 posts, this gets the limit of posts from each blog, we will have to trim this.
             for (UUID bId : following) {
-                List<IPost> newPosts = PostDataHandler.get().getPostsByBlog(bId, before, limit, tags);
+                List<IPost> newPosts = PostDataHandler.get().getPostsByBlog(bId, before, limit, tags, authState.getId());
                 for (IPost p : newPosts) {
                     if (PostUtils.doesNotHavePost(posts, p.getId()))
                         posts.add(p);
@@ -716,7 +716,7 @@ public class PostEndpoint {
             List<IPost> toAdd = new ArrayList<>();
 
             for (IPost p : posts) {
-                List<IPost> parentTree = PostDataHandler.get().getParentTree(p);
+                List<IPost> parentTree = PostDataHandler.get().getParentTree(p, authState.getId());
                 for (IPost pa : parentTree) {
                     if (PostUtils.doesNotHavePost(posts, pa.getId()) && PostUtils.doesNotHavePost(toAdd, pa.getId())) {
                         toAdd.add(pa);
@@ -776,7 +776,7 @@ public class PostEndpoint {
             UUID postId = UUID.fromString(body.getString("post_id"));
 
             //Get from database...
-            IPost post = PostDataHandler.get().getPost(postId);
+            IPost post = PostDataHandler.get().getPost(postId, authState.getId());
 
             if (post == null) {
                 response.setContentType("application/json");
@@ -825,7 +825,7 @@ public class PostEndpoint {
             UUID postId = UUID.fromString(body.getString("post_id"));
 
             //Check if post actually exists.
-            IPost post = PostDataHandler.get().getPost(postId);
+            IPost post = PostDataHandler.get().getPost(postId, authState.getId());
 
             if (post == null) {
                 response.setContentType("application/json");
