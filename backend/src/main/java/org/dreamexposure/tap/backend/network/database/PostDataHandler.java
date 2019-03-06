@@ -76,7 +76,7 @@ public class PostDataHandler {
                             } catch (Exception ignore) {
                                 //No parent.
                             }
-                            textPost.setBookmarked(BookmarkDataHandler.get().getBookmark(postId, accountIdForBookmarks) != null);
+                            textPost.setBookmarked(BookmarkDataHandler.get().getBookmark(accountIdForBookmarks, postId) != null);
 
 
                             ps.close();
@@ -99,7 +99,7 @@ public class PostDataHandler {
                             } catch (Exception ignore) {
                                 //No parent.
                             }
-                            imagePost.setBookmarked(BookmarkDataHandler.get().getBookmark(postId, accountIdForBookmarks) != null);
+                            imagePost.setBookmarked(BookmarkDataHandler.get().getBookmark(accountIdForBookmarks, postId) != null);
 
                             imagePost.setImage(FileDataHandler.get().getFileFromUrl(res.getString("image_url")));
 
@@ -123,7 +123,7 @@ public class PostDataHandler {
                             } catch (Exception ignore) {
                                 //No parent.
                             }
-                            videoPost.setBookmarked(BookmarkDataHandler.get().getBookmark(postId, accountIdForBookmarks) != null);
+                            videoPost.setBookmarked(BookmarkDataHandler.get().getBookmark(accountIdForBookmarks, postId) != null);
 
                             videoPost.setVideo(FileDataHandler.get().getFileFromUrl(res.getString("video_url")));
 
@@ -147,7 +147,7 @@ public class PostDataHandler {
                             } catch (Exception ignore) {
                                 //No parent.
                             }
-                            audioPost.setBookmarked(BookmarkDataHandler.get().getBookmark(postId, accountIdForBookmarks) != null);
+                            audioPost.setBookmarked(BookmarkDataHandler.get().getBookmark(accountIdForBookmarks, postId) != null);
 
                             audioPost.setAudio(FileDataHandler.get().getFileFromUrl(res.getString("audio_url")));
 
@@ -212,7 +212,7 @@ public class PostDataHandler {
                                 } catch (Exception ignore) {
                                     //No parent.
                                 }
-                                textPost.setBookmarked(BookmarkDataHandler.get().getBookmark(textPost.getId(), accountIdForBookmarks) != null);
+                                textPost.setBookmarked(BookmarkDataHandler.get().getBookmark(accountIdForBookmarks, textPost.getId()) != null);
 
                                 posts.add(textPost);
                                 break;
@@ -234,7 +234,7 @@ public class PostDataHandler {
                                 } catch (Exception ignore) {
                                     //No parent.
                                 }
-                                imagePost.setBookmarked(BookmarkDataHandler.get().getBookmark(imagePost.getId(), accountIdForBookmarks) != null);
+                                imagePost.setBookmarked(BookmarkDataHandler.get().getBookmark(accountIdForBookmarks, imagePost.getId()) != null);
 
                                 imagePost.setImage(FileDataHandler.get().getFileFromUrl(res.getString("image_url")));
 
@@ -258,7 +258,7 @@ public class PostDataHandler {
                                 } catch (Exception ignore) {
                                     //No parent.
                                 }
-                                videoPost.setBookmarked(BookmarkDataHandler.get().getBookmark(videoPost.getId(), accountIdForBookmarks) != null);
+                                videoPost.setBookmarked(BookmarkDataHandler.get().getBookmark(accountIdForBookmarks, videoPost.getId()) != null);
 
                                 videoPost.setVideo(FileDataHandler.get().getFileFromUrl(res.getString("video_url")));
 
@@ -282,7 +282,7 @@ public class PostDataHandler {
                                 } catch (Exception ignore) {
                                     //No parent.
                                 }
-                                audioPost.setBookmarked(BookmarkDataHandler.get().getBookmark(audioPost.getId(), accountIdForBookmarks) != null);
+                                audioPost.setBookmarked(BookmarkDataHandler.get().getBookmark(accountIdForBookmarks, audioPost.getId()) != null);
 
                                 audioPost.setAudio(FileDataHandler.get().getFileFromUrl(res.getString("audio_url")));
 
@@ -332,7 +332,7 @@ public class PostDataHandler {
                                 } catch (Exception ignore) {
                                     //No parent.
                                 }
-                                textPost.setBookmarked(BookmarkDataHandler.get().getBookmark(textPost.getId(), accountIdForBookmarks) != null);
+                                textPost.setBookmarked(BookmarkDataHandler.get().getBookmark(accountIdForBookmarks, textPost.getId()) != null);
 
                                 posts.add(textPost);
                                 break;
@@ -348,7 +348,7 @@ public class PostDataHandler {
                                 imagePost.setBody(res.getString("body"));
                                 imagePost.setNsfw(res.getBoolean("nsfw"));
                                 imagePost.tagsFromString(res.getString("tags"));
-                                imagePost.setBookmarked(BookmarkDataHandler.get().getBookmark(imagePost.getId(), accountIdForBookmarks) != null);
+                                imagePost.setBookmarked(BookmarkDataHandler.get().getBookmark(accountIdForBookmarks, imagePost.getId()) != null);
 
                                 try {
                                     UUID parent = UUID.fromString(res.getString("parent"));
@@ -378,7 +378,7 @@ public class PostDataHandler {
                                 } catch (Exception ignore) {
                                     //No parent.
                                 }
-                                videoPost.setBookmarked(BookmarkDataHandler.get().getBookmark(videoPost.getId(), accountIdForBookmarks) != null);
+                                videoPost.setBookmarked(BookmarkDataHandler.get().getBookmark(accountIdForBookmarks, videoPost.getId()) != null);
 
                                 videoPost.setVideo(FileDataHandler.get().getFileFromUrl(res.getString("video_url")));
 
@@ -402,7 +402,7 @@ public class PostDataHandler {
                                 } catch (Exception ignore) {
                                     //No parent.
                                 }
-                                audioPost.setBookmarked(BookmarkDataHandler.get().getBookmark(audioPost.getId(), accountIdForBookmarks) != null);
+                                audioPost.setBookmarked(BookmarkDataHandler.get().getBookmark(accountIdForBookmarks, audioPost.getId()) != null);
 
                                 audioPost.setAudio(FileDataHandler.get().getFileFromUrl(res.getString("audio_url")));
 
@@ -470,7 +470,7 @@ public class PostDataHandler {
                                 } catch (Exception ignore) {
                                     //No parent.
                                 }
-                                textPost.setBookmarked(BookmarkDataHandler.get().getBookmark(textPost.getId(), accountIdForBookmarks) != null);
+                                textPost.setBookmarked(BookmarkDataHandler.get().getBookmark(accountIdForBookmarks, textPost.getId()) != null);
 
                                 posts.add(textPost);
                                 break;
@@ -492,7 +492,7 @@ public class PostDataHandler {
                                 } catch (Exception ignore) {
                                     //No parent.
                                 }
-                                imagePost.setBookmarked(BookmarkDataHandler.get().getBookmark(imagePost.getId(), accountIdForBookmarks) != null);
+                                imagePost.setBookmarked(BookmarkDataHandler.get().getBookmark(accountIdForBookmarks, imagePost.getId()) != null);
 
                                 imagePost.setImage(FileDataHandler.get().getFileFromUrl(res.getString("image_url")));
 
@@ -516,7 +516,7 @@ public class PostDataHandler {
                                 } catch (Exception ignore) {
                                     //No parent.
                                 }
-                                videoPost.setBookmarked(BookmarkDataHandler.get().getBookmark(videoPost.getId(), accountIdForBookmarks) != null);
+                                videoPost.setBookmarked(BookmarkDataHandler.get().getBookmark(accountIdForBookmarks, videoPost.getId()) != null);
 
                                 videoPost.setVideo(FileDataHandler.get().getFileFromUrl(res.getString("video_url")));
 
@@ -540,7 +540,7 @@ public class PostDataHandler {
                                 } catch (Exception ignore) {
                                     //No parent.
                                 }
-                                audioPost.setBookmarked(BookmarkDataHandler.get().getBookmark(audioPost.getId(), accountIdForBookmarks) != null);
+                                audioPost.setBookmarked(BookmarkDataHandler.get().getBookmark(accountIdForBookmarks, audioPost.getId()) != null);
 
                                 audioPost.setAudio(FileDataHandler.get().getFileFromUrl(res.getString("audio_url")));
 
@@ -590,7 +590,7 @@ public class PostDataHandler {
                                 } catch (Exception ignore) {
                                     //No parent.
                                 }
-                                textPost.setBookmarked(BookmarkDataHandler.get().getBookmark(textPost.getId(), accountIdForBookmarks) != null);
+                                textPost.setBookmarked(BookmarkDataHandler.get().getBookmark(accountIdForBookmarks, textPost.getId()) != null);
 
                                 posts.add(textPost);
                                 break;
@@ -612,7 +612,7 @@ public class PostDataHandler {
                                 } catch (Exception ignore) {
                                     //No parent.
                                 }
-                                imagePost.setBookmarked(BookmarkDataHandler.get().getBookmark(imagePost.getId(), accountIdForBookmarks) != null);
+                                imagePost.setBookmarked(BookmarkDataHandler.get().getBookmark(accountIdForBookmarks, imagePost.getId()) != null);
 
                                 imagePost.setImage(FileDataHandler.get().getFileFromUrl(res.getString("image_url")));
 
@@ -636,7 +636,7 @@ public class PostDataHandler {
                                 } catch (Exception ignore) {
                                     //No parent.
                                 }
-                                videoPost.setBookmarked(BookmarkDataHandler.get().getBookmark(videoPost.getId(), accountIdForBookmarks) != null);
+                                videoPost.setBookmarked(BookmarkDataHandler.get().getBookmark(accountIdForBookmarks, videoPost.getId()) != null);
 
                                 videoPost.setVideo(FileDataHandler.get().getFileFromUrl(res.getString("video_url")));
 
@@ -660,7 +660,7 @@ public class PostDataHandler {
                                 } catch (Exception ignore) {
                                     //No parent.
                                 }
-                                audioPost.setBookmarked(BookmarkDataHandler.get().getBookmark(audioPost.getId(), accountIdForBookmarks) != null);
+                                audioPost.setBookmarked(BookmarkDataHandler.get().getBookmark(accountIdForBookmarks, audioPost.getId()) != null);
 
                                 audioPost.setAudio(FileDataHandler.get().getFileFromUrl(res.getString("audio_url")));
 
@@ -710,7 +710,7 @@ public class PostDataHandler {
                                 } catch (Exception ignore) {
                                     //No parent.
                                 }
-                                textPost.setBookmarked(BookmarkDataHandler.get().getBookmark(textPost.getId(), accountIdForBookmarks) != null);
+                                textPost.setBookmarked(BookmarkDataHandler.get().getBookmark(accountIdForBookmarks, textPost.getId()) != null);
 
                                 posts.add(textPost);
                                 break;
@@ -732,7 +732,7 @@ public class PostDataHandler {
                                 } catch (Exception ignore) {
                                     //No parent.
                                 }
-                                imagePost.setBookmarked(BookmarkDataHandler.get().getBookmark(imagePost.getId(), accountIdForBookmarks) != null);
+                                imagePost.setBookmarked(BookmarkDataHandler.get().getBookmark(accountIdForBookmarks, imagePost.getId()) != null);
 
                                 imagePost.setImage(FileDataHandler.get().getFileFromUrl(res.getString("image_url")));
 
@@ -756,7 +756,7 @@ public class PostDataHandler {
                                 } catch (Exception ignore) {
                                     //No parent.
                                 }
-                                videoPost.setBookmarked(BookmarkDataHandler.get().getBookmark(videoPost.getId(), accountIdForBookmarks) != null);
+                                videoPost.setBookmarked(BookmarkDataHandler.get().getBookmark(accountIdForBookmarks, videoPost.getId()) != null);
 
                                 videoPost.setVideo(FileDataHandler.get().getFileFromUrl(res.getString("video_url")));
 
@@ -780,7 +780,7 @@ public class PostDataHandler {
                                 } catch (Exception ignore) {
                                     //No parent.
                                 }
-                                audioPost.setBookmarked(BookmarkDataHandler.get().getBookmark(audioPost.getId(), accountIdForBookmarks) != null);
+                                audioPost.setBookmarked(BookmarkDataHandler.get().getBookmark(accountIdForBookmarks, audioPost.getId()) != null);
 
                                 audioPost.setAudio(FileDataHandler.get().getFileFromUrl(res.getString("audio_url")));
 
