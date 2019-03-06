@@ -87,8 +87,9 @@ public class RecordDataHandler {
         try {
             if (databaseInfo.getMySQL().checkConnection()) {
                 String tableName = String.format("%srecord", databaseInfo.getSettings().getPrefix());
-                String query = "DELETE FROM " + tableName + " WHERE blog_id = '" + blogId.toString() + "';";
+                String query = "DELETE FROM " + tableName + " WHERE blog_id = ?";
                 PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
+                statement.setString(1, blogId.toString());
 
                 statement.execute();
                 statement.close();

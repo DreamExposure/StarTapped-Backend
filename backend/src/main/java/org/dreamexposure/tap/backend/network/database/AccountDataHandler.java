@@ -246,8 +246,10 @@ public class AccountDataHandler {
             if (databaseInfo.getMySQL().checkConnection()) {
                 String tableName = String.format("%saccounts", databaseInfo.getSettings().getPrefix());
 
-                String query = "SELECT * FROM " + tableName + " WHERE id = '" + account.getAccountId().toString() + "';";
+                String query = "SELECT * FROM " + tableName + " WHERE id = ?";
                 PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
+                statement.setString(1, account.getAccountId().toString());
+
                 ResultSet res = statement.executeQuery();
 
                 boolean hasStuff = res.next();
@@ -294,8 +296,10 @@ public class AccountDataHandler {
             if (databaseInfo.getMySQL().checkConnection()) {
                 String tableName = String.format("%saccounts", databaseInfo.getSettings().getPrefix());
 
-                String query = "SELECT * FROM " + tableName + " WHERE id = '" + account.getAccountId().toString() + "';";
+                String query = "SELECT * FROM " + tableName + " WHERE id = ?";
                 PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
+                statement.setString(1, account.getAccountId().toString());
+
                 ResultSet res = statement.executeQuery();
 
                 boolean hasStuff = res.next();
@@ -306,8 +310,7 @@ public class AccountDataHandler {
                     return false;
                 } else {
                     //Data present, update.
-                    String update = "UPDATE " + tableName
-                            + " SET hash = ? WHERE id = ?";
+                    String update = "UPDATE " + tableName + " SET hash = ? WHERE id = ?";
                     PreparedStatement ps = databaseInfo.getConnection().prepareStatement(update);
 
                     ps.setString(1, hash);

@@ -46,8 +46,10 @@ public class BlogDataHandler {
             if (databaseInfo.getMySQL().checkConnection()) {
                 String tableName = String.format("%sblog", databaseInfo.getSettings().getPrefix());
 
-                String query = "SELECT * FROM " + tableName + " WHERE id = '" + blog.getBlogId().toString() + "';";
+                String query = "SELECT * FROM " + tableName + " WHERE id = ?";
                 PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
+                statement.setString(1, blog.getBlogId().toString());
+
                 ResultSet res = statement.executeQuery();
 
                 boolean hasStuff = res.next();

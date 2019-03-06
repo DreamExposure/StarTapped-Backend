@@ -58,8 +58,10 @@ public class ConfirmationDataHandler {
         try {
             if (databaseInfo.getMySQL().checkConnection()) {
                 String tableName = String.format("%sconfirmation", databaseInfo.getSettings().getPrefix());
-                String query = "SELECT * FROM " + tableName + " WHERE code = '" + code + "';";
+                String query = "SELECT * FROM " + tableName + " WHERE code = ?";
                 PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
+                statement.setString(1, code);
+
                 ResultSet res = statement.executeQuery();
 
                 boolean hasStuff = res.next();
@@ -88,8 +90,9 @@ public class ConfirmationDataHandler {
         try {
             if (databaseInfo.getMySQL().checkConnection()) {
                 String tableName = String.format("%sconfirmation", databaseInfo.getSettings().getPrefix());
-                String query = "DELETE FROM " + tableName + " WHERE code = '" + code + "';";
+                String query = "DELETE FROM " + tableName + " WHERE code = ?";
                 PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
+                statement.setString(1, code);
 
                 statement.execute();
                 statement.close();

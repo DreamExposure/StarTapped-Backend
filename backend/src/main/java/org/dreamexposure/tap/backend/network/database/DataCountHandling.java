@@ -68,8 +68,10 @@ public class DataCountHandling {
             if (databaseInfo.getMySQL().checkConnection()) {
                 String tableName = String.format("%sauth", databaseInfo.getSettings().getPrefix());
 
-                String query = "SELECT COUNT(*) FROM " + tableName + " WHERE id = " + accountId.toString() + ";";
+                String query = "SELECT COUNT(*) FROM " + tableName + " WHERE id = ?";
                 PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
+                statement.setString(1, accountId.toString());
+
                 ResultSet res = statement.executeQuery();
 
                 if (res.next())
@@ -118,8 +120,10 @@ public class DataCountHandling {
             if (databaseInfo.getMySQL().checkConnection()) {
                 String tableName = String.format("%sblog", databaseInfo.getSettings().getPrefix());
 
-                String query = "SELECT COUNT(*) FROM " + tableName + " WHERE blog_type = " + type.name() + ";";
+                String query = "SELECT COUNT(*) FROM " + tableName + " WHERE blog_type = ?";
                 PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
+                statement.setString(1, type.name());
+
                 ResultSet res = statement.executeQuery();
 
                 if (res.next())
@@ -144,8 +148,11 @@ public class DataCountHandling {
                 String tableName = String.format("%sblog", databaseInfo.getSettings().getPrefix());
 
                 //Include personal AND group blogs
-                String query = "SELECT COUNT(*) FROM " + tableName + " WHERE owner = " + accountId.toString() + " OR owners LIKE %" + accountId.toString() + "%;";
+                String query = "SELECT COUNT(*) FROM " + tableName + " WHERE owner = ? OR owners LIKE ?;";
                 PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
+                statement.setString(1, accountId.toString());
+                statement.setString(2, "%" + accountId.toString() + "%");
+
                 ResultSet res = statement.executeQuery();
 
                 if (res.next())
@@ -194,8 +201,10 @@ public class DataCountHandling {
             if (databaseInfo.getMySQL().checkConnection()) {
                 String tableName = String.format("%spost", databaseInfo.getSettings().getPrefix());
 
-                String query = "SELECT COUNT(*) FROM " + tableName + " WHERE post_type = " + type.name() + ";";
+                String query = "SELECT COUNT(*) FROM " + tableName + " WHERE post_type = ?";
                 PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
+                statement.setString(1, type.name());
+
                 ResultSet res = statement.executeQuery();
 
                 if (res.next())
@@ -219,8 +228,10 @@ public class DataCountHandling {
             if (databaseInfo.getMySQL().checkConnection()) {
                 String tableName = String.format("%spost", databaseInfo.getSettings().getPrefix());
 
-                String query = "SELECT COUNT(*) FROM " + tableName + " WHERE origin_blog_id = " + blogId.toString() + ";";
+                String query = "SELECT COUNT(*) FROM " + tableName + " WHERE origin_blog_id = ?";
                 PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
+                statement.setString(1, blogId.toString());
+
                 ResultSet res = statement.executeQuery();
 
                 if (res.next())
@@ -244,8 +255,11 @@ public class DataCountHandling {
             if (databaseInfo.getMySQL().checkConnection()) {
                 String tableName = String.format("%spost", databaseInfo.getSettings().getPrefix());
 
-                String query = "SELECT COUNT(*) FROM " + tableName + " WHERE origin_blog_id = " + blogId.toString() + " AND post_type = " + type.name() + ";";
+                String query = "SELECT COUNT(*) FROM " + tableName + " WHERE origin_blog_id = ? AND post_type = ?";
                 PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
+                statement.setString(1, blogId.toString());
+                statement.setString(2, type.name());
+
                 ResultSet res = statement.executeQuery();
 
                 if (res.next())
@@ -269,8 +283,10 @@ public class DataCountHandling {
             if (databaseInfo.getMySQL().checkConnection()) {
                 String tableName = String.format("%spost", databaseInfo.getSettings().getPrefix());
 
-                String query = "SELECT COUNT(*) FROM " + tableName + " WHERE creator_id = " + accountId.toString() + ";";
+                String query = "SELECT COUNT(*) FROM " + tableName + " WHERE creator_id = ?";
                 PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
+                statement.setString(1, accountId.toString());
+
                 ResultSet res = statement.executeQuery();
 
                 if (res.next())
@@ -294,8 +310,11 @@ public class DataCountHandling {
             if (databaseInfo.getMySQL().checkConnection()) {
                 String tableName = String.format("%spost", databaseInfo.getSettings().getPrefix());
 
-                String query = "SELECT COUNT(*) FROM " + tableName + " WHERE creator_id = " + accountId.toString() + " AND post_type = " + type.name() + ";";
+                String query = "SELECT COUNT(*) FROM " + tableName + " WHERE creator_id = ? AND post_type = ?";
                 PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
+                statement.setString(1, accountId.toString());
+                statement.setString(2, type.name());
+
                 ResultSet res = statement.executeQuery();
 
                 if (res.next())
@@ -319,8 +338,10 @@ public class DataCountHandling {
             if (databaseInfo.getMySQL().checkConnection()) {
                 String tableName = String.format("%sfollow", databaseInfo.getSettings().getPrefix());
 
-                String query = "SELECT COUNT(*) FROM " + tableName + " WHERE user_id = " + user.toString() + ";";
+                String query = "SELECT COUNT(*) FROM " + tableName + " WHERE user_id = ?";
                 PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
+                statement.setString(1, user.toString());
+
                 ResultSet res = statement.executeQuery();
 
                 if (res.next())
@@ -344,8 +365,10 @@ public class DataCountHandling {
             if (databaseInfo.getMySQL().checkConnection()) {
                 String tableName = String.format("%sfollow", databaseInfo.getSettings().getPrefix());
 
-                String query = "SELECT COUNT(*) FROM " + tableName + " WHERE following_id = " + following.toString() + ";";
+                String query = "SELECT COUNT(*) FROM " + tableName + " WHERE following_id = ?";
                 PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
+                statement.setString(1, following.toString());
+
                 ResultSet res = statement.executeQuery();
 
                 if (res.next())

@@ -186,8 +186,9 @@ public class AuthorizationDataHandler {
         try {
             if (databaseInfo.getMySQL().checkConnection()) {
                 String tableName = String.format("%sauth", databaseInfo.getSettings().getPrefix());
-                String query = "DELETE FROM " + tableName + " WHERE id = '" + accountId.toString() + "';";
+                String query = "DELETE FROM " + tableName + " WHERE id = ?";
                 PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
+                statement.setString(1, accountId.toString());
 
                 statement.execute();
                 statement.close();
@@ -201,8 +202,9 @@ public class AuthorizationDataHandler {
         try {
             if (databaseInfo.getMySQL().checkConnection()) {
                 String tableName = String.format("%sauth", databaseInfo.getSettings().getPrefix());
-                String query = "DELETE FROM " + tableName + " WHERE access_token = '" + accessToken + "';";
+                String query = "DELETE FROM " + tableName + " WHERE access_token = ?";
                 PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
+                statement.setString(1, accessToken);
 
                 statement.execute();
                 statement.close();
@@ -216,8 +218,9 @@ public class AuthorizationDataHandler {
         try {
             if (databaseInfo.getMySQL().checkConnection()) {
                 String tableName = String.format("%sauth", databaseInfo.getSettings().getPrefix());
-                String query = "DELETE FROM " + tableName + " WHERE refresh_token = '" + refreshToken + "';";
+                String query = "DELETE FROM " + tableName + " WHERE refresh_token = ?";
                 PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
+                statement.setString(1, refreshToken);
 
                 statement.execute();
                 statement.close();
