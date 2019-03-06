@@ -32,7 +32,32 @@ public class BookmarkDataHandler {
         tableName = String.format("%sbookmark", databaseInfo.getSettings().getPrefix());
     }
 
-    //Getters
+    public Bookmark getBookmark(UUID accountId, UUID postId) {
+        try {
+            if (databaseInfo.getMySQL().checkConnection()) {
+                String query = "SELECT * FROM " + tableName + " WHERE user_id = ? AND post_id = ?";
+                PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
+
+                statement.setString(1, accountId.toString());
+                statement.setString(2, postId.toString());
+
+                ResultSet res = statement.executeQuery();
+
+                boolean hasData = res.next();
+
+                if (res.next() && res.getString("user_id") != null) {
+                    Bookmark b = new Bookmark();
+                    b.setAccountId(accountId);
+                    b.setPostId(postId);
+                    b.setTimestamp(res.getLong("timestamp"));
+                }
+            }
+        } catch (SQLException e) {
+            Logger.getLogger().exception("Failed to get bookmark", e, this.getClass());
+        }
+        return null;
+    }
+
     public List<Bookmark> getBookmarks(UUID accountId, long before, int inclusiveLimit) {
         List<Bookmark> bookmarks = new ArrayList<>();
         try {
@@ -61,8 +86,6 @@ public class BookmarkDataHandler {
         return bookmarks;
     }
 
-
-    //Setters
     public boolean addBookmark(Bookmark bookmark) {
         try {
             if (databaseInfo.getMySQL().checkConnection()) {
@@ -98,6 +121,25 @@ public class BookmarkDataHandler {
             }
         } catch (SQLException e) {
             Logger.getLogger().exception("Failed to add bookmark", e, this.getClass());
+        }
+        return false;
+    }
+
+    public boolean removeBookmark(Bookmark bookmark) {
+        try {
+            if (databaseInfo.getMySQL().checkConnection()) {
+                String query = "DELETE FROM " + tableName + " WHERE user_id = ? AND post_id = ?";
+                PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
+                statement.setString(1, bookmark.getAccountId().toString());
+                statement.setString(2, bookmark.getPostId().toString());
+
+                statement.execute();
+                statement.close();
+
+                return true;
+            }
+        } catch (SQLException e) {
+            Logger.getLogger().exception("Failed to remove bookmark", e, this.getClass());
         }
         return false;
     }
