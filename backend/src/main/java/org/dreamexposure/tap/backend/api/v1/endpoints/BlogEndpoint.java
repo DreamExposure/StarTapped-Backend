@@ -1,6 +1,8 @@
 package org.dreamexposure.tap.backend.api.v1.endpoints;
 
+import de.triology.recaptchav2java.ReCaptcha;
 import org.dreamexposure.tap.backend.conf.GlobalVars;
+import org.dreamexposure.tap.backend.conf.SiteSettings;
 import org.dreamexposure.tap.backend.network.auth.Authentication;
 import org.dreamexposure.tap.backend.network.cloudflare.CloudFlareIntegrator;
 import org.dreamexposure.tap.backend.network.database.AccountDataHandler;
@@ -49,141 +51,152 @@ public class BlogEndpoint {
             response.setContentType("application/json");
             return authState.toJson();
         }
-        //TODO: Handle reCAPTCHA to stop bots....
         
         //Okay, now handle actual request.
         Account account = AccountDataHandler.get().getAccountFromId(authState.getId());
-        
         try {
             JSONObject body = new JSONObject(requestBody);
-            //Lets get all those variables
-            String url = Sanitizer.sanitizeBlogUrl(body.getString("url"));
-            BlogType type = BlogType.valueOf(body.getString("type"));
-            String name = account.getUsername() + "'s blog";
-            String description = "Lorem Ipsum";
 
-            //Valid URL?
-            if (!Validator.validBlogUrlLength(url)) {
-                response.setContentType("application/json");
-                response.setStatus(400);
-                return ResponseUtils.getJsonResponseMessage("Invalid Blog URL");
-            }
-            
-            //Check if URL is taken...
-            if (BlogDataHandler.get().blogUrlTaken(url)) {
-                response.setContentType("application/json");
-                response.setStatus(409);
-                
-                JSONObject responseBody = new JSONObject();
-                responseBody.put("message", "Conflict: Blog URL Taken");
-                responseBody.put("reason", "Blog URL taken");
-                
-                return responseBody.toString();
-            } else {
-                //Create blog!
-                if (type == BlogType.PERSONAL) {
-                    PersonalBlog blog = new PersonalBlog();
-                    blog.setBlogId(UUID.randomUUID());
-                    blog.setBaseUrl(url);
-                    blog.setCompleteUrl("https://" + url + ".startapped.com");
-                    blog.setOwnerId(account.getAccountId());
-                    blog.setName(name);
-                    blog.setDescription(description);
-                    blog.setDisplayAge(true);
-                    blog.setNsfw(false);
-                    blog.setAllowUnder18(true);
-                    
-                    //set default images and colors
-                    blog.setIconImage(FileDataHandler.get().getFileFromUrl(GlobalVars.cdnUrl + "/img/default/profile.jpg"));
-                    blog.setBackgroundImage(FileDataHandler.get().getFileFromUrl(GlobalVars.cdnUrl + "/img/default/background.jpg"));
-                    blog.setBackgroundColor("#ffffff");
+            //Handle reCAPTCHA to stop bots....
+            if (body.has("gcap") && (new ReCaptcha(SiteSettings.RECAP_KEY_SITE.get()).isValid(body.getString("gcap")) || new ReCaptcha(SiteSettings.RECAP_KEY_ANDROID.get()).isValid(body.getString("gcap")) || new ReCaptcha(SiteSettings.RECAP_KEY_IOS.get()).isValid(body.getString("gcap")))) {
 
-                    BlogDataHandler.get().createOrUpdateBlog(blog);
-    
-                    //Lets get that CNAME record created...
-                    if (CloudFlareIntegrator.get().createCNAMEForBlog(blog)) {
-        
-                        //Create the folders... that's super important
-                        if (FileHandler.createDefaultBlogFolders(blog)) {
-                            //Respond to client
-                            response.setContentType("application/json");
-                            response.setStatus(200);
-            
-                            JSONObject responseBody = new JSONObject();
-                            responseBody.put("message", "Success");
-                            responseBody.put("blog", blog.toJson());
-            
-                            return responseBody.toString();
-                        } else {
-                            //Respond to client
-                            response.setContentType("application/json");
-                            response.setStatus(500);
-            
-                            JSONObject responseBody = new JSONObject();
-                            responseBody.put("message", "Failed to create folder structure on disk. Contact the developers ASAP");
-                            return responseBody.toString();
-                        }
-                    } else {
-                        //Respond to client
-                        response.setContentType("application/json");
-                        response.setStatus(500);
-        
-                        JSONObject responseBody = new JSONObject();
-                        responseBody.put("message", "Failed to create CNAME record. Contact the developers ASAP.");
-                        return responseBody.toString();
-                    }
+                //Lets get all those variables
+                String url = Sanitizer.sanitizeBlogUrl(body.getString("url"));
+                BlogType type = BlogType.valueOf(body.getString("type"));
+                String name = account.getUsername() + "'s blog";
+                String description = "Lorem Ipsum";
+
+                //Valid URL?
+                if (!Validator.validBlogUrlLength(url)) {
+                    response.setContentType("application/json");
+                    response.setStatus(400);
+                    return ResponseUtils.getJsonResponseMessage("Invalid Blog URL");
+                }
+
+                //Check if URL is taken...
+                if (BlogDataHandler.get().blogUrlTaken(url)) {
+                    response.setContentType("application/json");
+                    response.setStatus(409);
+
+                    JSONObject responseBody = new JSONObject();
+                    responseBody.put("message", "Conflict: Blog URL Taken");
+                    responseBody.put("reason", "Blog URL taken");
+
+                    return responseBody.toString();
                 } else {
-                    GroupBlog blog = new GroupBlog();
-                    blog.setBlogId(UUID.randomUUID());
-                    blog.setBlogId(UUID.randomUUID());
-                    blog.setBaseUrl(url);
-                    blog.setCompleteUrl("https://" + url + ".startapped.com");
-                    blog.getOwners().add(account.getAccountId());
-                    blog.setName(name);
-                    blog.setDescription(description);
-                    blog.setNsfw(false);
-                    blog.setAllowUnder18(true);
-                    
-                    //set default images and colors
-                    blog.setIconImage(FileDataHandler.get().getFileFromUrl(GlobalVars.cdnUrl + "/img/default/profile.jpg"));
-                    blog.setBackgroundImage(FileDataHandler.get().getFileFromUrl(GlobalVars.cdnUrl + "/img/default/background.jpg"));
-                    blog.setBackgroundColor("#ffffff");
+                    //Create blog!
+                    if (type == BlogType.PERSONAL) {
+                        PersonalBlog blog = new PersonalBlog();
+                        blog.setBlogId(UUID.randomUUID());
+                        blog.setBaseUrl(url);
+                        blog.setCompleteUrl("https://" + url + ".startapped.com");
+                        blog.setOwnerId(account.getAccountId());
+                        blog.setName(name);
+                        blog.setDescription(description);
+                        blog.setDisplayAge(true);
+                        blog.setNsfw(false);
+                        blog.setAllowUnder18(true);
 
-                    BlogDataHandler.get().createOrUpdateBlog(blog);
-    
-                    //Lets get that CNAME record created...
-                    if (CloudFlareIntegrator.get().createCNAMEForBlog(blog)) {
-        
-                        //Create the folders... that's super important
-                        if (FileHandler.createDefaultBlogFolders(blog)) {
-                            //Respond to client
-                            response.setContentType("application/json");
-                            response.setStatus(200);
-            
-                            JSONObject responseBody = new JSONObject();
-                            responseBody.put("message", "Success");
-                            responseBody.put("blog", blog.toJson());
-            
-                            return responseBody.toString();
+                        //set default images and colors
+                        blog.setIconImage(FileDataHandler.get().getFileFromUrl(GlobalVars.cdnUrl + "/img/default/profile.jpg"));
+                        blog.setBackgroundImage(FileDataHandler.get().getFileFromUrl(GlobalVars.cdnUrl + "/img/default/background.jpg"));
+                        blog.setBackgroundColor("#ffffff");
+
+                        BlogDataHandler.get().createOrUpdateBlog(blog);
+
+                        //Lets get that CNAME record created...
+                        if (CloudFlareIntegrator.get().createCNAMEForBlog(blog)) {
+
+                            //Create the folders... that's super important
+                            if (FileHandler.createDefaultBlogFolders(blog)) {
+                                //Respond to client
+                                response.setContentType("application/json");
+                                response.setStatus(200);
+
+                                JSONObject responseBody = new JSONObject();
+                                responseBody.put("message", "Success");
+                                responseBody.put("blog", blog.toJson());
+
+                                return responseBody.toString();
+                            } else {
+                                //Respond to client
+                                response.setContentType("application/json");
+                                response.setStatus(500);
+
+                                JSONObject responseBody = new JSONObject();
+                                responseBody.put("message", "Failed to create folder structure on disk. Contact the developers ASAP");
+                                return responseBody.toString();
+                            }
                         } else {
                             //Respond to client
                             response.setContentType("application/json");
                             response.setStatus(500);
-            
+
                             JSONObject responseBody = new JSONObject();
-                            responseBody.put("message", "Failed to create folder structure on disk. Contact the developers ASAP");
+                            responseBody.put("message", "Failed to create CNAME record. Contact the developers ASAP.");
                             return responseBody.toString();
                         }
                     } else {
-                        //Respond to client
-                        response.setContentType("application/json");
-                        response.setStatus(500);
-        
-                        JSONObject responseBody = new JSONObject();
-                        responseBody.put("message", "Failed to create CNAME record. Contact the developers ASAP.");
-                        return responseBody.toString();
+                        GroupBlog blog = new GroupBlog();
+                        blog.setBlogId(UUID.randomUUID());
+                        blog.setBlogId(UUID.randomUUID());
+                        blog.setBaseUrl(url);
+                        blog.setCompleteUrl("https://" + url + ".startapped.com");
+                        blog.getOwners().add(account.getAccountId());
+                        blog.setName(name);
+                        blog.setDescription(description);
+                        blog.setNsfw(false);
+                        blog.setAllowUnder18(true);
+
+                        //set default images and colors
+                        blog.setIconImage(FileDataHandler.get().getFileFromUrl(GlobalVars.cdnUrl + "/img/default/profile.jpg"));
+                        blog.setBackgroundImage(FileDataHandler.get().getFileFromUrl(GlobalVars.cdnUrl + "/img/default/background.jpg"));
+                        blog.setBackgroundColor("#ffffff");
+
+                        BlogDataHandler.get().createOrUpdateBlog(blog);
+
+                        //Lets get that CNAME record created...
+                        if (CloudFlareIntegrator.get().createCNAMEForBlog(blog)) {
+
+                            //Create the folders... that's super important
+                            if (FileHandler.createDefaultBlogFolders(blog)) {
+                                //Respond to client
+                                response.setContentType("application/json");
+                                response.setStatus(200);
+
+                                JSONObject responseBody = new JSONObject();
+                                responseBody.put("message", "Success");
+                                responseBody.put("blog", blog.toJson());
+
+                                return responseBody.toString();
+                            } else {
+                                //Respond to client
+                                response.setContentType("application/json");
+                                response.setStatus(500);
+
+                                JSONObject responseBody = new JSONObject();
+                                responseBody.put("message", "Failed to create folder structure on disk. Contact the developers ASAP");
+                                return responseBody.toString();
+                            }
+                        } else {
+                            //Respond to client
+                            response.setContentType("application/json");
+                            response.setStatus(500);
+
+                            JSONObject responseBody = new JSONObject();
+                            responseBody.put("message", "Failed to create CNAME record. Contact the developers ASAP.");
+                            return responseBody.toString();
+                        }
                     }
                 }
+            } else {
+                response.setContentType("application/json");
+                response.setStatus(400);
+
+                JSONObject responseBody = new JSONObject();
+                responseBody.put("message", "Failed to verify ReCAPTCHA");
+
+                return responseBody.toString();
             }
         } catch (JSONException | IllegalArgumentException e) {
             e.printStackTrace();
