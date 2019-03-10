@@ -48,6 +48,8 @@ public class ConfirmationDataHandler {
                 statement.setString(2, code);
 
                 statement.execute();
+
+                statement.close();
             }
         } catch (SQLException e) {
             Logger.getLogger().exception("Failed to input confirmation code", e, this.getClass());

@@ -57,6 +57,7 @@ public class AccountDataHandler {
                 statement.setBoolean(10, false);
 
                 statement.execute();
+                statement.close();
             }
         } catch (SQLException e) {
             Logger.getLogger().exception("Failed to register new user", e, this.getClass());

@@ -43,6 +43,7 @@ public class FileDataHandler {
                 statement.setLong(6, file.getTimestamp());
 
                 statement.execute();
+                statement.close();
             }
         } catch (SQLException e) {
             Logger.getLogger().exception("Failed to input confirmation code", e, this.getClass());

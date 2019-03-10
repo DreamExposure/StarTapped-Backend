@@ -54,6 +54,7 @@ public class BookmarkDataHandler {
                     statement.close();
                     return b;
                 }
+                statement.close();
             }
         } catch (SQLException e) {
             Logger.getLogger().exception("Failed to get bookmark", e, this.getClass());
@@ -122,6 +123,8 @@ public class BookmarkDataHandler {
                 } else {
                     //Data present... this shit should not be possible
                     Logger.getLogger().debug("Tried to add bookmark already present!");
+
+                    statement.close();
                 }
             }
         } catch (SQLException e) {

@@ -47,6 +47,7 @@ public class RecordDataHandler {
                 statement.setString(2, record.getRecordId());
 
                 statement.execute();
+                statement.close();
                 return true;
             }
         } catch (SQLException e) {

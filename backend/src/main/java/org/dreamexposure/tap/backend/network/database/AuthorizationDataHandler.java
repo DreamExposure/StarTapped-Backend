@@ -51,6 +51,7 @@ public class AuthorizationDataHandler {
                 statement.setLong(4, auth.getExpire());
 
                 statement.execute();
+                statement.close();
             }
         } catch (SQLException e) {
             Logger.getLogger().exception("Failed to add Authentication data.", e, this.getClass());
@@ -80,10 +81,9 @@ public class AuthorizationDataHandler {
                     ps.setString(3, auth.getRefreshToken());
 
                     ps.executeUpdate();
-
                     ps.close();
-                    statement.close();
                 }
+                statement.close();
             }
         } catch (SQLException e) {
             Logger.getLogger().exception("Failed to update auth data", e, this.getClass());
