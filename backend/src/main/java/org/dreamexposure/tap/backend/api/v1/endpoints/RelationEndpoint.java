@@ -135,12 +135,13 @@ public class RelationEndpoint {
                     jBlogs.put(((GroupBlog) b).toJson());
             }
 
+            body.put("message", "Success");
             body.put("count", jBlogs.length());
             body.put("blogs", jBlogs);
 
             response.setContentType("application/json");
             response.setStatus(200);
-            return ResponseUtils.getJsonResponseMessage("Success");
+            return body.toString();
         } catch (JSONException | IllegalArgumentException e) {
             response.setContentType("application/json");
             response.setStatus(400);
@@ -174,12 +175,13 @@ public class RelationEndpoint {
                 jAccounts.put(a.toJsonNoPersonal());
             }
 
+            body.put("message", "Success");
             body.put("count", jAccounts.length());
             body.put("accounts", jAccounts);
 
             response.setContentType("application/json");
             response.setStatus(200);
-            return ResponseUtils.getJsonResponseMessage("Success");
+            return body.toString();
         } catch (JSONException | IllegalArgumentException e) {
             response.setContentType("application/json");
             response.setStatus(400);
