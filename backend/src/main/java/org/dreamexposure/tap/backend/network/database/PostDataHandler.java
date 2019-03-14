@@ -78,6 +78,9 @@ public class PostDataHandler {
                             }
                             textPost.setBookmarked(BookmarkDataHandler.get().getBookmark(accountIdForBookmarks, postId) != null);
 
+                            textPost.setTotalBookmarks(DataCountHandling.get().getBookmarkCount(postId));
+                            textPost.setTotalReblogs(DataCountHandling.get().getReblogCount(postId));
+
 
                             ps.close();
                             return textPost;
@@ -103,6 +106,9 @@ public class PostDataHandler {
 
                             imagePost.setImage(FileDataHandler.get().getFileFromUrl(res.getString("image_url")));
 
+                            imagePost.setTotalBookmarks(DataCountHandling.get().getBookmarkCount(postId));
+                            imagePost.setTotalReblogs(DataCountHandling.get().getReblogCount(postId));
+
                             ps.close();
                             return imagePost;
                         case VIDEO:
@@ -127,6 +133,9 @@ public class PostDataHandler {
 
                             videoPost.setVideo(FileDataHandler.get().getFileFromUrl(res.getString("video_url")));
 
+                            videoPost.setTotalBookmarks(DataCountHandling.get().getBookmarkCount(postId));
+                            videoPost.setTotalReblogs(DataCountHandling.get().getReblogCount(postId));
+
                             ps.close();
                             return videoPost;
                         case AUDIO:
@@ -150,6 +159,9 @@ public class PostDataHandler {
                             audioPost.setBookmarked(BookmarkDataHandler.get().getBookmark(accountIdForBookmarks, postId) != null);
 
                             audioPost.setAudio(FileDataHandler.get().getFileFromUrl(res.getString("audio_url")));
+
+                            audioPost.setTotalBookmarks(DataCountHandling.get().getBookmarkCount(postId));
+                            audioPost.setTotalReblogs(DataCountHandling.get().getReblogCount(postId));
 
                             ps.close();
                             return audioPost;
@@ -214,6 +226,9 @@ public class PostDataHandler {
                                 }
                                 textPost.setBookmarked(BookmarkDataHandler.get().getBookmark(accountIdForBookmarks, textPost.getId()) != null);
 
+                                textPost.setTotalBookmarks(DataCountHandling.get().getBookmarkCount(textPost.getId()));
+                                textPost.setTotalReblogs(DataCountHandling.get().getReblogCount(textPost.getId()));
+
                                 posts.add(textPost);
                                 break;
                             case IMAGE:
@@ -237,6 +252,9 @@ public class PostDataHandler {
                                 imagePost.setBookmarked(BookmarkDataHandler.get().getBookmark(accountIdForBookmarks, imagePost.getId()) != null);
 
                                 imagePost.setImage(FileDataHandler.get().getFileFromUrl(res.getString("image_url")));
+
+                                imagePost.setTotalBookmarks(DataCountHandling.get().getBookmarkCount(imagePost.getId()));
+                                imagePost.setTotalReblogs(DataCountHandling.get().getReblogCount(imagePost.getId()));
 
                                 posts.add(imagePost);
                                 break;
@@ -262,6 +280,9 @@ public class PostDataHandler {
 
                                 videoPost.setVideo(FileDataHandler.get().getFileFromUrl(res.getString("video_url")));
 
+                                videoPost.setTotalBookmarks(DataCountHandling.get().getBookmarkCount(videoPost.getId()));
+                                videoPost.setTotalReblogs(DataCountHandling.get().getReblogCount(videoPost.getId()));
+
                                 posts.add(videoPost);
                                 break;
                             case AUDIO:
@@ -285,6 +306,9 @@ public class PostDataHandler {
                                 audioPost.setBookmarked(BookmarkDataHandler.get().getBookmark(accountIdForBookmarks, audioPost.getId()) != null);
 
                                 audioPost.setAudio(FileDataHandler.get().getFileFromUrl(res.getString("audio_url")));
+
+                                audioPost.setTotalBookmarks(DataCountHandling.get().getBookmarkCount(audioPost.getId()));
+                                audioPost.setTotalReblogs(DataCountHandling.get().getReblogCount(audioPost.getId()));
 
                                 posts.add(audioPost);
                                 break;
@@ -334,6 +358,9 @@ public class PostDataHandler {
                                 }
                                 textPost.setBookmarked(BookmarkDataHandler.get().getBookmark(accountIdForBookmarks, textPost.getId()) != null);
 
+                                textPost.setTotalBookmarks(DataCountHandling.get().getBookmarkCount(textPost.getId()));
+                                textPost.setTotalReblogs(DataCountHandling.get().getReblogCount(textPost.getId()));
+
                                 posts.add(textPost);
                                 break;
                             case IMAGE:
@@ -357,6 +384,9 @@ public class PostDataHandler {
                                     //No parent.
                                 }
                                 imagePost.setImage(FileDataHandler.get().getFileFromUrl(res.getString("image_url")));
+
+                                imagePost.setTotalBookmarks(DataCountHandling.get().getBookmarkCount(imagePost.getId()));
+                                imagePost.setTotalReblogs(DataCountHandling.get().getReblogCount(imagePost.getId()));
 
                                 posts.add(imagePost);
                                 break;
@@ -382,6 +412,9 @@ public class PostDataHandler {
 
                                 videoPost.setVideo(FileDataHandler.get().getFileFromUrl(res.getString("video_url")));
 
+                                videoPost.setTotalBookmarks(DataCountHandling.get().getBookmarkCount(videoPost.getId()));
+                                videoPost.setTotalReblogs(DataCountHandling.get().getReblogCount(videoPost.getId()));
+
                                 posts.add(videoPost);
                                 break;
                             case AUDIO:
@@ -405,6 +438,9 @@ public class PostDataHandler {
                                 audioPost.setBookmarked(BookmarkDataHandler.get().getBookmark(accountIdForBookmarks, audioPost.getId()) != null);
 
                                 audioPost.setAudio(FileDataHandler.get().getFileFromUrl(res.getString("audio_url")));
+
+                                audioPost.setTotalBookmarks(DataCountHandling.get().getBookmarkCount(audioPost.getId()));
+                                audioPost.setTotalReblogs(DataCountHandling.get().getReblogCount(audioPost.getId()));
 
                                 posts.add(audioPost);
                                 break;
@@ -472,6 +508,9 @@ public class PostDataHandler {
                                 }
                                 textPost.setBookmarked(BookmarkDataHandler.get().getBookmark(accountIdForBookmarks, textPost.getId()) != null);
 
+                                textPost.setTotalBookmarks(DataCountHandling.get().getBookmarkCount(textPost.getId()));
+                                textPost.setTotalReblogs(DataCountHandling.get().getReblogCount(textPost.getId()));
+
                                 posts.add(textPost);
                                 break;
                             case IMAGE:
@@ -495,6 +534,9 @@ public class PostDataHandler {
                                 imagePost.setBookmarked(BookmarkDataHandler.get().getBookmark(accountIdForBookmarks, imagePost.getId()) != null);
 
                                 imagePost.setImage(FileDataHandler.get().getFileFromUrl(res.getString("image_url")));
+
+                                imagePost.setTotalBookmarks(DataCountHandling.get().getBookmarkCount(imagePost.getId()));
+                                imagePost.setTotalReblogs(DataCountHandling.get().getReblogCount(imagePost.getId()));
 
                                 posts.add(imagePost);
                                 break;
@@ -520,6 +562,9 @@ public class PostDataHandler {
 
                                 videoPost.setVideo(FileDataHandler.get().getFileFromUrl(res.getString("video_url")));
 
+                                videoPost.setTotalBookmarks(DataCountHandling.get().getBookmarkCount(videoPost.getId()));
+                                videoPost.setTotalReblogs(DataCountHandling.get().getReblogCount(videoPost.getId()));
+
                                 posts.add(videoPost);
                                 break;
                             case AUDIO:
@@ -543,6 +588,9 @@ public class PostDataHandler {
                                 audioPost.setBookmarked(BookmarkDataHandler.get().getBookmark(accountIdForBookmarks, audioPost.getId()) != null);
 
                                 audioPost.setAudio(FileDataHandler.get().getFileFromUrl(res.getString("audio_url")));
+
+                                audioPost.setTotalBookmarks(DataCountHandling.get().getBookmarkCount(audioPost.getId()));
+                                audioPost.setTotalReblogs(DataCountHandling.get().getReblogCount(audioPost.getId()));
 
                                 posts.add(audioPost);
                                 break;
@@ -592,6 +640,9 @@ public class PostDataHandler {
                                 }
                                 textPost.setBookmarked(BookmarkDataHandler.get().getBookmark(accountIdForBookmarks, textPost.getId()) != null);
 
+                                textPost.setTotalBookmarks(DataCountHandling.get().getBookmarkCount(textPost.getId()));
+                                textPost.setTotalReblogs(DataCountHandling.get().getReblogCount(textPost.getId()));
+
                                 posts.add(textPost);
                                 break;
                             case IMAGE:
@@ -615,6 +666,9 @@ public class PostDataHandler {
                                 imagePost.setBookmarked(BookmarkDataHandler.get().getBookmark(accountIdForBookmarks, imagePost.getId()) != null);
 
                                 imagePost.setImage(FileDataHandler.get().getFileFromUrl(res.getString("image_url")));
+
+                                imagePost.setTotalBookmarks(DataCountHandling.get().getBookmarkCount(imagePost.getId()));
+                                imagePost.setTotalReblogs(DataCountHandling.get().getReblogCount(imagePost.getId()));
 
                                 posts.add(imagePost);
                                 break;
@@ -640,6 +694,9 @@ public class PostDataHandler {
 
                                 videoPost.setVideo(FileDataHandler.get().getFileFromUrl(res.getString("video_url")));
 
+                                videoPost.setTotalBookmarks(DataCountHandling.get().getBookmarkCount(videoPost.getId()));
+                                videoPost.setTotalReblogs(DataCountHandling.get().getReblogCount(videoPost.getId()));
+
                                 posts.add(videoPost);
                                 break;
                             case AUDIO:
@@ -663,6 +720,9 @@ public class PostDataHandler {
                                 audioPost.setBookmarked(BookmarkDataHandler.get().getBookmark(accountIdForBookmarks, audioPost.getId()) != null);
 
                                 audioPost.setAudio(FileDataHandler.get().getFileFromUrl(res.getString("audio_url")));
+
+                                audioPost.setTotalBookmarks(DataCountHandling.get().getBookmarkCount(audioPost.getId()));
+                                audioPost.setTotalReblogs(DataCountHandling.get().getReblogCount(audioPost.getId()));
 
                                 posts.add(audioPost);
                                 break;
@@ -712,6 +772,9 @@ public class PostDataHandler {
                                 }
                                 textPost.setBookmarked(BookmarkDataHandler.get().getBookmark(accountIdForBookmarks, textPost.getId()) != null);
 
+                                textPost.setTotalBookmarks(DataCountHandling.get().getBookmarkCount(textPost.getId()));
+                                textPost.setTotalReblogs(DataCountHandling.get().getReblogCount(textPost.getId()));
+
                                 posts.add(textPost);
                                 break;
                             case IMAGE:
@@ -735,6 +798,9 @@ public class PostDataHandler {
                                 imagePost.setBookmarked(BookmarkDataHandler.get().getBookmark(accountIdForBookmarks, imagePost.getId()) != null);
 
                                 imagePost.setImage(FileDataHandler.get().getFileFromUrl(res.getString("image_url")));
+
+                                imagePost.setTotalBookmarks(DataCountHandling.get().getBookmarkCount(imagePost.getId()));
+                                imagePost.setTotalReblogs(DataCountHandling.get().getReblogCount(imagePost.getId()));
 
                                 posts.add(imagePost);
                                 break;
@@ -760,6 +826,9 @@ public class PostDataHandler {
 
                                 videoPost.setVideo(FileDataHandler.get().getFileFromUrl(res.getString("video_url")));
 
+                                videoPost.setTotalBookmarks(DataCountHandling.get().getBookmarkCount(videoPost.getId()));
+                                videoPost.setTotalReblogs(DataCountHandling.get().getReblogCount(videoPost.getId()));
+
                                 posts.add(videoPost);
                                 break;
                             case AUDIO:
@@ -783,6 +852,9 @@ public class PostDataHandler {
                                 audioPost.setBookmarked(BookmarkDataHandler.get().getBookmark(accountIdForBookmarks, audioPost.getId()) != null);
 
                                 audioPost.setAudio(FileDataHandler.get().getFileFromUrl(res.getString("audio_url")));
+
+                                audioPost.setTotalBookmarks(DataCountHandling.get().getBookmarkCount(audioPost.getId()));
+                                audioPost.setTotalReblogs(DataCountHandling.get().getReblogCount(audioPost.getId()));
 
                                 posts.add(audioPost);
                                 break;

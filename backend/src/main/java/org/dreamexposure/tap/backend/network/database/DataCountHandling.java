@@ -277,7 +277,7 @@ public class DataCountHandling {
         return amount;
     }
 
-    public int getPostcountForAccount(UUID accountId) {
+    public int getPostCountForAccount(UUID accountId) {
         int amount = -1;
         try {
             if (databaseInfo.getMySQL().checkConnection()) {
@@ -304,7 +304,7 @@ public class DataCountHandling {
         return amount;
     }
 
-    public int getPostcountForAccount(UUID accountId, PostType type) {
+    public int getPostCountForAccount(UUID accountId, PostType type) {
         int amount = -1;
         try {
             if (databaseInfo.getMySQL().checkConnection()) {
@@ -382,6 +382,60 @@ public class DataCountHandling {
             }
         } catch (SQLException e) {
             Logger.getLogger().exception("Failed to get follower count for user", e, this.getClass());
+        }
+        return amount;
+    }
+
+    public int getReblogCount(UUID postId) {
+        int amount = -1;
+
+        try {
+            if (databaseInfo.getMySQL().checkConnection()) {
+                String tableName = String.format("%spost", databaseInfo.getSettings().getPrefix());
+
+                String query = "SELECT COUNT(*) FROM " + tableName + " WHERE parent = ?";
+                PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
+                statement.setString(1, postId.toString());
+
+                ResultSet res = statement.executeQuery();
+
+                if (res.next())
+                    amount = res.getInt(1);
+                else
+                    amount = 0;
+
+                res.close();
+                statement.close();
+            }
+        } catch (SQLException e) {
+            Logger.getLogger().exception("Failed to get reblog count for post", e, this.getClass());
+        }
+        return amount;
+    }
+
+    public int getBookmarkCount(UUID postId) {
+        int amount = -1;
+
+        try {
+            if (databaseInfo.getMySQL().checkConnection()) {
+                String tableName = String.format("%sbookmark", databaseInfo.getSettings().getPrefix());
+
+                String query = "SELECT COUNT(*) FROM " + tableName + " WHERE post_id = ?";
+                PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
+                statement.setString(1, postId.toString());
+
+                ResultSet res = statement.executeQuery();
+
+                if (res.next())
+                    amount = res.getInt(1);
+                else
+                    amount = 0;
+
+                res.close();
+                statement.close();
+            }
+        } catch (SQLException e) {
+            Logger.getLogger().exception("Failed to get bookmark count for post", e, this.getClass());
         }
         return amount;
     }

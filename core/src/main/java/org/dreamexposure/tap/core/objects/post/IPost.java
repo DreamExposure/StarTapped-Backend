@@ -46,6 +46,10 @@ public interface IPost extends Comparable<IPost> {
     List<String> getTags();
 
     String tagsToString();
+
+    int totalBookmarks();
+
+    int totalReblogs();
     
     //Setters
     void setId(UUID _id);
@@ -73,6 +77,10 @@ public interface IPost extends Comparable<IPost> {
     void setBookmarked(boolean _bookmarked);
 
     void tagsFromString(String tagString);
+
+    void setTotalBookmarks(int _bookmarks);
+
+    void setTotalReblogs(int _reblogs);
     
     JSONObject toJson();
     

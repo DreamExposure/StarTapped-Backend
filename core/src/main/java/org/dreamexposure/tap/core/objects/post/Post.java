@@ -38,6 +38,9 @@ public class Post implements IPost, Comparable<IPost> {
     private boolean bookmarked;
 
     private List<String> tags = new ArrayList<>();
+
+    private int totalBookmarks;
+    private int totalReblogs;
     
     
     //Getters
@@ -105,6 +108,16 @@ public class Post implements IPost, Comparable<IPost> {
         }
     }
 
+    @Override
+    public int totalBookmarks() {
+        return totalBookmarks;
+    }
+
+    @Override
+    public int totalReblogs() {
+        return totalReblogs;
+    }
+
     //Setters
     public void setId(UUID _id) {
         id = _id;
@@ -160,6 +173,16 @@ public class Post implements IPost, Comparable<IPost> {
         tags.addAll(Arrays.asList(tagString.split(",")));
     }
 
+    @Override
+    public void setTotalBookmarks(int _bookmarks) {
+        totalBookmarks = _bookmarks;
+    }
+
+    @Override
+    public void setTotalReblogs(int _reblogs) {
+        totalReblogs = _reblogs;
+    }
+
     public JSONObject toJson() {
         JSONObject json = new JSONObject();
         
@@ -182,6 +205,9 @@ public class Post implements IPost, Comparable<IPost> {
             jTags.put(t);
         }
         json.put("tags", jTags);
+
+        json.put("total_bookmarks", totalBookmarks);
+        json.put("total_reblogs", totalReblogs);
         
         return json;
     }
@@ -205,6 +231,11 @@ public class Post implements IPost, Comparable<IPost> {
         for (int i = 0; i < jTags.length(); i++) {
             tags.add(jTags.getString(i));
         }
+
+        if (json.has("total_bookmarks"))
+            totalBookmarks = json.getInt("total_bookmarks");
+        if (json.has("total_reblogs"))
+            totalReblogs = json.getInt("total_reblogs");
 
         return this;
     }
