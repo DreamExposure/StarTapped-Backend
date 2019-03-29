@@ -1,15 +1,15 @@
 package org.dreamexposure.tap.backend.conf;
 
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.context.embedded.EmbeddedServletContainerCustomizer;
-import org.springframework.boot.web.servlet.ErrorPage;
+import org.springframework.boot.web.server.ErrorPage;
+import org.springframework.boot.web.server.WebServerFactoryCustomizer;
+import org.springframework.boot.web.servlet.server.ConfigurableServletWebServerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.servlet.config.annotation.CorsRegistration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 /**
  * @author NovaFox161
@@ -21,19 +21,17 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
  */
 @Configuration
 @EnableAutoConfiguration
-public class ServletConfig {
-    
-    @Bean
-    public EmbeddedServletContainerCustomizer containerCustomizer() {
-        return (container -> {
-            container.addErrorPages(new ErrorPage(HttpStatus.NOT_FOUND, "/"));
-            container.setPort(Integer.valueOf(SiteSettings.PORT.get()));
-        });
+public class ServletConfig implements
+        WebServerFactoryCustomizer<ConfigurableServletWebServerFactory> {
+
+    public void customize(ConfigurableServletWebServerFactory factory) {
+        factory.setPort(Integer.valueOf(SiteSettings.PORT.get()));
+        factory.addErrorPages(new ErrorPage(HttpStatus.NOT_FOUND, "/"));
     }
     
     @Bean
     public WebMvcConfigurer corsConfigurer() {
-        return new WebMvcConfigurerAdapter() {
+        return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 CorsRegistration reg = registry.addMapping("/v1/**");
