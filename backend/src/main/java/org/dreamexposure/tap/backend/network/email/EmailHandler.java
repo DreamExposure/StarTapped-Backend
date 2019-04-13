@@ -1,12 +1,9 @@
 package org.dreamexposure.tap.backend.network.email;
 
+import net.sargue.mailgun.Configuration;
+import net.sargue.mailgun.Mail;
 import org.dreamexposure.tap.core.conf.GlobalVars;
 import org.dreamexposure.tap.core.conf.SiteSettings;
-import org.simplejavamail.email.Email;
-import org.simplejavamail.email.EmailBuilder;
-import org.simplejavamail.mailer.Mailer;
-import org.simplejavamail.mailer.MailerBuilder;
-import org.simplejavamail.mailer.config.TransportStrategy;
 
 /**
  * @author NovaFox161
@@ -18,8 +15,8 @@ import org.simplejavamail.mailer.config.TransportStrategy;
  */
 public class EmailHandler {
     private static EmailHandler instance;
-    
-    private Mailer mailer;
+
+    private Configuration mailgunConfig;
     
     private EmailHandler() {
     }
@@ -32,23 +29,25 @@ public class EmailHandler {
     }
     
     public void init() {
-        
-        mailer = MailerBuilder.withSMTPServer(SiteSettings.SMTP_HOST.get(), Integer.valueOf(SiteSettings.SMTP_PORT.get()), SiteSettings.EMAIL_USER.get(), SiteSettings.EMAIL_PASS.get()).withTransportStrategy(TransportStrategy.SMTP).buildMailer();
+
+        mailgunConfig = new Configuration()
+                .domain(SiteSettings.MAILGUN_DOMAIN.get())
+                .apiKey(SiteSettings.MAILGUN_API_KEY.get())
+                .from("StarTapped | Do Not Reply", "do-not-reply@dreamexposure.org");
     }
     
     public void sendEmailConfirm(String emailTo, String confirmationLink) {
-        Email email = EmailBuilder.startingBlank()
-                .from("Do Not Reply | DreamExposure", "do-not-reply@dreamexposure.org")
+        Mail.using(mailgunConfig)
                 .to(emailTo)
-                .withSubject("Confirm Your Email")
-                .withHTMLText(getConfirmEmail(emailTo, confirmationLink))
-                .buildEmail();
-        
-        mailer.sendMail(email);
+                .subject("Confirm Your Email")
+                .html(getConfirmEmail(emailTo, confirmationLink))
+                .build()
+                .sendAsync();
     }
     
     private String getConfirmEmail(String emailTo, String confirmationLink) {
         //TODO: FIX STYLING TO MATCH SITE!!!!!!!!!!!!!!!!!!
+        //TODO: Make this actually better and like readable and shit!!!!
         return "<h1 style=\"text-align: center; color: #de1a1a;\">Confirm Your Email</h1>\n" +
                 "<p style=\"text-align: center;\">Thank you for signing up for an account at <a title=\"" + GlobalVars.name + "\" href=\"" + GlobalVars.siteUrl + "\" target=\"_blank\">" + GlobalVars.siteUrl + "</a></p>\n" +
                 "<p style=\"text-align: center;\">Please click the button below to confirm your email.</p>\n" +

@@ -192,6 +192,12 @@
             <version>0.1.7</version>
             <scope>compile</scope>
         </dependency>
+        <!--MailGun Wrapper Library-->
+        <dependency>
+            <groupId>net.sargue</groupId>
+            <artifactId>mailgun</artifactId>
+            <version>1.9.0</version>
+        </dependency>
     </dependencies>
 
     <build>
