@@ -2,8 +2,6 @@ package org.dreamexposure.tap.backend.api.v1.endpoints;
 
 import de.triology.recaptchav2java.ReCaptcha;
 import org.dreamexposure.novautils.crypto.KeyGenerator;
-import org.dreamexposure.tap.backend.conf.GlobalVars;
-import org.dreamexposure.tap.backend.conf.SiteSettings;
 import org.dreamexposure.tap.backend.network.auth.Authentication;
 import org.dreamexposure.tap.backend.network.database.AccountDataHandler;
 import org.dreamexposure.tap.backend.network.database.AuthorizationDataHandler;
@@ -13,6 +11,8 @@ import org.dreamexposure.tap.backend.utils.Generator;
 import org.dreamexposure.tap.backend.utils.ResponseUtils;
 import org.dreamexposure.tap.backend.utils.Sanitizer;
 import org.dreamexposure.tap.backend.utils.Validator;
+import org.dreamexposure.tap.core.conf.GlobalVars;
+import org.dreamexposure.tap.core.conf.SiteSettings;
 import org.dreamexposure.tap.core.objects.account.Account;
 import org.dreamexposure.tap.core.objects.auth.AccountAuthentication;
 import org.dreamexposure.tap.core.utils.Logger;
@@ -255,7 +255,7 @@ public class AccountEndpoint {
 
             return responseBody.toString();
         } catch (Exception e) {
-            Logger.getLogger().exception("Failed to handle account data get", e, BlogEndpoint.class);
+            Logger.getLogger().exception("Failed to handle account data get", e, true, BlogEndpoint.class);
 
             response.setContentType("application/json");
             response.setStatus(500);
@@ -303,7 +303,7 @@ public class AccountEndpoint {
             response.setStatus(400);
             return ResponseUtils.getJsonResponseMessage("Bad Request");
         } catch (Exception e) {
-            Logger.getLogger().exception("Failed to handle account data get", e, BlogEndpoint.class);
+            Logger.getLogger().exception("Failed to handle account data get", e, true, BlogEndpoint.class);
 
             response.setContentType("application/json");
             response.setStatus(500);
@@ -468,7 +468,7 @@ public class AccountEndpoint {
             response.setStatus(400);
             return ResponseUtils.getJsonResponseMessage("Bad Request");
         } catch (Exception e) {
-            Logger.getLogger().exception("Failed to handle account data update.", e, BlogEndpoint.class);
+            Logger.getLogger().exception("Failed to handle account data update.", e, true, BlogEndpoint.class);
             
             response.setContentType("application/json");
             response.setStatus(500);

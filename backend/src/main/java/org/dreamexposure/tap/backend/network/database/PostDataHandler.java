@@ -170,7 +170,7 @@ public class PostDataHandler {
                 ps.close();
             }
         } catch (SQLException e) {
-            Logger.getLogger().exception("Failed to get post", e, this.getClass());
+            Logger.getLogger().exception("Failed to get post", e, true, this.getClass());
         }
         return null;
     }
@@ -318,7 +318,7 @@ public class PostDataHandler {
                 ps.close();
             }
         } catch (SQLException e) {
-            Logger.getLogger().exception("Failed to get post", e, this.getClass());
+            Logger.getLogger().exception("Failed to get post", e, true, this.getClass());
         }
 
         return posts;
@@ -450,7 +450,7 @@ public class PostDataHandler {
                 ps.close();
             }
         } catch (SQLException e) {
-            Logger.getLogger().exception("Failed to get post", e, this.getClass());
+            Logger.getLogger().exception("Failed to get post", e, true, this.getClass());
         }
 
         return posts;
@@ -600,7 +600,7 @@ public class PostDataHandler {
                 ps.close();
             }
         } catch (SQLException e) {
-            Logger.getLogger().exception("Failed to get post", e, this.getClass());
+            Logger.getLogger().exception("Failed to get post", e, true, this.getClass());
         }
 
         return posts;
@@ -732,7 +732,7 @@ public class PostDataHandler {
                 ps.close();
             }
         } catch (SQLException e) {
-            Logger.getLogger().exception("Failed to get post", e, this.getClass());
+            Logger.getLogger().exception("Failed to get post", e, true, this.getClass());
         }
         return posts;
     }
@@ -864,7 +864,7 @@ public class PostDataHandler {
                 ps.close();
             }
         } catch (SQLException e) {
-            Logger.getLogger().exception("Failed to get post", e, this.getClass());
+            Logger.getLogger().exception("Failed to get post", e, true, this.getClass());
         }
         return posts;
     }
@@ -1008,7 +1008,7 @@ public class PostDataHandler {
                 }
             }
         } catch (SQLException e) {
-            Logger.getLogger().exception("Failed to save post", e, this.getClass());
+            Logger.getLogger().exception("Failed to save post", e, true, this.getClass());
         }
         return false;
     }

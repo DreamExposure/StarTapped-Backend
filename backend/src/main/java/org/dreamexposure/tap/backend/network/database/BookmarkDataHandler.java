@@ -57,7 +57,7 @@ public class BookmarkDataHandler {
                 statement.close();
             }
         } catch (SQLException e) {
-            Logger.getLogger().exception("Failed to get bookmark", e, this.getClass());
+            Logger.getLogger().exception("Failed to get bookmark", e, true, this.getClass());
         }
         return null;
     }
@@ -87,7 +87,7 @@ public class BookmarkDataHandler {
                 ps.close();
             }
         } catch (SQLException e) {
-            Logger.getLogger().exception("Failed to get bookmarks", e, this.getClass());
+            Logger.getLogger().exception("Failed to get bookmarks", e, true, this.getClass());
         }
         return bookmarks;
     }
@@ -122,13 +122,13 @@ public class BookmarkDataHandler {
                     return true;
                 } else {
                     //Data present... this shit should not be possible
-                    Logger.getLogger().debug("Tried to add bookmark already present!");
+                    Logger.getLogger().debug("Tried to add bookmark already present!", false);
 
                     statement.close();
                 }
             }
         } catch (SQLException e) {
-            Logger.getLogger().exception("Failed to add bookmark", e, this.getClass());
+            Logger.getLogger().exception("Failed to add bookmark", e, true, this.getClass());
         }
         return false;
     }
@@ -147,7 +147,7 @@ public class BookmarkDataHandler {
                 return true;
             }
         } catch (SQLException e) {
-            Logger.getLogger().exception("Failed to remove bookmark", e, this.getClass());
+            Logger.getLogger().exception("Failed to remove bookmark", e, true, this.getClass());
         }
         return false;
     }

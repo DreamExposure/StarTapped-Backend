@@ -51,7 +51,7 @@ public class RecordDataHandler {
                 return true;
             }
         } catch (SQLException e) {
-            Logger.getLogger().exception("Failed to add dns record data.", e, this.getClass());
+            Logger.getLogger().exception("Failed to add dns record data.", e, true, this.getClass());
         }
         return false;
     }
@@ -79,7 +79,7 @@ public class RecordDataHandler {
                 statement.close();
             }
         } catch (SQLException e) {
-            Logger.getLogger().exception("Failed to get dns record data from database by blog id", e, this.getClass());
+            Logger.getLogger().exception("Failed to get dns record data from database by blog id", e, true, this.getClass());
         }
         return null;
     }
@@ -97,7 +97,7 @@ public class RecordDataHandler {
                 return true;
             }
         } catch (SQLException e) {
-            Logger.getLogger().exception("Failed to delete dns record data by blog ID", e, this.getClass());
+            Logger.getLogger().exception("Failed to delete dns record data by blog ID", e, true, this.getClass());
         }
         return false;
     }
@@ -114,7 +114,7 @@ public class RecordDataHandler {
                 return true;
             }
         } catch (SQLException e) {
-            Logger.getLogger().exception("Failed to delete dns record data by record ID", e, this.getClass());
+            Logger.getLogger().exception("Failed to delete dns record data by record ID", e, true, this.getClass());
         }
         return false;
     }

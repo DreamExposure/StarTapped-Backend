@@ -1,7 +1,7 @@
 package org.dreamexposure.tap.backend.network.email;
 
-import org.dreamexposure.tap.backend.conf.GlobalVars;
-import org.dreamexposure.tap.backend.conf.SiteSettings;
+import org.dreamexposure.tap.core.conf.GlobalVars;
+import org.dreamexposure.tap.core.conf.SiteSettings;
 import org.simplejavamail.email.Email;
 import org.simplejavamail.email.EmailBuilder;
 import org.simplejavamail.mailer.Mailer;

@@ -185,6 +185,13 @@
             <artifactId>simplemagic</artifactId>
             <version>1.16</version>
         </dependency>
+        <!--Discord Webhooks library for simpler webhook handling-->
+        <dependency>
+            <groupId>club.minnced</groupId>
+            <artifactId>discord-webhooks</artifactId>
+            <version>0.1.7</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
     <build>

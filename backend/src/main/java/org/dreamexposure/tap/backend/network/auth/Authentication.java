@@ -1,9 +1,9 @@
 package org.dreamexposure.tap.backend.network.auth;
 
 import org.dreamexposure.novautils.crypto.KeyGenerator;
-import org.dreamexposure.tap.backend.conf.GlobalVars;
 import org.dreamexposure.tap.backend.network.database.AuthorizationDataHandler;
 import org.dreamexposure.tap.backend.objects.auth.AuthenticationState;
+import org.dreamexposure.tap.core.conf.GlobalVars;
 import org.dreamexposure.tap.core.objects.auth.AccountAuthentication;
 import org.dreamexposure.tap.core.utils.Logger;
 

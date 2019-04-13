@@ -60,7 +60,7 @@ public class AccountDataHandler {
                 statement.close();
             }
         } catch (SQLException e) {
-            Logger.getLogger().exception("Failed to register new user", e, this.getClass());
+            Logger.getLogger().exception("Failed to register new user", e, true, this.getClass());
         }
     }
 
@@ -93,7 +93,7 @@ public class AccountDataHandler {
                 statement.close();
             }
         } catch (SQLException e) {
-            Logger.getLogger().exception("Failed to get user from database by username", e, this.getClass());
+            Logger.getLogger().exception("Failed to get user from database by username", e, true, this.getClass());
         }
         return null;
     }
@@ -127,7 +127,7 @@ public class AccountDataHandler {
                 statement.close();
             }
         } catch (SQLException e) {
-            Logger.getLogger().exception("Failed to get user from database by email", e, this.getClass());
+            Logger.getLogger().exception("Failed to get user from database by email", e, true, this.getClass());
         }
         return null;
     }
@@ -161,7 +161,7 @@ public class AccountDataHandler {
                 statement.close();
             }
         } catch (SQLException e) {
-            Logger.getLogger().exception("Failed to get user from database by id", e, this.getClass());
+            Logger.getLogger().exception("Failed to get user from database by id", e, true, this.getClass());
         }
         return null;
     }
@@ -184,7 +184,7 @@ public class AccountDataHandler {
                 statement.close();
             }
         } catch (SQLException e) {
-            Logger.getLogger().exception("Failed to validate login", e, this.getClass());
+            Logger.getLogger().exception("Failed to validate login", e, true, this.getClass());
         }
         return false;
     }
@@ -211,7 +211,7 @@ public class AccountDataHandler {
                 statement.close();
             }
         } catch (SQLException e) {
-            Logger.getLogger().exception("Failed to verify username/email taken", e, this.getClass());
+            Logger.getLogger().exception("Failed to verify username/email taken", e, true, this.getClass());
         }
         return false;
     }
@@ -237,7 +237,7 @@ public class AccountDataHandler {
                 statement.close();
             }
         } catch (SQLException e) {
-            Logger.getLogger().exception("Failed to verify email taken", e, this.getClass());
+            Logger.getLogger().exception("Failed to verify email taken", e, true, this.getClass());
         }
         return false;
     }
@@ -287,7 +287,7 @@ public class AccountDataHandler {
                 return true;
             }
         } catch (SQLException e) {
-            Logger.getLogger().exception("Failed to update Account Info", e, this.getClass());
+            Logger.getLogger().exception("Failed to update Account Info", e, true, this.getClass());
         }
         return false;
     }
@@ -325,7 +325,7 @@ public class AccountDataHandler {
                 return true;
             }
         } catch (SQLException e) {
-            Logger.getLogger().exception("Failed to update Account Info", e, this.getClass());
+            Logger.getLogger().exception("Failed to update Account Info", e, true, this.getClass());
         }
         return false;
     }

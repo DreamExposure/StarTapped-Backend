@@ -67,7 +67,7 @@ public class FollowerDataHandler {
                 statement.close();
             }
         } catch (SQLException e) {
-            Logger.getLogger().exception("Failed to add follower", e, this.getClass());
+            Logger.getLogger().exception("Failed to add follower", e, true, this.getClass());
         }
     }
 
@@ -96,7 +96,7 @@ public class FollowerDataHandler {
                 statement.close();
             }
         } catch (SQLException e) {
-            Logger.getLogger().exception("Failed to remove follower", e, this.getClass());
+            Logger.getLogger().exception("Failed to remove follower", e, true, this.getClass());
         }
     }
 
@@ -118,7 +118,7 @@ public class FollowerDataHandler {
                 statement.close();
             }
         } catch (SQLException e) {
-            Logger.getLogger().exception("Failed to get following", e, this.getClass());
+            Logger.getLogger().exception("Failed to get following", e, true, this.getClass());
         }
 
         return following;
@@ -142,7 +142,7 @@ public class FollowerDataHandler {
                 statement.close();
             }
         } catch (SQLException e) {
-            Logger.getLogger().exception("Failed to get followers", e, this.getClass());
+            Logger.getLogger().exception("Failed to get followers", e, true, this.getClass());
         }
 
         return followers;
@@ -169,7 +169,7 @@ public class FollowerDataHandler {
                 statement.close();
             }
         } catch (SQLException e) {
-            Logger.getLogger().exception("Failed to get following", e, this.getClass());
+            Logger.getLogger().exception("Failed to get following", e, true, this.getClass());
         }
 
         return following;
@@ -196,7 +196,7 @@ public class FollowerDataHandler {
                 statement.close();
             }
         } catch (SQLException e) {
-            Logger.getLogger().exception("Failed to get followers", e, this.getClass());
+            Logger.getLogger().exception("Failed to get followers", e, true, this.getClass());
         }
 
         return followers;

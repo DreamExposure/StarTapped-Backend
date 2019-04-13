@@ -70,7 +70,7 @@ public class RelationEndpoint {
             response.setStatus(400);
             return ResponseUtils.getJsonResponseMessage("Bad Request");
         } catch (Exception e) {
-            Logger.getLogger().exception("Failed to handle account data update.", e, BlogEndpoint.class);
+            Logger.getLogger().exception("Failed to handle account data update.", e, true, BlogEndpoint.class);
 
             response.setContentType("application/json");
             response.setStatus(500);
@@ -104,7 +104,7 @@ public class RelationEndpoint {
             response.setStatus(400);
             return ResponseUtils.getJsonResponseMessage("Bad Request");
         } catch (Exception e) {
-            Logger.getLogger().exception("Failed to handle account data update.", e, BlogEndpoint.class);
+            Logger.getLogger().exception("Failed to handle account data update.", e, true, BlogEndpoint.class);
 
             response.setContentType("application/json");
             response.setStatus(500);
@@ -147,7 +147,7 @@ public class RelationEndpoint {
             response.setStatus(400);
             return ResponseUtils.getJsonResponseMessage("Bad Request");
         } catch (Exception e) {
-            Logger.getLogger().exception("Failed to handle account data update.", e, BlogEndpoint.class);
+            Logger.getLogger().exception("Failed to handle account data update.", e, true, BlogEndpoint.class);
 
             response.setContentType("application/json");
             response.setStatus(500);
@@ -187,7 +187,7 @@ public class RelationEndpoint {
             response.setStatus(400);
             return ResponseUtils.getJsonResponseMessage("Bad Request");
         } catch (Exception e) {
-            Logger.getLogger().exception("Failed to handle account data update.", e, BlogEndpoint.class);
+            Logger.getLogger().exception("Failed to handle account data update.", e, true, BlogEndpoint.class);
 
             response.setContentType("application/json");
             response.setStatus(500);

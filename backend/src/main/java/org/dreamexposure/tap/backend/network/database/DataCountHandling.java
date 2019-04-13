@@ -57,7 +57,7 @@ public class DataCountHandling {
                 statement.close();
             }
         } catch (SQLException e) {
-            Logger.getLogger().exception("Failed to get account count", e, this.getClass());
+            Logger.getLogger().exception("Failed to get account count", e, true, this.getClass());
         }
         return amount;
     }
@@ -84,7 +84,7 @@ public class DataCountHandling {
                 statement.close();
             }
         } catch (SQLException e) {
-            Logger.getLogger().exception("Failed to get auth count for account.", e, this.getClass());
+            Logger.getLogger().exception("Failed to get auth count for account.", e, true, this.getClass());
         }
         return amount;
     }
@@ -109,7 +109,7 @@ public class DataCountHandling {
                 statement.close();
             }
         } catch (SQLException e) {
-            Logger.getLogger().exception("Failed to get blog count", e, this.getClass());
+            Logger.getLogger().exception("Failed to get blog count", e, true, this.getClass());
         }
         return amount;
     }
@@ -136,7 +136,7 @@ public class DataCountHandling {
                 statement.close();
             }
         } catch (SQLException e) {
-            Logger.getLogger().exception("Failed to get blog count", e, this.getClass());
+            Logger.getLogger().exception("Failed to get blog count", e, true, this.getClass());
         }
         return amount;
     }
@@ -165,7 +165,7 @@ public class DataCountHandling {
                 statement.close();
             }
         } catch (SQLException e) {
-            Logger.getLogger().exception("Failed to get blog count for account", e, this.getClass());
+            Logger.getLogger().exception("Failed to get blog count for account", e, true, this.getClass());
         }
         return amount;
     }
@@ -190,7 +190,7 @@ public class DataCountHandling {
                 statement.close();
             }
         } catch (SQLException e) {
-            Logger.getLogger().exception("Failed to get post count", e, this.getClass());
+            Logger.getLogger().exception("Failed to get post count", e, true, this.getClass());
         }
         return amount;
     }
@@ -217,7 +217,7 @@ public class DataCountHandling {
                 statement.close();
             }
         } catch (SQLException e) {
-            Logger.getLogger().exception("Failed to get post count by type", e, this.getClass());
+            Logger.getLogger().exception("Failed to get post count by type", e, true, this.getClass());
         }
         return amount;
     }
@@ -244,7 +244,7 @@ public class DataCountHandling {
                 statement.close();
             }
         } catch (SQLException e) {
-            Logger.getLogger().exception("Failed to get post count for blog", e, this.getClass());
+            Logger.getLogger().exception("Failed to get post count for blog", e, true, this.getClass());
         }
         return amount;
     }
@@ -272,7 +272,7 @@ public class DataCountHandling {
                 statement.close();
             }
         } catch (SQLException e) {
-            Logger.getLogger().exception("Failed to get post count for blog", e, this.getClass());
+            Logger.getLogger().exception("Failed to get post count for blog", e, true, this.getClass());
         }
         return amount;
     }
@@ -299,7 +299,7 @@ public class DataCountHandling {
                 statement.close();
             }
         } catch (SQLException e) {
-            Logger.getLogger().exception("Failed to get post count for account", e, this.getClass());
+            Logger.getLogger().exception("Failed to get post count for account", e, true, this.getClass());
         }
         return amount;
     }
@@ -327,7 +327,7 @@ public class DataCountHandling {
                 statement.close();
             }
         } catch (SQLException e) {
-            Logger.getLogger().exception("Failed to get post count for account", e, this.getClass());
+            Logger.getLogger().exception("Failed to get post count for account", e, true, this.getClass());
         }
         return amount;
     }
@@ -354,7 +354,7 @@ public class DataCountHandling {
                 statement.close();
             }
         } catch (SQLException e) {
-            Logger.getLogger().exception("Failed to get following count for user", e, this.getClass());
+            Logger.getLogger().exception("Failed to get following count for user", e, true, this.getClass());
         }
         return amount;
     }
@@ -381,7 +381,7 @@ public class DataCountHandling {
                 statement.close();
             }
         } catch (SQLException e) {
-            Logger.getLogger().exception("Failed to get follower count for user", e, this.getClass());
+            Logger.getLogger().exception("Failed to get follower count for user", e, true, this.getClass());
         }
         return amount;
     }
@@ -408,7 +408,7 @@ public class DataCountHandling {
                 statement.close();
             }
         } catch (SQLException e) {
-            Logger.getLogger().exception("Failed to get reblog count for post", e, this.getClass());
+            Logger.getLogger().exception("Failed to get reblog count for post", e, true, this.getClass());
         }
         return amount;
     }
@@ -435,7 +435,7 @@ public class DataCountHandling {
                 statement.close();
             }
         } catch (SQLException e) {
-            Logger.getLogger().exception("Failed to get bookmark count for post", e, this.getClass());
+            Logger.getLogger().exception("Failed to get bookmark count for post", e, true, this.getClass());
         }
         return amount;
     }

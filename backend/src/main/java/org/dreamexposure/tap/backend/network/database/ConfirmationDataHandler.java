@@ -52,7 +52,7 @@ public class ConfirmationDataHandler {
                 statement.close();
             }
         } catch (SQLException e) {
-            Logger.getLogger().exception("Failed to input confirmation code", e, this.getClass());
+            Logger.getLogger().exception("Failed to input confirmation code", e, true, this.getClass());
         }
     }
 
@@ -83,7 +83,7 @@ public class ConfirmationDataHandler {
                 }
             }
         } catch (SQLException e) {
-            Logger.getLogger().exception("Failed to get confirmation data", e, this.getClass());
+            Logger.getLogger().exception("Failed to get confirmation data", e, true, this.getClass());
         }
         return null;
     }
@@ -100,7 +100,7 @@ public class ConfirmationDataHandler {
                 statement.close();
             }
         } catch (SQLException e) {
-            Logger.getLogger().exception("Failed to delete confirmation data", e, this.getClass());
+            Logger.getLogger().exception("Failed to delete confirmation data", e, true, this.getClass());
         }
     }
 }

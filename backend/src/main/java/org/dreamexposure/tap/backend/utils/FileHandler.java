@@ -1,7 +1,7 @@
 package org.dreamexposure.tap.backend.utils;
 
 import org.apache.commons.io.FileUtils;
-import org.dreamexposure.tap.backend.conf.SiteSettings;
+import org.dreamexposure.tap.core.conf.SiteSettings;
 import org.dreamexposure.tap.core.objects.blog.IBlog;
 import org.dreamexposure.tap.core.utils.Logger;
 
@@ -33,7 +33,7 @@ public class FileHandler {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            Logger.getLogger().exception("Failed to create blog directory and file", e, FileHandler.class);
+            Logger.getLogger().exception("Failed to create blog directory and file", e, true, FileHandler.class);
             success = false;
         }
 

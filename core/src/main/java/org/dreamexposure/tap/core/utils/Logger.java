@@ -1,10 +1,18 @@
 package org.dreamexposure.tap.core.utils;
 
+import club.minnced.discord.webhook.WebhookClient;
+import club.minnced.discord.webhook.send.WebhookEmbed;
+import club.minnced.discord.webhook.send.WebhookEmbedBuilder;
+import org.dreamexposure.tap.core.conf.GlobalVars;
+import org.dreamexposure.tap.core.conf.SiteSettings;
+
+import javax.annotation.Nullable;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.Calendar;
 
 /**
@@ -18,6 +26,10 @@ import java.util.Calendar;
 @SuppressWarnings("Duplicates")
 public class Logger {
     private static Logger instance;
+    private WebhookClient debugClient;
+    private WebhookClient exceptionClient;
+    private WebhookClient statusClient;
+
     private String exceptionsFile;
     private String apiFile;
     private String debugFile;
@@ -33,8 +45,15 @@ public class Logger {
         }
         return instance;
     }
-    
+
     public void init(String folder) {
+//Create webhook clients.
+        if (SiteSettings.USE_WEBHOOKS.get().equalsIgnoreCase("true")) {
+            debugClient = WebhookClient.withUrl(SiteSettings.DEBUG_WEBHOOK.get());
+            exceptionClient = WebhookClient.withUrl(SiteSettings.ERROR_WEBHOOK.get());
+            statusClient = WebhookClient.withUrl(SiteSettings.STATUS_WEBHOOK.get());
+        }
+
         //Create files...
         String timestamp = new SimpleDateFormat("dd-MM-yyyy-hh.mm.ss").format(System.currentTimeMillis());
         
@@ -58,8 +77,8 @@ public class Logger {
             e.printStackTrace();
         }
     }
-    
-    public void exception(String message, Exception e, Class clazz) {
+
+    public void exception(String message, Exception e, boolean postWebhook, Class clazz) {
         String timeStamp = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(Calendar.getInstance().getTime());
         String error = "no error provided";
         if (e != null) {
@@ -87,9 +106,26 @@ public class Logger {
         } catch (IOException io) {
             io.printStackTrace();
         }
+
+        //Post to webhook if wanted.
+        if (SiteSettings.USE_WEBHOOKS.get().equalsIgnoreCase("true") && postWebhook) {
+            WebhookEmbedBuilder builder = new WebhookEmbedBuilder()
+                    .setTitle(new WebhookEmbed.EmbedTitle("Debug", null))
+                    .addField(new WebhookEmbed
+                            .EmbedField(false, "Class", clazz.getName()))
+                    .setDescription(error)
+                    .setColor(GlobalVars.errorEmbedColor.getRGB())
+                    .setTimestamp(Instant.now());
+
+            if (message != null) {
+                builder.addField(new WebhookEmbed.EmbedField(false, "Message", message));
+            }
+
+            exceptionClient.send(builder.build());
+        }
     }
-    
-    public void debug(String message, String info, Class clazz) {
+
+    public void debug(String message, String info, boolean postWebhook, Class clazz) {
         String timeStamp = new SimpleDateFormat("yyyy/MM/dd-HH:mm:ss").format(Calendar.getInstance().getTime());
         
         try {
@@ -106,9 +142,23 @@ public class Logger {
         } catch (IOException io) {
             io.printStackTrace();
         }
+
+        //Post to webhook if wanted.
+        if (SiteSettings.USE_WEBHOOKS.get().equalsIgnoreCase("true") && postWebhook) {
+            WebhookEmbedBuilder builder = new WebhookEmbedBuilder()
+                    .setTitle(new WebhookEmbed.EmbedTitle("Debug", null))
+                    .setDescription(message)
+                    .setColor(GlobalVars.infoEmbedColor.getRGB())
+                    .setTimestamp(Instant.now());
+            if (info != null) {
+                builder.addField(new WebhookEmbed.EmbedField(false, "Info", info));
+            }
+
+            debugClient.send(builder.build());
+        }
     }
-    
-    public void debug(String message) {
+
+    public void debug(String message, boolean postWebhook) {
         String timeStamp = new SimpleDateFormat("yyyy/MM/dd-HH:mm:ss").format(Calendar.getInstance().getTime());
         
         try {
@@ -120,6 +170,17 @@ public class Logger {
             file.close();
         } catch (IOException io) {
             io.printStackTrace();
+        }
+
+        //Post to webhook if wanted.
+        if (SiteSettings.USE_WEBHOOKS.get().equalsIgnoreCase("true") && postWebhook) {
+            WebhookEmbedBuilder builder = new WebhookEmbedBuilder()
+                    .setTitle(new WebhookEmbed.EmbedTitle("Debug", null))
+                    .setDescription(message)
+                    .setColor(GlobalVars.infoEmbedColor.getRGB())
+                    .setTimestamp(Instant.now());
+
+            debugClient.send(builder.build());
         }
     }
     
@@ -163,6 +224,24 @@ public class Logger {
             file.close();
         } catch (IOException io) {
             io.printStackTrace();
+        }
+    }
+
+    public void status(String message, @Nullable String info) {
+        //Post to webhook if wanted.
+        if (SiteSettings.USE_WEBHOOKS.get().equalsIgnoreCase("true")) {
+            WebhookEmbedBuilder builder = new WebhookEmbedBuilder()
+                    .setTitle(new WebhookEmbed.EmbedTitle("Debug", null))
+                    .setDescription(message)
+                    .setColor(GlobalVars.infoEmbedColor.getRGB())
+                    .setTimestamp(Instant.now());
+
+            if (info != null) {
+                builder.addField(new WebhookEmbed
+                        .EmbedField(false, "Info", info));
+            }
+
+            statusClient.send(builder.build());
         }
     }
 }

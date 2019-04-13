@@ -5,8 +5,8 @@ import com.google.auth.Credentials;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.vision.v1.*;
 import com.google.protobuf.ByteString;
-import org.dreamexposure.tap.backend.conf.SiteSettings;
 import org.dreamexposure.tap.backend.network.database.PostDataHandler;
+import org.dreamexposure.tap.core.conf.SiteSettings;
 import org.dreamexposure.tap.core.enums.post.SafeSearchRating;
 import org.dreamexposure.tap.core.objects.post.ImagePost;
 import org.dreamexposure.tap.core.utils.Logger;
@@ -46,7 +46,7 @@ public class ImageAnalysis {
 
             stream.close();
         } catch (Exception e) {
-            Logger.getLogger().exception("Failed to init Vision Settings", e, this.getClass());
+            Logger.getLogger().exception("Failed to init Vision Settings", e, true, this.getClass());
         }
     }
 
@@ -80,7 +80,7 @@ public class ImageAnalysis {
 
                     for (AnnotateImageResponse res : responses) {
                         if (res.hasError()) {
-                            Logger.getLogger().exception("Safe search error: " + res.getError().getMessage(), null, this.getClass());
+                            Logger.getLogger().exception("Safe search error: " + res.getError().getMessage(), null, true, this.getClass());
 
                             System.out.println("Safe search error: " + res.getError());
                         } else {
@@ -106,11 +106,11 @@ public class ImageAnalysis {
                             //Update it in database
                             PostDataHandler.get().addPost(post);
 
-                            Logger.getLogger().debug("Image scan with Vision complete for image hash: " + post.getImage().getHash());
+                            Logger.getLogger().debug("Image scan with Vision complete for image hash: " + post.getImage().getHash(), false);
                         }
                     }
                 } catch (Exception e) {
-                    Logger.getLogger().exception("Failed to handle vision analysis", e, this.getClass());
+                    Logger.getLogger().exception("Failed to handle vision analysis", e, true, this.getClass());
                 }
             }
         });

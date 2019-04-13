@@ -1,4 +1,4 @@
-package org.dreamexposure.tap.backend.conf;
+package org.dreamexposure.tap.core.conf;
 
 import java.util.Properties;
 
@@ -21,13 +21,24 @@ public enum SiteSettings {
     
     TIME_OUT,
     PORT,
-    LOG_FOLDER, CREDENTIAL_FOLDER, BLOG_FOLDER, TEMPLATE_FOLDER, TMP_FOLDER, UPLOAD_FOLDER,
+
+    LOG_FOLDER, CREDENTIAL_FOLDER,
+    BLOG_FOLDER, TEMPLATE_FOLDER,
+    TMP_FOLDER, UPLOAD_FOLDER,
+
     RECAP_KEY_SITE, RECAP_KEY_ANDROID, RECAP_KEY_IOS,
+
     SMTP_HOST, SMTP_PORT,
     EMAIL_USER, EMAIL_PASS,
     
     CF_EMAIL, CF_ZONE_ID, CF_AUTH_KEY,
-    CLAM_HOST, CLAM_PORT, CLAM_NO_SCAN;
+
+    CLAM_HOST, CLAM_PORT,
+
+    CLAM_NO_SCAN, USE_WEBHOOKS,
+
+    DEBUG_WEBHOOK, ERROR_WEBHOOK, STATUS_WEBHOOK;
+
     private String val;
     
     SiteSettings() {

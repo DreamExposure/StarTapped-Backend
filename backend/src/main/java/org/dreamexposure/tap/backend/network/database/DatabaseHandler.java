@@ -4,7 +4,7 @@ import org.dreamexposure.novautils.database.DatabaseInfo;
 import org.dreamexposure.novautils.database.DatabaseManager;
 import org.dreamexposure.novautils.database.DatabaseSettings;
 import org.dreamexposure.novautils.database.MySQL;
-import org.dreamexposure.tap.backend.conf.SiteSettings;
+import org.dreamexposure.tap.core.conf.SiteSettings;
 import org.dreamexposure.tap.core.utils.Logger;
 
 import java.sql.Connection;
@@ -67,7 +67,7 @@ public class DatabaseHandler {
         } catch (Exception e) {
             System.out.println("Failed to connect to MySQL database! Is it properly configured?");
             e.printStackTrace();
-            Logger.getLogger().exception("Failed to connect to MySQL Database!", e, this.getClass());
+            Logger.getLogger().exception("Failed to connect to MySQL Database!", e, true, this.getClass());
         }
     }
     
@@ -189,7 +189,7 @@ public class DatabaseHandler {
             statement.close();
             System.out.println("Successfully created needed tables in MySQL database!");
         } catch (SQLException e) {
-            Logger.getLogger().exception("Failed to create database tables", e, this.getClass());
+            Logger.getLogger().exception("Failed to create database tables", e, true, this.getClass());
         }
     }
 }

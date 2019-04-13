@@ -1,5 +1,6 @@
 package org.dreamexposure.tap.backend.conf;
 
+import org.dreamexposure.tap.core.conf.SiteSettings;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.web.server.ErrorPage;
 import org.springframework.boot.web.server.WebServerFactoryCustomizer;

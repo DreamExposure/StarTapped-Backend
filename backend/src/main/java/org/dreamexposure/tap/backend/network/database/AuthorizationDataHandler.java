@@ -54,7 +54,7 @@ public class AuthorizationDataHandler {
                 statement.close();
             }
         } catch (SQLException e) {
-            Logger.getLogger().exception("Failed to add Authentication data.", e, this.getClass());
+            Logger.getLogger().exception("Failed to add Authentication data.", e, true, this.getClass());
         }
     }
 
@@ -86,7 +86,7 @@ public class AuthorizationDataHandler {
                 statement.close();
             }
         } catch (SQLException e) {
-            Logger.getLogger().exception("Failed to update auth data", e, this.getClass());
+            Logger.getLogger().exception("Failed to update auth data", e, true, this.getClass());
         }
     }
 
@@ -115,7 +115,7 @@ public class AuthorizationDataHandler {
                 statement.close();
             }
         } catch (SQLException e) {
-            Logger.getLogger().exception("Failed to get auth data from database by access token", e, this.getClass());
+            Logger.getLogger().exception("Failed to get auth data from database by access token", e, true, this.getClass());
         }
         return null;
     }
@@ -145,7 +145,7 @@ public class AuthorizationDataHandler {
                 statement.close();
             }
         } catch (SQLException e) {
-            Logger.getLogger().exception("Failed to get auth data from database by refresh token", e, this.getClass());
+            Logger.getLogger().exception("Failed to get auth data from database by refresh token", e, true, this.getClass());
         }
         return null;
     }
@@ -176,7 +176,7 @@ public class AuthorizationDataHandler {
                 statement.close();
             }
         } catch (SQLException e) {
-            Logger.getLogger().exception("Failed to get auth data from database by refresh token", e, this.getClass());
+            Logger.getLogger().exception("Failed to get auth data from database by refresh token", e, true, this.getClass());
         }
 
         return all;
@@ -194,7 +194,7 @@ public class AuthorizationDataHandler {
                 statement.close();
             }
         } catch (SQLException e) {
-            Logger.getLogger().exception("Failed to delete auth data.", e, this.getClass());
+            Logger.getLogger().exception("Failed to delete auth data.", e, true, this.getClass());
         }
     }
 
@@ -210,7 +210,7 @@ public class AuthorizationDataHandler {
                 statement.close();
             }
         } catch (SQLException e) {
-            Logger.getLogger().exception("Failed to delete auth data by access token.", e, this.getClass());
+            Logger.getLogger().exception("Failed to delete auth data by access token.", e, true, this.getClass());
         }
     }
 
@@ -226,7 +226,7 @@ public class AuthorizationDataHandler {
                 statement.close();
             }
         } catch (SQLException e) {
-            Logger.getLogger().exception("Failed to delete auth data by refresh token.", e, this.getClass());
+            Logger.getLogger().exception("Failed to delete auth data by refresh token.", e, true, this.getClass());
         }
     }
 }

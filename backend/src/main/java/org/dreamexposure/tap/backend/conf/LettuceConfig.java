@@ -1,5 +1,6 @@
 package org.dreamexposure.tap.backend.conf;
 
+import org.dreamexposure.tap.core.conf.SiteSettings;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;

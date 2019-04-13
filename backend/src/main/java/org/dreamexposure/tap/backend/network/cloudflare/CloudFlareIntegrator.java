@@ -1,8 +1,8 @@
 package org.dreamexposure.tap.backend.network.cloudflare;
 
 import okhttp3.*;
-import org.dreamexposure.tap.backend.conf.SiteSettings;
 import org.dreamexposure.tap.backend.network.database.RecordDataHandler;
+import org.dreamexposure.tap.core.conf.SiteSettings;
 import org.dreamexposure.tap.core.objects.blog.IBlog;
 import org.dreamexposure.tap.core.objects.cloudflare.DnsRecord;
 import org.dreamexposure.tap.core.utils.Logger;
@@ -70,10 +70,10 @@ public class CloudFlareIntegrator {
                     return RecordDataHandler.get().createRecord(record);
                 }
             } else {
-                Logger.getLogger().debug("Failed to handle CNAME Creation", response.body().string(), this.getClass());
+                Logger.getLogger().debug("Failed to handle CNAME Creation", response.body().string(), true, this.getClass());
             }
         } catch (Exception e) {
-            Logger.getLogger().exception("Failed to create CNAME record", e, this.getClass());
+            Logger.getLogger().exception("Failed to create CNAME record", e, true, this.getClass());
         }
         return false;
     }
@@ -98,7 +98,7 @@ public class CloudFlareIntegrator {
                 }
             }
         } catch (Exception e) {
-            Logger.getLogger().exception("Failed to delete CNAME record", e, this.getClass());
+            Logger.getLogger().exception("Failed to delete CNAME record", e, true, this.getClass());
         }
         return false;
     }

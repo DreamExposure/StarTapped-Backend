@@ -126,7 +126,7 @@ public class BlogDataHandler {
 
             }
         } catch (SQLException e) {
-            Logger.getLogger().exception("Failed to create or update blog in database", e, this.getClass());
+            Logger.getLogger().exception("Failed to create or update blog in database", e, true, this.getClass());
         }
         return false;
     }
@@ -195,7 +195,7 @@ public class BlogDataHandler {
                 statement.close();
             }
         } catch (SQLException e) {
-            Logger.getLogger().exception("Failed to get blog from database", e, this.getClass());
+            Logger.getLogger().exception("Failed to get blog from database", e, true, this.getClass());
         }
         return null;
     }
@@ -264,7 +264,7 @@ public class BlogDataHandler {
                 statement.close();
             }
         } catch (SQLException e) {
-            Logger.getLogger().exception("Failed to get blog from database", e, this.getClass());
+            Logger.getLogger().exception("Failed to get blog from database", e, true, this.getClass());
         }
         return null;
     }
@@ -312,7 +312,7 @@ public class BlogDataHandler {
                 statement.close();
             }
         } catch (SQLException e) {
-            Logger.getLogger().exception("Failed to get blog from database", e, this.getClass());
+            Logger.getLogger().exception("Failed to get blog from database", e, true, this.getClass());
         }
         return null;
     }
@@ -355,7 +355,7 @@ public class BlogDataHandler {
                 statement.close();
             }
         } catch (SQLException e) {
-            Logger.getLogger().exception("Failed to get blog from database", e, this.getClass());
+            Logger.getLogger().exception("Failed to get blog from database", e, true, this.getClass());
         }
         return null;
     }
@@ -420,7 +420,7 @@ public class BlogDataHandler {
                 statement.close();
             }
         } catch (SQLException e) {
-            Logger.getLogger().exception("Failed to get all blogs of user from database", e, this.getClass());
+            Logger.getLogger().exception("Failed to get all blogs of user from database", e, true, this.getClass());
         }
         return blogs;
     }
@@ -443,7 +443,7 @@ public class BlogDataHandler {
                 return false;
             }
         } catch (SQLException e) {
-            Logger.getLogger().exception("Failed to check if URL is taken", e, this.getClass());
+            Logger.getLogger().exception("Failed to check if URL is taken", e, true, this.getClass());
             //Assume its taken just to be on the safe side.
             return true;
         }

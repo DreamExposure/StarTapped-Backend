@@ -1,8 +1,6 @@
 package org.dreamexposure.tap.backend.api.v1.endpoints;
 
 import de.triology.recaptchav2java.ReCaptcha;
-import org.dreamexposure.tap.backend.conf.GlobalVars;
-import org.dreamexposure.tap.backend.conf.SiteSettings;
 import org.dreamexposure.tap.backend.network.auth.Authentication;
 import org.dreamexposure.tap.backend.network.cloudflare.CloudFlareIntegrator;
 import org.dreamexposure.tap.backend.network.database.AccountDataHandler;
@@ -10,6 +8,8 @@ import org.dreamexposure.tap.backend.network.database.BlogDataHandler;
 import org.dreamexposure.tap.backend.network.database.FileDataHandler;
 import org.dreamexposure.tap.backend.objects.auth.AuthenticationState;
 import org.dreamexposure.tap.backend.utils.*;
+import org.dreamexposure.tap.core.conf.GlobalVars;
+import org.dreamexposure.tap.core.conf.SiteSettings;
 import org.dreamexposure.tap.core.enums.blog.BlogType;
 import org.dreamexposure.tap.core.enums.file.MimeType;
 import org.dreamexposure.tap.core.objects.account.Account;
@@ -205,7 +205,7 @@ public class BlogEndpoint {
             response.setStatus(400);
             return ResponseUtils.getJsonResponseMessage("Bad Request");
         } catch (Exception e) {
-            Logger.getLogger().exception("Failed to handle blog creation", e, BlogEndpoint.class);
+            Logger.getLogger().exception("Failed to handle blog creation", e, true, BlogEndpoint.class);
             
             response.setContentType("application/json");
             response.setStatus(500);
@@ -306,7 +306,7 @@ public class BlogEndpoint {
             response.setStatus(400);
             return ResponseUtils.getJsonResponseMessage("Bad Request");
         } catch (Exception e) {
-            Logger.getLogger().exception("Failed to handle blog get", e, BlogEndpoint.class);
+            Logger.getLogger().exception("Failed to handle blog get", e, true, BlogEndpoint.class);
             
             response.setContentType("application/json");
             response.setStatus(500);
@@ -440,7 +440,7 @@ public class BlogEndpoint {
             response.setStatus(400);
             return ResponseUtils.getJsonResponseMessage("Bad Request");
         } catch (Exception e) {
-            Logger.getLogger().exception("Failed to handle blog update", e, BlogEndpoint.class);
+            Logger.getLogger().exception("Failed to handle blog update", e, true, BlogEndpoint.class);
             
             response.setContentType("application/json");
             response.setStatus(500);

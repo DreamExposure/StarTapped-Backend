@@ -1,4 +1,6 @@
-package org.dreamexposure.tap.backend.conf;
+package org.dreamexposure.tap.core.conf;
+
+import java.awt.*;
 
 /**
  * @author NovaFox161
@@ -13,6 +15,8 @@ public class GlobalVars {
     public static final String siteUrl = "https://startapped.com";
     public static final String apiUrl = "https://api.startapped.com";
     public static final String cdnUrl = "https://cdn.startapped.com";
+    public static final Color errorEmbedColor = Color.RED;
+    public static final Color infoEmbedColor = Color.CYAN;
     
     public static final String lineBreak = System.lineSeparator();
     

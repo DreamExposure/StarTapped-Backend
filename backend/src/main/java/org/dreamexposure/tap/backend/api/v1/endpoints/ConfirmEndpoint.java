@@ -1,8 +1,8 @@
 package org.dreamexposure.tap.backend.api.v1.endpoints;
 
-import org.dreamexposure.tap.backend.conf.GlobalVars;
 import org.dreamexposure.tap.backend.network.database.AccountDataHandler;
 import org.dreamexposure.tap.backend.network.database.ConfirmationDataHandler;
+import org.dreamexposure.tap.core.conf.GlobalVars;
 import org.dreamexposure.tap.core.objects.account.Account;
 import org.dreamexposure.tap.core.objects.confirmation.EmailConfirmation;
 import org.dreamexposure.tap.core.utils.Logger;

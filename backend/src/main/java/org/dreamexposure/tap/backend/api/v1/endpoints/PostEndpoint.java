@@ -1,6 +1,5 @@
 package org.dreamexposure.tap.backend.api.v1.endpoints;
 
-import org.dreamexposure.tap.backend.conf.GlobalVars;
 import org.dreamexposure.tap.backend.network.auth.Authentication;
 import org.dreamexposure.tap.backend.network.database.*;
 import org.dreamexposure.tap.backend.network.google.vision.ImageAnalysis;
@@ -8,6 +7,7 @@ import org.dreamexposure.tap.backend.objects.auth.AuthenticationState;
 import org.dreamexposure.tap.backend.utils.FileUploadHandler;
 import org.dreamexposure.tap.backend.utils.ResponseUtils;
 import org.dreamexposure.tap.backend.utils.Sanitizer;
+import org.dreamexposure.tap.core.conf.GlobalVars;
 import org.dreamexposure.tap.core.enums.file.MimeType;
 import org.dreamexposure.tap.core.enums.post.PostType;
 import org.dreamexposure.tap.core.objects.account.Account;
@@ -266,14 +266,14 @@ public class PostEndpoint {
             response.setContentType("application/json");
             response.setStatus(400);
 
-            Logger.getLogger().exception("Possible JSON error in post create", e, PostEndpoint.class);
+            Logger.getLogger().exception("Possible JSON error in post create", e, true, PostEndpoint.class);
 
             return ResponseUtils.getJsonResponseMessage("Bad Request");
         } catch (Exception e) {
             response.setContentType("application/json");
             response.setStatus(500);
 
-            Logger.getLogger().exception("Failed to handle post create", e, PostEndpoint.class);
+            Logger.getLogger().exception("Failed to handle post create", e, true, PostEndpoint.class);
             return ResponseUtils.getJsonResponseMessage("Internal Server Error");
         }
 
@@ -386,14 +386,14 @@ public class PostEndpoint {
             response.setContentType("application/json");
             response.setStatus(400);
 
-            Logger.getLogger().exception("Bad Request on post for get bookmarks endpoint", e, PostEndpoint.class);
+            Logger.getLogger().exception("Bad Request on post for get bookmarks endpoint", e, true, PostEndpoint.class);
 
             return ResponseUtils.getJsonResponseMessage("Bad Request");
         } catch (Exception e) {
             response.setContentType("application/json");
             response.setStatus(500);
 
-            Logger.getLogger().exception("Failed to handle post get for bookmarks", e, PostEndpoint.class);
+            Logger.getLogger().exception("Failed to handle post get for bookmarks", e, true, PostEndpoint.class);
             return ResponseUtils.getJsonResponseMessage("Internal Server Error");
         }
     }
@@ -513,7 +513,7 @@ public class PostEndpoint {
             response.setContentType("application/json");
             response.setStatus(500);
 
-            Logger.getLogger().exception("Failed to handle post get by blog", e, PostEndpoint.class);
+            Logger.getLogger().exception("Failed to handle post get by blog", e, true, PostEndpoint.class);
             return ResponseUtils.getJsonResponseMessage("Internal Server Error");
         }
     }
@@ -631,7 +631,7 @@ public class PostEndpoint {
             response.setContentType("application/json");
             response.setStatus(500);
 
-            Logger.getLogger().exception("Failed to handle post get by blog", e, PostEndpoint.class);
+            Logger.getLogger().exception("Failed to handle post get by blog", e, true, PostEndpoint.class);
             return ResponseUtils.getJsonResponseMessage("Internal Server Error");
         }
     }
@@ -748,14 +748,14 @@ public class PostEndpoint {
             response.setContentType("application/json");
             response.setStatus(400);
 
-            Logger.getLogger().exception("Bad Request on post for hub endpoint", e, PostEndpoint.class);
+            Logger.getLogger().exception("Bad Request on post for hub endpoint", e, true, PostEndpoint.class);
 
             return ResponseUtils.getJsonResponseMessage("Bad Request");
         } catch (Exception e) {
             response.setContentType("application/json");
             response.setStatus(500);
 
-            Logger.getLogger().exception("Failed to handle post get for hub", e, PostEndpoint.class);
+            Logger.getLogger().exception("Failed to handle post get for hub", e, true, PostEndpoint.class);
             return ResponseUtils.getJsonResponseMessage("Internal Server Error");
         }
     }
@@ -804,7 +804,7 @@ public class PostEndpoint {
             response.setContentType("application/json");
             response.setStatus(500);
 
-            Logger.getLogger().exception("Failed to handle post get single", e, PostEndpoint.class);
+            Logger.getLogger().exception("Failed to handle post get single", e, true, PostEndpoint.class);
             return ResponseUtils.getJsonResponseMessage("Internal Server Error");
         }
     }
@@ -862,7 +862,7 @@ public class PostEndpoint {
             response.setContentType("application/json");
             response.setStatus(500);
 
-            Logger.getLogger().exception("Failed to handle adding bookmark on post", e, PostEndpoint.class);
+            Logger.getLogger().exception("Failed to handle adding bookmark on post", e, true, PostEndpoint.class);
             return ResponseUtils.getJsonResponseMessage("Internal Server Error");
         }
     }
@@ -915,7 +915,7 @@ public class PostEndpoint {
             response.setContentType("application/json");
             response.setStatus(500);
 
-            Logger.getLogger().exception("Failed to handle removing bookmark on post", e, PostEndpoint.class);
+            Logger.getLogger().exception("Failed to handle removing bookmark on post", e, true, PostEndpoint.class);
             return ResponseUtils.getJsonResponseMessage("Internal Server Error");
         }
     }

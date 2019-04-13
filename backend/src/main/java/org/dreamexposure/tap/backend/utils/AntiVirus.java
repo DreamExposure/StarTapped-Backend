@@ -1,6 +1,6 @@
 package org.dreamexposure.tap.backend.utils;
 
-import org.dreamexposure.tap.backend.conf.SiteSettings;
+import org.dreamexposure.tap.core.conf.SiteSettings;
 import xyz.capybara.clamav.ClamavClient;
 import xyz.capybara.clamav.commands.scan.result.ScanResult;
 

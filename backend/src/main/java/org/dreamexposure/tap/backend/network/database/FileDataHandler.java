@@ -46,7 +46,7 @@ public class FileDataHandler {
                 statement.close();
             }
         } catch (SQLException e) {
-            Logger.getLogger().exception("Failed to input confirmation code", e, this.getClass());
+            Logger.getLogger().exception("Failed to input confirmation code", e, true, this.getClass());
         }
     }
 
@@ -81,7 +81,7 @@ public class FileDataHandler {
                 }
             }
         } catch (SQLException e) {
-            Logger.getLogger().exception("Failed to get file data by hash", e, this.getClass());
+            Logger.getLogger().exception("Failed to get file data by hash", e, true, this.getClass());
         }
         return null;
     }
@@ -117,7 +117,7 @@ public class FileDataHandler {
                 }
             }
         } catch (SQLException e) {
-            Logger.getLogger().exception("Failed to get file data by url", e, this.getClass());
+            Logger.getLogger().exception("Failed to get file data by url", e, true, this.getClass());
         }
         return null;
     }
@@ -135,7 +135,7 @@ public class FileDataHandler {
                 statement.close();
             }
         } catch (SQLException e) {
-            Logger.getLogger().exception("Failed to delete file data by hash", e, this.getClass());
+            Logger.getLogger().exception("Failed to delete file data by hash", e, true, this.getClass());
         }
     }
 
@@ -152,7 +152,7 @@ public class FileDataHandler {
                 statement.close();
             }
         } catch (SQLException e) {
-            Logger.getLogger().exception("Failed to delete file data by url", e, this.getClass());
+            Logger.getLogger().exception("Failed to delete file data by url", e, true, this.getClass());
         }
     }
 }

@@ -1,12 +1,12 @@
 package org.dreamexposure.tap.backend;
 
-import org.dreamexposure.tap.backend.conf.SiteSettings;
 import org.dreamexposure.tap.backend.network.cloudflare.CloudFlareIntegrator;
 import org.dreamexposure.tap.backend.network.database.DatabaseHandler;
 import org.dreamexposure.tap.backend.network.email.EmailHandler;
 import org.dreamexposure.tap.backend.network.google.vision.ImageAnalysis;
 import org.dreamexposure.tap.backend.utils.AntiVirus;
 import org.dreamexposure.tap.backend.utils.FileUploadHandler;
+import org.dreamexposure.tap.core.conf.SiteSettings;
 import org.dreamexposure.tap.core.utils.Logger;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -48,5 +48,7 @@ public class TapBackend {
         AntiVirus.init();
         FileUploadHandler.init();
         ImageAnalysis.get().init();
+
+        Logger.getLogger().status("All services Enabled!", null);
     }
 }
