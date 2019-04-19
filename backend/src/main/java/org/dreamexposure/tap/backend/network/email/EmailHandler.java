@@ -52,7 +52,7 @@ public class EmailHandler {
     
     public void sendEmailConfirm(String emailTo, String confirmationLink) {
         try {
-            String emailHtml = getConfirmEmail(emailTo, confirmationLink);
+            String emailHtml = getConfirmEmail(confirmationLink);
             Mail.using(mailgunConfig)
                     .to(emailTo)
                     .subject("Confirm Your Email")
@@ -64,11 +64,10 @@ public class EmailHandler {
         }
     }
 
-    private String getConfirmEmail(String emailTo, String confirmationLink) throws IOException {
+    private String getConfirmEmail(String confirmationLink) throws IOException {
         return loadEmailResource("account-confirmation.html")
                 .replaceAll("%SITE_URL", GlobalVars.siteUrl)
                 .replaceAll("%CONFIRMATION_LINK", confirmationLink)
-                .replaceAll("%EMAIL_TO", emailTo)
                 .replaceAll("%YEAR", Calendar.getInstance().get(Calendar.YEAR) + "");
     }
 
