@@ -110,7 +110,7 @@ public class Logger {
         //Post to webhook if wanted.
         if (SiteSettings.USE_WEBHOOKS.get().equalsIgnoreCase("true") && postWebhook) {
             WebhookEmbedBuilder builder = new WebhookEmbedBuilder()
-                    .setTitle(new WebhookEmbed.EmbedTitle("Debug", null))
+                    .setTitle(new WebhookEmbed.EmbedTitle("Exception", null))
                     .addField(new WebhookEmbed
                             .EmbedField(false, "Class", clazz.getName()))
                     .setDescription(error)
@@ -231,7 +231,7 @@ public class Logger {
         //Post to webhook if wanted.
         if (SiteSettings.USE_WEBHOOKS.get().equalsIgnoreCase("true")) {
             WebhookEmbedBuilder builder = new WebhookEmbedBuilder()
-                    .setTitle(new WebhookEmbed.EmbedTitle("Debug", null))
+                    .setTitle(new WebhookEmbed.EmbedTitle("Status", null))
                     .setDescription(message)
                     .setColor(GlobalVars.infoEmbedColor.getRGB())
                     .setTimestamp(Instant.now());
