@@ -3,11 +3,9 @@ package org.dreamexposure.tap.backend.network.database;
 import org.dreamexposure.novautils.database.DatabaseInfo;
 import org.dreamexposure.novautils.database.DatabaseManager;
 import org.dreamexposure.novautils.database.DatabaseSettings;
-import org.dreamexposure.novautils.database.MySQL;
 import org.dreamexposure.tap.core.conf.SiteSettings;
 import org.dreamexposure.tap.core.utils.Logger;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 
@@ -22,8 +20,9 @@ import java.sql.Statement;
 @SuppressWarnings({"UnusedReturnValue", "SqlNoDataSourceInspection", "Duplicates"})
 public class DatabaseHandler {
     private static DatabaseHandler instance;
-    private DatabaseInfo databaseInfo;
-    
+    private DatabaseInfo masterInfo;
+    private DatabaseInfo slaveInfo;
+
     private DatabaseHandler() {
     } //Prevent initialization.
 
@@ -43,27 +42,35 @@ public class DatabaseHandler {
      * Connects to the MySQL server specified.
      */
     public void connectToMySQL() {
-        DatabaseSettings settings = new DatabaseSettings(SiteSettings.SQL_HOST.get(), SiteSettings.SQL_PORT.get(), SiteSettings.SQL_DB.get(), SiteSettings.SQL_USER.get(), SiteSettings.SQL_PASSWORD.get(), SiteSettings.SQL_PREFIX.get());
-    
+        //Change these to proper settings for each
+        DatabaseSettings masterSettings = new DatabaseSettings(SiteSettings.MASTER_SQL_HOST.get(), SiteSettings.MASTER_SQL_PORT.get(), SiteSettings.SQL_DB.get(), SiteSettings.MASTER_SQL_USER.get(), SiteSettings.MASTER_SQL_PASS.get(), SiteSettings.SQL_PREFIX.get());
+
+        DatabaseSettings slaveSettings = new DatabaseSettings(SiteSettings.SLAVE_SQL_HOST.get(), SiteSettings.SLAVE_SQL_PORT.get(), SiteSettings.SQL_DB.get(), SiteSettings.SLAVE_SQL_USER.get(), SiteSettings.SLAVE_SQL_PASSWORD.get(), SiteSettings.SQL_PREFIX.get());
+
+
+        //Check if SSH is needed for master, and if so, use it.
+        if (SiteSettings.MASTER_SQL_USE_SSH.get().equalsIgnoreCase("true")) {
+            masterSettings.withSSH(SiteSettings.SSH_HOST.get(), Integer.valueOf(SiteSettings.SSH_PORT.get()), SiteSettings.SSH_USER.get(), null, SiteSettings.SSH_KEY_FILE.get());
+        }
+
         try {
-            MySQL mySQL = new MySQL(settings.getHostname(), settings.getPort(), settings.getDatabase(), settings.getPrefix(), settings.getUser(), settings.getPassword());
-        
-            Connection mySQLConnection = mySQL.openConnection();
-        
-            databaseInfo = new DatabaseInfo(mySQL, mySQLConnection, settings);
+            //Connect for them...
+            masterInfo = DatabaseManager.connectToMySQL(masterSettings);
+            slaveInfo = DatabaseManager.connectToMySQL(slaveSettings);
+
             System.out.println("Connected to MySQL database!");
 
             //Init our data handlers to make this file smaller
-            AccountDataHandler.get().init(databaseInfo);
-            ConfirmationDataHandler.get().init(databaseInfo);
-            AuthorizationDataHandler.get().init(databaseInfo);
-            BlogDataHandler.get().init(databaseInfo);
-            RecordDataHandler.get().init(databaseInfo);
-            FollowerDataHandler.get().init(databaseInfo);
-            PostDataHandler.get().init(databaseInfo);
-            DataCountHandling.get().init(databaseInfo);
-            FileDataHandler.get().init(databaseInfo);
-            BookmarkDataHandler.get().init(databaseInfo);
+            AccountDataHandler.get().init(masterInfo, slaveInfo);
+            ConfirmationDataHandler.get().init(masterInfo, slaveInfo);
+            AuthorizationDataHandler.get().init(masterInfo, slaveInfo);
+            BlogDataHandler.get().init(masterInfo, slaveInfo);
+            RecordDataHandler.get().init(masterInfo, slaveInfo);
+            FollowerDataHandler.get().init(masterInfo, slaveInfo);
+            PostDataHandler.get().init(masterInfo, slaveInfo);
+            DataCountHandling.get().init(masterInfo, slaveInfo);
+            FileDataHandler.get().init(masterInfo, slaveInfo);
+            BookmarkDataHandler.get().init(masterInfo, slaveInfo);
         } catch (Exception e) {
             System.out.println("Failed to connect to MySQL database! Is it properly configured?");
             e.printStackTrace();
@@ -75,9 +82,10 @@ public class DatabaseHandler {
      * Disconnects from the MySQL server if still connected.
      */
     public void disconnectFromMySQL() {
-        if (databaseInfo != null) {
-            DatabaseManager.disconnectFromMySQL(databaseInfo);
-        }
+        if (masterInfo != null)
+            DatabaseManager.disconnectFromMySQL(masterInfo);
+        if (slaveInfo != null)
+            DatabaseManager.disconnectFromMySQL(slaveInfo);
     }
     
     /**
@@ -85,17 +93,17 @@ public class DatabaseHandler {
      */
     public void createTables() {
         try {
-            Statement statement = databaseInfo.getConnection().createStatement();
-            
-            String accountsTableName = String.format("%saccounts", databaseInfo.getSettings().getPrefix());
-            String confirmationTableName = String.format("%sconfirmation", databaseInfo.getSettings().getPrefix());
-            String blogTableName = String.format("%sblog", databaseInfo.getSettings().getPrefix());
-            String postTableName = String.format("%spost", databaseInfo.getSettings().getPrefix());
-            String authTableName = String.format("%sauth", databaseInfo.getSettings().getPrefix());
-            String recordTableName = String.format("%srecord", databaseInfo.getSettings().getPrefix());
-            String followTableName = String.format("%sfollow", databaseInfo.getSettings().getPrefix());
-            String fileTableName = String.format("%sfile", databaseInfo.getSettings().getPrefix());
-            String bookmarkTableName = String.format("%sbookmark", databaseInfo.getSettings().getPrefix());
+            Statement statement = masterInfo.getSource().getConnection().createStatement();
+
+            String accountsTableName = String.format("%saccounts", masterInfo.getSettings().getPrefix());
+            String confirmationTableName = String.format("%sconfirmation", masterInfo.getSettings().getPrefix());
+            String blogTableName = String.format("%sblog", masterInfo.getSettings().getPrefix());
+            String postTableName = String.format("%spost", masterInfo.getSettings().getPrefix());
+            String authTableName = String.format("%sauth", masterInfo.getSettings().getPrefix());
+            String recordTableName = String.format("%srecord", masterInfo.getSettings().getPrefix());
+            String followTableName = String.format("%sfollow", masterInfo.getSettings().getPrefix());
+            String fileTableName = String.format("%sfile", masterInfo.getSettings().getPrefix());
+            String bookmarkTableName = String.format("%sbookmark", masterInfo.getSettings().getPrefix());
             
             String createAccountsTable = "CREATE TABLE IF NOT EXISTS " + accountsTableName +
                     "(id VARCHAR(255) not NULL, " +

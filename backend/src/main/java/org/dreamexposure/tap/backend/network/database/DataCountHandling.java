@@ -18,11 +18,12 @@ import java.util.UUID;
  * Company Website: https://www.dreamexposure.org
  * Contact: nova@dreamexposure.org
  */
-@SuppressWarnings({"UnusedReturnValue", "SqlNoDataSourceInspection", "Duplicates"})
+@SuppressWarnings({"UnusedReturnValue", "SqlNoDataSourceInspection", "Duplicates", "FieldCanBeLocal"})
 public class DataCountHandling {
     private static DataCountHandling instance;
 
-    private DatabaseInfo databaseInfo;
+    private DatabaseInfo masterInfo;
+    private DatabaseInfo slaveInfo;
 
     private DataCountHandling() {
     }
@@ -33,29 +34,28 @@ public class DataCountHandling {
         return instance;
     }
 
-    void init(DatabaseInfo _info) {
-        databaseInfo = _info;
+    void init(DatabaseInfo _master, DatabaseInfo _slave) {
+        masterInfo = _master;
+        slaveInfo = _slave;
     }
 
     public int getAccountCount() {
         int amount = -1;
         try {
-            if (databaseInfo.getMySQL().checkConnection()) {
-                String tableName = String.format("%saccounts", databaseInfo.getSettings().getPrefix());
+            String tableName = String.format("%saccounts", slaveInfo.getSettings().getPrefix());
 
-                String query = "SELECT COUNT(*) FROM " + tableName + ";";
-                PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
-                ResultSet res = statement.executeQuery();
+            String query = "SELECT COUNT(*) FROM " + tableName + ";";
+            PreparedStatement statement = slaveInfo.getSource().getConnection().prepareStatement(query);
+            ResultSet res = statement.executeQuery();
 
-                if (res.next())
-                    amount = res.getInt(1);
-                else
-                    amount = 0;
+            if (res.next())
+                amount = res.getInt(1);
+            else
+                amount = 0;
 
 
-                res.close();
-                statement.close();
-            }
+            res.close();
+            statement.close();
         } catch (SQLException e) {
             Logger.getLogger().exception("Failed to get account count", e, true, this.getClass());
         }
@@ -65,24 +65,22 @@ public class DataCountHandling {
     public int getAuthCount(UUID accountId) {
         int amount = -1;
         try {
-            if (databaseInfo.getMySQL().checkConnection()) {
-                String tableName = String.format("%sauth", databaseInfo.getSettings().getPrefix());
+            String tableName = String.format("%sauth", slaveInfo.getSettings().getPrefix());
 
-                String query = "SELECT COUNT(*) FROM " + tableName + " WHERE id = ?";
-                PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
-                statement.setString(1, accountId.toString());
+            String query = "SELECT COUNT(*) FROM " + tableName + " WHERE id = ?";
+            PreparedStatement statement = slaveInfo.getSource().getConnection().prepareStatement(query);
+            statement.setString(1, accountId.toString());
 
-                ResultSet res = statement.executeQuery();
+            ResultSet res = statement.executeQuery();
 
-                if (res.next())
-                    amount = res.getInt(1);
-                else
-                    amount = 0;
+            if (res.next())
+                amount = res.getInt(1);
+            else
+                amount = 0;
 
 
-                res.close();
-                statement.close();
-            }
+            res.close();
+            statement.close();
         } catch (SQLException e) {
             Logger.getLogger().exception("Failed to get auth count for account.", e, true, this.getClass());
         }
@@ -92,22 +90,20 @@ public class DataCountHandling {
     public int getBlogCount() {
         int amount = -1;
         try {
-            if (databaseInfo.getMySQL().checkConnection()) {
-                String tableName = String.format("%sblog", databaseInfo.getSettings().getPrefix());
+            String tableName = String.format("%sblog", slaveInfo.getSettings().getPrefix());
 
-                String query = "SELECT COUNT(*) FROM " + tableName + ";";
-                PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
-                ResultSet res = statement.executeQuery();
+            String query = "SELECT COUNT(*) FROM " + tableName + ";";
+            PreparedStatement statement = slaveInfo.getSource().getConnection().prepareStatement(query);
+            ResultSet res = statement.executeQuery();
 
-                if (res.next())
-                    amount = res.getInt(1);
-                else
-                    amount = 0;
+            if (res.next())
+                amount = res.getInt(1);
+            else
+                amount = 0;
 
 
-                res.close();
-                statement.close();
-            }
+            res.close();
+            statement.close();
         } catch (SQLException e) {
             Logger.getLogger().exception("Failed to get blog count", e, true, this.getClass());
         }
@@ -117,24 +113,22 @@ public class DataCountHandling {
     public int getBlogCount(BlogType type) {
         int amount = -1;
         try {
-            if (databaseInfo.getMySQL().checkConnection()) {
-                String tableName = String.format("%sblog", databaseInfo.getSettings().getPrefix());
+            String tableName = String.format("%sblog", slaveInfo.getSettings().getPrefix());
 
-                String query = "SELECT COUNT(*) FROM " + tableName + " WHERE blog_type = ?";
-                PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
-                statement.setString(1, type.name());
+            String query = "SELECT COUNT(*) FROM " + tableName + " WHERE blog_type = ?";
+            PreparedStatement statement = slaveInfo.getSource().getConnection().prepareStatement(query);
+            statement.setString(1, type.name());
 
-                ResultSet res = statement.executeQuery();
+            ResultSet res = statement.executeQuery();
 
-                if (res.next())
-                    amount = res.getInt(1);
-                else
-                    amount = 0;
+            if (res.next())
+                amount = res.getInt(1);
+            else
+                amount = 0;
 
 
-                res.close();
-                statement.close();
-            }
+            res.close();
+            statement.close();
         } catch (SQLException e) {
             Logger.getLogger().exception("Failed to get blog count", e, true, this.getClass());
         }
@@ -144,26 +138,24 @@ public class DataCountHandling {
     public int getBlogCount(UUID accountId) {
         int amount = -1;
         try {
-            if (databaseInfo.getMySQL().checkConnection()) {
-                String tableName = String.format("%sblog", databaseInfo.getSettings().getPrefix());
+            String tableName = String.format("%sblog", slaveInfo.getSettings().getPrefix());
 
-                //Include personal AND group blogs
-                String query = "SELECT COUNT(*) FROM " + tableName + " WHERE owner = ? OR owners LIKE ?;";
-                PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
-                statement.setString(1, accountId.toString());
-                statement.setString(2, "%" + accountId.toString() + "%");
+            //Include personal AND group blogs
+            String query = "SELECT COUNT(*) FROM " + tableName + " WHERE owner = ? OR owners LIKE ?;";
+            PreparedStatement statement = slaveInfo.getSource().getConnection().prepareStatement(query);
+            statement.setString(1, accountId.toString());
+            statement.setString(2, "%" + accountId.toString() + "%");
 
-                ResultSet res = statement.executeQuery();
+            ResultSet res = statement.executeQuery();
 
-                if (res.next())
-                    amount = res.getInt(1);
-                else
-                    amount = 0;
+            if (res.next())
+                amount = res.getInt(1);
+            else
+                amount = 0;
 
 
-                res.close();
-                statement.close();
-            }
+            res.close();
+            statement.close();
         } catch (SQLException e) {
             Logger.getLogger().exception("Failed to get blog count for account", e, true, this.getClass());
         }
@@ -173,22 +165,20 @@ public class DataCountHandling {
     public int getPostCount() {
         int amount = -1;
         try {
-            if (databaseInfo.getMySQL().checkConnection()) {
-                String tableName = String.format("%spost", databaseInfo.getSettings().getPrefix());
+            String tableName = String.format("%spost", slaveInfo.getSettings().getPrefix());
 
-                String query = "SELECT COUNT(*) FROM " + tableName + ";";
-                PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
-                ResultSet res = statement.executeQuery();
+            String query = "SELECT COUNT(*) FROM " + tableName + ";";
+            PreparedStatement statement = slaveInfo.getSource().getConnection().prepareStatement(query);
+            ResultSet res = statement.executeQuery();
 
-                if (res.next())
-                    amount = res.getInt(1);
-                else
-                    amount = 0;
+            if (res.next())
+                amount = res.getInt(1);
+            else
+                amount = 0;
 
 
-                res.close();
-                statement.close();
-            }
+            res.close();
+            statement.close();
         } catch (SQLException e) {
             Logger.getLogger().exception("Failed to get post count", e, true, this.getClass());
         }
@@ -198,24 +188,22 @@ public class DataCountHandling {
     public int getPostCount(PostType type) {
         int amount = -1;
         try {
-            if (databaseInfo.getMySQL().checkConnection()) {
-                String tableName = String.format("%spost", databaseInfo.getSettings().getPrefix());
+            String tableName = String.format("%spost", slaveInfo.getSettings().getPrefix());
 
-                String query = "SELECT COUNT(*) FROM " + tableName + " WHERE post_type = ?";
-                PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
-                statement.setString(1, type.name());
+            String query = "SELECT COUNT(*) FROM " + tableName + " WHERE post_type = ?";
+            PreparedStatement statement = slaveInfo.getSource().getConnection().prepareStatement(query);
+            statement.setString(1, type.name());
 
-                ResultSet res = statement.executeQuery();
+            ResultSet res = statement.executeQuery();
 
-                if (res.next())
-                    amount = res.getInt(1);
-                else
-                    amount = 0;
+            if (res.next())
+                amount = res.getInt(1);
+            else
+                amount = 0;
 
 
-                res.close();
-                statement.close();
-            }
+            res.close();
+            statement.close();
         } catch (SQLException e) {
             Logger.getLogger().exception("Failed to get post count by type", e, true, this.getClass());
         }
@@ -225,24 +213,22 @@ public class DataCountHandling {
     public int getPostCountForBlog(UUID blogId) {
         int amount = -1;
         try {
-            if (databaseInfo.getMySQL().checkConnection()) {
-                String tableName = String.format("%spost", databaseInfo.getSettings().getPrefix());
+            String tableName = String.format("%spost", slaveInfo.getSettings().getPrefix());
 
-                String query = "SELECT COUNT(*) FROM " + tableName + " WHERE origin_blog_id = ?";
-                PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
-                statement.setString(1, blogId.toString());
+            String query = "SELECT COUNT(*) FROM " + tableName + " WHERE origin_blog_id = ?";
+            PreparedStatement statement = slaveInfo.getSource().getConnection().prepareStatement(query);
+            statement.setString(1, blogId.toString());
 
-                ResultSet res = statement.executeQuery();
+            ResultSet res = statement.executeQuery();
 
-                if (res.next())
-                    amount = res.getInt(1);
-                else
-                    amount = 0;
+            if (res.next())
+                amount = res.getInt(1);
+            else
+                amount = 0;
 
 
-                res.close();
-                statement.close();
-            }
+            res.close();
+            statement.close();
         } catch (SQLException e) {
             Logger.getLogger().exception("Failed to get post count for blog", e, true, this.getClass());
         }
@@ -252,25 +238,23 @@ public class DataCountHandling {
     public int getPostCountForBlog(UUID blogId, PostType type) {
         int amount = -1;
         try {
-            if (databaseInfo.getMySQL().checkConnection()) {
-                String tableName = String.format("%spost", databaseInfo.getSettings().getPrefix());
+            String tableName = String.format("%spost", slaveInfo.getSettings().getPrefix());
 
-                String query = "SELECT COUNT(*) FROM " + tableName + " WHERE origin_blog_id = ? AND post_type = ?";
-                PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
-                statement.setString(1, blogId.toString());
-                statement.setString(2, type.name());
+            String query = "SELECT COUNT(*) FROM " + tableName + " WHERE origin_blog_id = ? AND post_type = ?";
+            PreparedStatement statement = slaveInfo.getSource().getConnection().prepareStatement(query);
+            statement.setString(1, blogId.toString());
+            statement.setString(2, type.name());
 
-                ResultSet res = statement.executeQuery();
+            ResultSet res = statement.executeQuery();
 
-                if (res.next())
-                    amount = res.getInt(1);
-                else
-                    amount = 0;
+            if (res.next())
+                amount = res.getInt(1);
+            else
+                amount = 0;
 
 
-                res.close();
-                statement.close();
-            }
+            res.close();
+            statement.close();
         } catch (SQLException e) {
             Logger.getLogger().exception("Failed to get post count for blog", e, true, this.getClass());
         }
@@ -280,24 +264,22 @@ public class DataCountHandling {
     public int getPostCountForAccount(UUID accountId) {
         int amount = -1;
         try {
-            if (databaseInfo.getMySQL().checkConnection()) {
-                String tableName = String.format("%spost", databaseInfo.getSettings().getPrefix());
+            String tableName = String.format("%spost", slaveInfo.getSettings().getPrefix());
 
-                String query = "SELECT COUNT(*) FROM " + tableName + " WHERE creator_id = ?";
-                PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
-                statement.setString(1, accountId.toString());
+            String query = "SELECT COUNT(*) FROM " + tableName + " WHERE creator_id = ?";
+            PreparedStatement statement = slaveInfo.getSource().getConnection().prepareStatement(query);
+            statement.setString(1, accountId.toString());
 
-                ResultSet res = statement.executeQuery();
+            ResultSet res = statement.executeQuery();
 
-                if (res.next())
-                    amount = res.getInt(1);
-                else
-                    amount = 0;
+            if (res.next())
+                amount = res.getInt(1);
+            else
+                amount = 0;
 
 
-                res.close();
-                statement.close();
-            }
+            res.close();
+            statement.close();
         } catch (SQLException e) {
             Logger.getLogger().exception("Failed to get post count for account", e, true, this.getClass());
         }
@@ -307,25 +289,23 @@ public class DataCountHandling {
     public int getPostCountForAccount(UUID accountId, PostType type) {
         int amount = -1;
         try {
-            if (databaseInfo.getMySQL().checkConnection()) {
-                String tableName = String.format("%spost", databaseInfo.getSettings().getPrefix());
+            String tableName = String.format("%spost", slaveInfo.getSettings().getPrefix());
 
-                String query = "SELECT COUNT(*) FROM " + tableName + " WHERE creator_id = ? AND post_type = ?";
-                PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
-                statement.setString(1, accountId.toString());
-                statement.setString(2, type.name());
+            String query = "SELECT COUNT(*) FROM " + tableName + " WHERE creator_id = ? AND post_type = ?";
+            PreparedStatement statement = slaveInfo.getSource().getConnection().prepareStatement(query);
+            statement.setString(1, accountId.toString());
+            statement.setString(2, type.name());
 
-                ResultSet res = statement.executeQuery();
+            ResultSet res = statement.executeQuery();
 
-                if (res.next())
-                    amount = res.getInt(1);
-                else
-                    amount = 0;
+            if (res.next())
+                amount = res.getInt(1);
+            else
+                amount = 0;
 
 
-                res.close();
-                statement.close();
-            }
+            res.close();
+            statement.close();
         } catch (SQLException e) {
             Logger.getLogger().exception("Failed to get post count for account", e, true, this.getClass());
         }
@@ -335,24 +315,22 @@ public class DataCountHandling {
     public int getFollowingCount(UUID user) {
         int amount = -1;
         try {
-            if (databaseInfo.getMySQL().checkConnection()) {
-                String tableName = String.format("%sfollow", databaseInfo.getSettings().getPrefix());
+            String tableName = String.format("%sfollow", slaveInfo.getSettings().getPrefix());
 
-                String query = "SELECT COUNT(*) FROM " + tableName + " WHERE user_id = ?";
-                PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
-                statement.setString(1, user.toString());
+            String query = "SELECT COUNT(*) FROM " + tableName + " WHERE user_id = ?";
+            PreparedStatement statement = slaveInfo.getSource().getConnection().prepareStatement(query);
+            statement.setString(1, user.toString());
 
-                ResultSet res = statement.executeQuery();
+            ResultSet res = statement.executeQuery();
 
-                if (res.next())
-                    amount = res.getInt(1);
-                else
-                    amount = 0;
+            if (res.next())
+                amount = res.getInt(1);
+            else
+                amount = 0;
 
 
-                res.close();
-                statement.close();
-            }
+            res.close();
+            statement.close();
         } catch (SQLException e) {
             Logger.getLogger().exception("Failed to get following count for user", e, true, this.getClass());
         }
@@ -362,24 +340,22 @@ public class DataCountHandling {
     public int getFollowerCount(UUID following) {
         int amount = -1;
         try {
-            if (databaseInfo.getMySQL().checkConnection()) {
-                String tableName = String.format("%sfollow", databaseInfo.getSettings().getPrefix());
+            String tableName = String.format("%sfollow", slaveInfo.getSettings().getPrefix());
 
-                String query = "SELECT COUNT(*) FROM " + tableName + " WHERE following_id = ?";
-                PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
-                statement.setString(1, following.toString());
+            String query = "SELECT COUNT(*) FROM " + tableName + " WHERE following_id = ?";
+            PreparedStatement statement = slaveInfo.getSource().getConnection().prepareStatement(query);
+            statement.setString(1, following.toString());
 
-                ResultSet res = statement.executeQuery();
+            ResultSet res = statement.executeQuery();
 
-                if (res.next())
-                    amount = res.getInt(1);
-                else
-                    amount = 0;
+            if (res.next())
+                amount = res.getInt(1);
+            else
+                amount = 0;
 
 
-                res.close();
-                statement.close();
-            }
+            res.close();
+            statement.close();
         } catch (SQLException e) {
             Logger.getLogger().exception("Failed to get follower count for user", e, true, this.getClass());
         }
@@ -390,23 +366,21 @@ public class DataCountHandling {
         int amount = -1;
 
         try {
-            if (databaseInfo.getMySQL().checkConnection()) {
-                String tableName = String.format("%spost", databaseInfo.getSettings().getPrefix());
+            String tableName = String.format("%spost", slaveInfo.getSettings().getPrefix());
 
-                String query = "SELECT COUNT(*) FROM " + tableName + " WHERE parent = ?";
-                PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
-                statement.setString(1, postId.toString());
+            String query = "SELECT COUNT(*) FROM " + tableName + " WHERE parent = ?";
+            PreparedStatement statement = slaveInfo.getSource().getConnection().prepareStatement(query);
+            statement.setString(1, postId.toString());
 
-                ResultSet res = statement.executeQuery();
+            ResultSet res = statement.executeQuery();
 
-                if (res.next())
-                    amount = res.getInt(1);
-                else
-                    amount = 0;
+            if (res.next())
+                amount = res.getInt(1);
+            else
+                amount = 0;
 
-                res.close();
-                statement.close();
-            }
+            res.close();
+            statement.close();
         } catch (SQLException e) {
             Logger.getLogger().exception("Failed to get reblog count for post", e, true, this.getClass());
         }
@@ -417,23 +391,21 @@ public class DataCountHandling {
         int amount = -1;
 
         try {
-            if (databaseInfo.getMySQL().checkConnection()) {
-                String tableName = String.format("%sbookmark", databaseInfo.getSettings().getPrefix());
+            String tableName = String.format("%sbookmark", slaveInfo.getSettings().getPrefix());
 
-                String query = "SELECT COUNT(*) FROM " + tableName + " WHERE post_id = ?";
-                PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
-                statement.setString(1, postId.toString());
+            String query = "SELECT COUNT(*) FROM " + tableName + " WHERE post_id = ?";
+            PreparedStatement statement = slaveInfo.getSource().getConnection().prepareStatement(query);
+            statement.setString(1, postId.toString());
 
-                ResultSet res = statement.executeQuery();
+            ResultSet res = statement.executeQuery();
 
-                if (res.next())
-                    amount = res.getInt(1);
-                else
-                    amount = 0;
+            if (res.next())
+                amount = res.getInt(1);
+            else
+                amount = 0;
 
-                res.close();
-                statement.close();
-            }
+            res.close();
+            statement.close();
         } catch (SQLException e) {
             Logger.getLogger().exception("Failed to get bookmark count for post", e, true, this.getClass());
         }

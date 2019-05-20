@@ -14,7 +14,8 @@ import java.util.UUID;
 public class BookmarkDataHandler {
     private static BookmarkDataHandler instance;
 
-    private DatabaseInfo databaseInfo;
+    private DatabaseInfo masterInfo;
+    private DatabaseInfo slaveInfo;
 
     private String tableName;
 
@@ -27,35 +28,34 @@ public class BookmarkDataHandler {
         return instance;
     }
 
-    void init(DatabaseInfo _info) {
-        databaseInfo = _info;
-        tableName = String.format("%sbookmark", databaseInfo.getSettings().getPrefix());
+    void init(DatabaseInfo _master, DatabaseInfo _slave) {
+        masterInfo = _master;
+        slaveInfo = _slave;
+        tableName = String.format("%sbookmark", masterInfo.getSettings().getPrefix());
     }
 
     public Bookmark getBookmark(UUID accountId, UUID postId) {
         try {
-            if (databaseInfo.getMySQL().checkConnection()) {
-                String query = "SELECT * FROM " + tableName + " WHERE user_id = ? AND post_id = ?";
-                PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
+            String query = "SELECT * FROM " + tableName + " WHERE user_id = ? AND post_id = ?";
+            PreparedStatement statement = slaveInfo.getSource().getConnection().prepareStatement(query);
 
-                statement.setString(1, accountId.toString());
-                statement.setString(2, postId.toString());
+            statement.setString(1, accountId.toString());
+            statement.setString(2, postId.toString());
 
-                ResultSet res = statement.executeQuery();
+            ResultSet res = statement.executeQuery();
 
-                boolean hasNext = res.next();
+            boolean hasNext = res.next();
 
-                if (hasNext && res.getString("user_id") != null) {
-                    Bookmark b = new Bookmark();
-                    b.setAccountId(accountId);
-                    b.setPostId(postId);
-                    b.setTimestamp(res.getLong("timestamp"));
+            if (hasNext && res.getString("user_id") != null) {
+                Bookmark b = new Bookmark();
+                b.setAccountId(accountId);
+                b.setPostId(postId);
+                b.setTimestamp(res.getLong("timestamp"));
 
-                    statement.close();
-                    return b;
-                }
                 statement.close();
+                return b;
             }
+            statement.close();
         } catch (SQLException e) {
             Logger.getLogger().exception("Failed to get bookmark", e, true, this.getClass());
         }
@@ -65,27 +65,25 @@ public class BookmarkDataHandler {
     public List<Bookmark> getBookmarks(UUID accountId, long before, int inclusiveLimit) {
         List<Bookmark> bookmarks = new ArrayList<>();
         try {
-            if (databaseInfo.getMySQL().checkConnection()) {
-                String query = "SELECT * FROM " + tableName + " WHERE user_id = ? AND timestamp < ? ORDER BY timestamp DESC";
-                PreparedStatement ps = databaseInfo.getConnection().prepareStatement(query);
-                ps.setString(1, accountId.toString());
-                ps.setLong(2, before);
+            String query = "SELECT * FROM " + tableName + " WHERE user_id = ? AND timestamp < ? ORDER BY timestamp DESC";
+            PreparedStatement ps = slaveInfo.getSource().getConnection().prepareStatement(query);
+            ps.setString(1, accountId.toString());
+            ps.setLong(2, before);
 
-                ResultSet res = ps.executeQuery();
+            ResultSet res = ps.executeQuery();
 
-                while (res.next() && bookmarks.size() <= inclusiveLimit) {
-                    if (res.getString("user_id") != null) {
-                        //Data present, let's grab it.
-                        Bookmark b = new Bookmark();
-                        b.setAccountId(accountId);
-                        b.setPostId(UUID.fromString(res.getString("post_id")));
-                        b.setTimestamp(res.getLong("timestamp"));
-                        bookmarks.add(b);
-                    }
+            while (res.next() && bookmarks.size() <= inclusiveLimit) {
+                if (res.getString("user_id") != null) {
+                    //Data present, let's grab it.
+                    Bookmark b = new Bookmark();
+                    b.setAccountId(accountId);
+                    b.setPostId(UUID.fromString(res.getString("post_id")));
+                    b.setTimestamp(res.getLong("timestamp"));
+                    bookmarks.add(b);
                 }
-
-                ps.close();
             }
+
+            ps.close();
         } catch (SQLException e) {
             Logger.getLogger().exception("Failed to get bookmarks", e, true, this.getClass());
         }
@@ -94,38 +92,36 @@ public class BookmarkDataHandler {
 
     public boolean addBookmark(Bookmark bookmark) {
         try {
-            if (databaseInfo.getMySQL().checkConnection()) {
-                String hasDataQuery = "SELECT * FROM " + tableName + " WHERE user_id = ? AND post_id = ?";
-                PreparedStatement statement = databaseInfo.getConnection().prepareStatement(hasDataQuery);
-                statement.setString(1, bookmark.getAccountId().toString());
-                statement.setString(2, bookmark.getPostId().toString());
+            String hasDataQuery = "SELECT * FROM " + tableName + " WHERE user_id = ? AND post_id = ?";
+            PreparedStatement statement = slaveInfo.getSource().getConnection().prepareStatement(hasDataQuery);
+            statement.setString(1, bookmark.getAccountId().toString());
+            statement.setString(2, bookmark.getPostId().toString());
 
 
-                ResultSet res = statement.executeQuery();
+            ResultSet res = statement.executeQuery();
 
-                boolean hasData = res.next();
+            boolean hasData = res.next();
 
-                if (!hasData || res.getString("id") == null) {
-                    //No data present, add
-                    String insert = "INSERT INTO " + tableName +
-                            " (user_id, post_id, timestamp)" +
-                            " VALUES (?, ?, ?)";
-                    PreparedStatement ps = databaseInfo.getConnection().prepareStatement(insert);
+            if (!hasData || res.getString("id") == null) {
+                //No data present, add
+                String insert = "INSERT INTO " + tableName +
+                        " (user_id, post_id, timestamp)" +
+                        " VALUES (?, ?, ?)";
+                PreparedStatement ps = masterInfo.getSource().getConnection().prepareStatement(insert);
 
-                    ps.setString(1, bookmark.getAccountId().toString());
-                    ps.setString(2, bookmark.getPostId().toString());
-                    ps.setLong(3, bookmark.getTimestamp());
+                ps.setString(1, bookmark.getAccountId().toString());
+                ps.setString(2, bookmark.getPostId().toString());
+                ps.setLong(3, bookmark.getTimestamp());
 
-                    ps.execute();
-                    ps.close();
-                    statement.close();
-                    return true;
-                } else {
-                    //Data present... this shit should not be possible
-                    Logger.getLogger().debug("Tried to add bookmark already present!", false);
+                ps.execute();
+                ps.close();
+                statement.close();
+                return true;
+            } else {
+                //Data present... this shit should not be possible
+                Logger.getLogger().debug("Tried to add bookmark already present!", false);
 
-                    statement.close();
-                }
+                statement.close();
             }
         } catch (SQLException e) {
             Logger.getLogger().exception("Failed to add bookmark", e, true, this.getClass());
@@ -135,17 +131,15 @@ public class BookmarkDataHandler {
 
     public boolean removeBookmark(Bookmark bookmark) {
         try {
-            if (databaseInfo.getMySQL().checkConnection()) {
-                String query = "DELETE FROM " + tableName + " WHERE user_id = ? AND post_id = ?";
-                PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
-                statement.setString(1, bookmark.getAccountId().toString());
-                statement.setString(2, bookmark.getPostId().toString());
+            String query = "DELETE FROM " + tableName + " WHERE user_id = ? AND post_id = ?";
+            PreparedStatement statement = masterInfo.getSource().getConnection().prepareStatement(query);
+            statement.setString(1, bookmark.getAccountId().toString());
+            statement.setString(2, bookmark.getPostId().toString());
 
-                statement.execute();
-                statement.close();
+            statement.execute();
+            statement.close();
 
-                return true;
-            }
+            return true;
         } catch (SQLException e) {
             Logger.getLogger().exception("Failed to remove bookmark", e, true, this.getClass());
         }

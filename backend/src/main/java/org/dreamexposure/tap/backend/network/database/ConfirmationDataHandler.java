@@ -22,7 +22,8 @@ import java.util.UUID;
 public class ConfirmationDataHandler {
     private static ConfirmationDataHandler instance;
 
-    private DatabaseInfo databaseInfo;
+    private DatabaseInfo masterInfo;
+    private DatabaseInfo slaveInfo;
 
     private ConfirmationDataHandler() {
     }
@@ -33,24 +34,23 @@ public class ConfirmationDataHandler {
         return instance;
     }
 
-    void init(DatabaseInfo _info) {
-        databaseInfo = _info;
+    void init(DatabaseInfo _master, DatabaseInfo _slave) {
+        masterInfo = _master;
+        slaveInfo = _slave;
     }
 
     public void addPendingConfirmation(Account account, String code) {
         try {
-            if (databaseInfo.getMySQL().checkConnection()) {
-                String tableName = String.format("%sconfirmation", databaseInfo.getSettings().getPrefix());
-                String query = "INSERT INTO " + tableName + " (id, code) VALUES (?, ?)";
-                PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
+            String tableName = String.format("%sconfirmation", masterInfo.getSettings().getPrefix());
+            String query = "INSERT INTO " + tableName + " (id, code) VALUES (?, ?)";
+            PreparedStatement statement = masterInfo.getSource().getConnection().prepareStatement(query);
 
-                statement.setString(1, account.getAccountId().toString());
-                statement.setString(2, code);
+            statement.setString(1, account.getAccountId().toString());
+            statement.setString(2, code);
 
-                statement.execute();
+            statement.execute();
 
-                statement.close();
-            }
+            statement.close();
         } catch (SQLException e) {
             Logger.getLogger().exception("Failed to input confirmation code", e, true, this.getClass());
         }
@@ -58,29 +58,27 @@ public class ConfirmationDataHandler {
 
     public EmailConfirmation getConfirmationInfo(String code) {
         try {
-            if (databaseInfo.getMySQL().checkConnection()) {
-                String tableName = String.format("%sconfirmation", databaseInfo.getSettings().getPrefix());
-                String query = "SELECT * FROM " + tableName + " WHERE code = ?";
-                PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
-                statement.setString(1, code);
+            String tableName = String.format("%sconfirmation", slaveInfo.getSettings().getPrefix());
+            String query = "SELECT * FROM " + tableName + " WHERE code = ?";
+            PreparedStatement statement = slaveInfo.getSource().getConnection().prepareStatement(query);
+            statement.setString(1, code);
 
-                ResultSet res = statement.executeQuery();
+            ResultSet res = statement.executeQuery();
 
-                boolean hasStuff = res.next();
+            boolean hasStuff = res.next();
 
-                if (hasStuff && res.getString("code") != null) {
-                    EmailConfirmation con = new EmailConfirmation();
-                    con.setUserId(UUID.fromString(res.getString("id")));
-                    con.setCode(code);
+            if (hasStuff && res.getString("code") != null) {
+                EmailConfirmation con = new EmailConfirmation();
+                con.setUserId(UUID.fromString(res.getString("id")));
+                con.setCode(code);
 
-                    statement.close();
+                statement.close();
 
-                    return con;
-                } else {
-                    //Data not present.
-                    statement.close();
-                    return null;
-                }
+                return con;
+            } else {
+                //Data not present.
+                statement.close();
+                return null;
             }
         } catch (SQLException e) {
             Logger.getLogger().exception("Failed to get confirmation data", e, true, this.getClass());
@@ -90,15 +88,13 @@ public class ConfirmationDataHandler {
 
     public void removeConfirmationInfo(String code) {
         try {
-            if (databaseInfo.getMySQL().checkConnection()) {
-                String tableName = String.format("%sconfirmation", databaseInfo.getSettings().getPrefix());
-                String query = "DELETE FROM " + tableName + " WHERE code = ?";
-                PreparedStatement statement = databaseInfo.getConnection().prepareStatement(query);
-                statement.setString(1, code);
+            String tableName = String.format("%sconfirmation", masterInfo.getSettings().getPrefix());
+            String query = "DELETE FROM " + tableName + " WHERE code = ?";
+            PreparedStatement statement = masterInfo.getSource().getConnection().prepareStatement(query);
+            statement.setString(1, code);
 
-                statement.execute();
-                statement.close();
-            }
+            statement.execute();
+            statement.close();
         } catch (SQLException e) {
             Logger.getLogger().exception("Failed to delete confirmation data", e, true, this.getClass());
         }
