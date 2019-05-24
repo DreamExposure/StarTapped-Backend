@@ -6,6 +6,7 @@ import org.dreamexposure.tap.core.objects.post.*;
 import org.dreamexposure.tap.core.utils.Logger;
 import org.dreamexposure.tap.core.utils.PostUtils;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -47,9 +48,9 @@ public class PostDataHandler {
 
     //Getters
     public IPost getPost(UUID postId, UUID accountIdForBookmarks) {
-        try {
+        try (final Connection connection = slaveInfo.getSource().getConnection()) {
             String query = "SELECT * FROM " + tableName + " WHERE id = ?";
-            PreparedStatement ps = slaveInfo.getSource().getConnection().prepareStatement(query);
+            PreparedStatement ps = connection.prepareStatement(query);
             ps.setString(1, postId.toString());
 
             ResultSet res = ps.executeQuery();
@@ -177,7 +178,7 @@ public class PostDataHandler {
 
     public List<IPost> getPostsSearch(long before, int inclusiveLimit, List<String> filters, UUID accountIdForBookmarks) {
         List<IPost> posts = new ArrayList<>();
-        try {
+        try (final Connection connection = slaveInfo.getSource().getConnection()) {
             //Build query
             StringBuilder query = new StringBuilder("SELECT * FROM " + tableName + " WHERE timestamp < ?");
             if (filters.size() > 0) {
@@ -186,7 +187,7 @@ public class PostDataHandler {
                 }
             }
             query.append(" ORDER BY timestamp DESC"); //This should fix issues...
-            PreparedStatement ps = slaveInfo.getSource().getConnection().prepareStatement(query.toString());
+            PreparedStatement ps = connection.prepareStatement(query.toString());
             ps.setLong(1, before);
 
             //Add filters
@@ -324,9 +325,9 @@ public class PostDataHandler {
 
     public List<IPost> getPostsByBlog(UUID blogId, UUID accountIdForBookmarks) {
         List<IPost> posts = new ArrayList<>();
-        try {
+        try (final Connection connection = slaveInfo.getSource().getConnection()) {
             String query = "SELECT * FROM " + tableName + " WHERE origin_blog_id = ?";
-            PreparedStatement ps = slaveInfo.getSource().getConnection().prepareStatement(query);
+            PreparedStatement ps = connection.prepareStatement(query);
             ps.setString(1, blogId.toString());
 
             ResultSet res = ps.executeQuery();
@@ -454,7 +455,7 @@ public class PostDataHandler {
 
     public List<IPost> getPostsByBlog(UUID blogId, long before, int inclusiveLimit, List<String> filters, UUID accountIdForBookmarks) {
         List<IPost> posts = new ArrayList<>();
-        try {
+        try (final Connection connection = slaveInfo.getSource().getConnection()) {
             //Build query
             StringBuilder query = new StringBuilder("SELECT * FROM " + tableName + " WHERE origin_blog_id = ? AND timestamp < ?");
             if (filters.size() > 0) {
@@ -463,7 +464,7 @@ public class PostDataHandler {
                 }
             }
             query.append(" ORDER BY timestamp DESC"); //This should fix issues...
-            PreparedStatement ps = slaveInfo.getSource().getConnection().prepareStatement(query.toString());
+            PreparedStatement ps = connection.prepareStatement(query.toString());
             ps.setString(1, blogId.toString());
             ps.setLong(2, before);
 
@@ -602,9 +603,9 @@ public class PostDataHandler {
 
     public List<IPost> getPostsByAccount(UUID accountId, UUID accountIdForBookmarks) {
         List<IPost> posts = new ArrayList<>();
-        try {
+        try (final Connection connection = slaveInfo.getSource().getConnection()) {
             String query = "SELECT * FROM " + tableName + " WHERE creator_id = ?";
-            PreparedStatement ps = slaveInfo.getSource().getConnection().prepareStatement(query);
+            PreparedStatement ps = connection.prepareStatement(query);
             ps.setString(1, accountId.toString());
 
             ResultSet res = ps.executeQuery();
@@ -731,9 +732,9 @@ public class PostDataHandler {
 
     public List<IPost> getPostsByAccount(UUID accountId, long before, int inclusiveLimit, UUID accountIdForBookmarks) {
         List<IPost> posts = new ArrayList<>();
-        try {
+        try (final Connection connection = slaveInfo.getSource().getConnection()) {
             String query = "SELECT * FROM " + tableName + " WHERE creator_id = ? AND timestamp < ? ORDER BY timestamp DESC";
-            PreparedStatement ps = slaveInfo.getSource().getConnection().prepareStatement(query);
+            PreparedStatement ps = connection.prepareStatement(query);
             ps.setString(1, accountId.toString());
             ps.setLong(2, before);
 
@@ -879,9 +880,10 @@ public class PostDataHandler {
 
     //Setters
     public boolean addPost(IPost post) {
-        try {
+        try (final Connection masterConnection = masterInfo.getSource().getConnection()) {
             String hasDataQuery = "SELECT * FROM " + tableName + " WHERE id = ?";
-            PreparedStatement statement = slaveInfo.getSource().getConnection().prepareStatement(hasDataQuery);
+            Connection slaveConnection = slaveInfo.getSource().getConnection();
+            PreparedStatement statement = slaveConnection.prepareStatement(hasDataQuery);
             statement.setString(1, post.getId().toString());
 
             ResultSet res = statement.executeQuery();
@@ -895,7 +897,7 @@ public class PostDataHandler {
                         " timestamp, title, body, nsfw, parent, tags, " +
                         " image_url, audio_url, video_url)" +
                         " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-                PreparedStatement ps = masterInfo.getSource().getConnection().prepareStatement(insert);
+                PreparedStatement ps = masterConnection.prepareStatement(insert);
 
                 ps.setString(1, post.getId().toString());
                 ps.setString(2, post.getCreator().getAccountId().toString());
@@ -940,6 +942,7 @@ public class PostDataHandler {
                 ps.execute();
                 ps.close();
                 statement.close();
+                slaveConnection.close();
                 return true;
             } else {
                 //Data present, update
@@ -993,6 +996,7 @@ public class PostDataHandler {
                 ps.execute();
                 ps.close();
                 statement.close();
+                slaveConnection.close();
                 return true;
             }
         } catch (SQLException e) {

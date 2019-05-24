@@ -5,6 +5,7 @@ import org.dreamexposure.tap.core.enums.blog.BlogType;
 import org.dreamexposure.tap.core.enums.post.PostType;
 import org.dreamexposure.tap.core.utils.Logger;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -41,11 +42,11 @@ public class DataCountHandling {
 
     public int getAccountCount() {
         int amount = -1;
-        try {
+        try (final Connection connection = slaveInfo.getSource().getConnection()) {
             String tableName = String.format("%saccounts", slaveInfo.getSettings().getPrefix());
 
             String query = "SELECT COUNT(*) FROM " + tableName + ";";
-            PreparedStatement statement = slaveInfo.getSource().getConnection().prepareStatement(query);
+            PreparedStatement statement = connection.prepareStatement(query);
             ResultSet res = statement.executeQuery();
 
             if (res.next())
@@ -64,11 +65,11 @@ public class DataCountHandling {
 
     public int getAuthCount(UUID accountId) {
         int amount = -1;
-        try {
+        try (final Connection connection = slaveInfo.getSource().getConnection()) {
             String tableName = String.format("%sauth", slaveInfo.getSettings().getPrefix());
 
             String query = "SELECT COUNT(*) FROM " + tableName + " WHERE id = ?";
-            PreparedStatement statement = slaveInfo.getSource().getConnection().prepareStatement(query);
+            PreparedStatement statement = connection.prepareStatement(query);
             statement.setString(1, accountId.toString());
 
             ResultSet res = statement.executeQuery();
@@ -89,11 +90,11 @@ public class DataCountHandling {
 
     public int getBlogCount() {
         int amount = -1;
-        try {
+        try (final Connection connection = slaveInfo.getSource().getConnection()) {
             String tableName = String.format("%sblog", slaveInfo.getSettings().getPrefix());
 
             String query = "SELECT COUNT(*) FROM " + tableName + ";";
-            PreparedStatement statement = slaveInfo.getSource().getConnection().prepareStatement(query);
+            PreparedStatement statement = connection.prepareStatement(query);
             ResultSet res = statement.executeQuery();
 
             if (res.next())
@@ -112,11 +113,11 @@ public class DataCountHandling {
 
     public int getBlogCount(BlogType type) {
         int amount = -1;
-        try {
+        try (final Connection connection = slaveInfo.getSource().getConnection()) {
             String tableName = String.format("%sblog", slaveInfo.getSettings().getPrefix());
 
             String query = "SELECT COUNT(*) FROM " + tableName + " WHERE blog_type = ?";
-            PreparedStatement statement = slaveInfo.getSource().getConnection().prepareStatement(query);
+            PreparedStatement statement = connection.prepareStatement(query);
             statement.setString(1, type.name());
 
             ResultSet res = statement.executeQuery();
@@ -137,12 +138,12 @@ public class DataCountHandling {
 
     public int getBlogCount(UUID accountId) {
         int amount = -1;
-        try {
+        try (final Connection connection = slaveInfo.getSource().getConnection()) {
             String tableName = String.format("%sblog", slaveInfo.getSettings().getPrefix());
 
             //Include personal AND group blogs
             String query = "SELECT COUNT(*) FROM " + tableName + " WHERE owner = ? OR owners LIKE ?;";
-            PreparedStatement statement = slaveInfo.getSource().getConnection().prepareStatement(query);
+            PreparedStatement statement = connection.prepareStatement(query);
             statement.setString(1, accountId.toString());
             statement.setString(2, "%" + accountId.toString() + "%");
 
@@ -164,11 +165,11 @@ public class DataCountHandling {
 
     public int getPostCount() {
         int amount = -1;
-        try {
+        try (final Connection connection = slaveInfo.getSource().getConnection()) {
             String tableName = String.format("%spost", slaveInfo.getSettings().getPrefix());
 
             String query = "SELECT COUNT(*) FROM " + tableName + ";";
-            PreparedStatement statement = slaveInfo.getSource().getConnection().prepareStatement(query);
+            PreparedStatement statement = connection.prepareStatement(query);
             ResultSet res = statement.executeQuery();
 
             if (res.next())
@@ -187,11 +188,11 @@ public class DataCountHandling {
 
     public int getPostCount(PostType type) {
         int amount = -1;
-        try {
+        try (final Connection connection = slaveInfo.getSource().getConnection()) {
             String tableName = String.format("%spost", slaveInfo.getSettings().getPrefix());
 
             String query = "SELECT COUNT(*) FROM " + tableName + " WHERE post_type = ?";
-            PreparedStatement statement = slaveInfo.getSource().getConnection().prepareStatement(query);
+            PreparedStatement statement = connection.prepareStatement(query);
             statement.setString(1, type.name());
 
             ResultSet res = statement.executeQuery();
@@ -212,11 +213,11 @@ public class DataCountHandling {
 
     public int getPostCountForBlog(UUID blogId) {
         int amount = -1;
-        try {
+        try (final Connection connection = slaveInfo.getSource().getConnection()) {
             String tableName = String.format("%spost", slaveInfo.getSettings().getPrefix());
 
             String query = "SELECT COUNT(*) FROM " + tableName + " WHERE origin_blog_id = ?";
-            PreparedStatement statement = slaveInfo.getSource().getConnection().prepareStatement(query);
+            PreparedStatement statement = connection.prepareStatement(query);
             statement.setString(1, blogId.toString());
 
             ResultSet res = statement.executeQuery();
@@ -237,11 +238,11 @@ public class DataCountHandling {
 
     public int getPostCountForBlog(UUID blogId, PostType type) {
         int amount = -1;
-        try {
+        try (final Connection connection = slaveInfo.getSource().getConnection()) {
             String tableName = String.format("%spost", slaveInfo.getSettings().getPrefix());
 
             String query = "SELECT COUNT(*) FROM " + tableName + " WHERE origin_blog_id = ? AND post_type = ?";
-            PreparedStatement statement = slaveInfo.getSource().getConnection().prepareStatement(query);
+            PreparedStatement statement = connection.prepareStatement(query);
             statement.setString(1, blogId.toString());
             statement.setString(2, type.name());
 
@@ -263,11 +264,11 @@ public class DataCountHandling {
 
     public int getPostCountForAccount(UUID accountId) {
         int amount = -1;
-        try {
+        try (final Connection connection = slaveInfo.getSource().getConnection()) {
             String tableName = String.format("%spost", slaveInfo.getSettings().getPrefix());
 
             String query = "SELECT COUNT(*) FROM " + tableName + " WHERE creator_id = ?";
-            PreparedStatement statement = slaveInfo.getSource().getConnection().prepareStatement(query);
+            PreparedStatement statement = connection.prepareStatement(query);
             statement.setString(1, accountId.toString());
 
             ResultSet res = statement.executeQuery();
@@ -288,11 +289,11 @@ public class DataCountHandling {
 
     public int getPostCountForAccount(UUID accountId, PostType type) {
         int amount = -1;
-        try {
+        try (final Connection connection = slaveInfo.getSource().getConnection()) {
             String tableName = String.format("%spost", slaveInfo.getSettings().getPrefix());
 
             String query = "SELECT COUNT(*) FROM " + tableName + " WHERE creator_id = ? AND post_type = ?";
-            PreparedStatement statement = slaveInfo.getSource().getConnection().prepareStatement(query);
+            PreparedStatement statement = connection.prepareStatement(query);
             statement.setString(1, accountId.toString());
             statement.setString(2, type.name());
 
@@ -314,11 +315,11 @@ public class DataCountHandling {
 
     public int getFollowingCount(UUID user) {
         int amount = -1;
-        try {
+        try (final Connection connection = slaveInfo.getSource().getConnection()) {
             String tableName = String.format("%sfollow", slaveInfo.getSettings().getPrefix());
 
             String query = "SELECT COUNT(*) FROM " + tableName + " WHERE user_id = ?";
-            PreparedStatement statement = slaveInfo.getSource().getConnection().prepareStatement(query);
+            PreparedStatement statement = connection.prepareStatement(query);
             statement.setString(1, user.toString());
 
             ResultSet res = statement.executeQuery();
@@ -339,11 +340,11 @@ public class DataCountHandling {
 
     public int getFollowerCount(UUID following) {
         int amount = -1;
-        try {
+        try (final Connection connection = slaveInfo.getSource().getConnection()) {
             String tableName = String.format("%sfollow", slaveInfo.getSettings().getPrefix());
 
             String query = "SELECT COUNT(*) FROM " + tableName + " WHERE following_id = ?";
-            PreparedStatement statement = slaveInfo.getSource().getConnection().prepareStatement(query);
+            PreparedStatement statement = connection.prepareStatement(query);
             statement.setString(1, following.toString());
 
             ResultSet res = statement.executeQuery();
@@ -365,11 +366,11 @@ public class DataCountHandling {
     public int getReblogCount(UUID postId) {
         int amount = -1;
 
-        try {
+        try (final Connection connection = slaveInfo.getSource().getConnection()) {
             String tableName = String.format("%spost", slaveInfo.getSettings().getPrefix());
 
             String query = "SELECT COUNT(*) FROM " + tableName + " WHERE parent = ?";
-            PreparedStatement statement = slaveInfo.getSource().getConnection().prepareStatement(query);
+            PreparedStatement statement = connection.prepareStatement(query);
             statement.setString(1, postId.toString());
 
             ResultSet res = statement.executeQuery();
@@ -390,11 +391,11 @@ public class DataCountHandling {
     public int getBookmarkCount(UUID postId) {
         int amount = -1;
 
-        try {
+        try (final Connection connection = slaveInfo.getSource().getConnection()) {
             String tableName = String.format("%sbookmark", slaveInfo.getSettings().getPrefix());
 
             String query = "SELECT COUNT(*) FROM " + tableName + " WHERE post_id = ?";
-            PreparedStatement statement = slaveInfo.getSource().getConnection().prepareStatement(query);
+            PreparedStatement statement = connection.prepareStatement(query);
             statement.setString(1, postId.toString());
 
             ResultSet res = statement.executeQuery();

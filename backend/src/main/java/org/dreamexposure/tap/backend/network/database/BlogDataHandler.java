@@ -7,6 +7,7 @@ import org.dreamexposure.tap.core.objects.blog.IBlog;
 import org.dreamexposure.tap.core.objects.blog.PersonalBlog;
 import org.dreamexposure.tap.core.utils.Logger;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -44,11 +45,12 @@ public class BlogDataHandler {
     }
 
     public boolean createOrUpdateBlog(IBlog blog) {
-        try {
+        try (final Connection masterConnection = slaveInfo.getSource().getConnection()) {
             String tableName = String.format("%sblog", slaveInfo.getSettings().getPrefix());
 
             String query = "SELECT * FROM " + tableName + " WHERE id = ?";
-            PreparedStatement statement = slaveInfo.getSource().getConnection().prepareStatement(query);
+            Connection slaveConnection = slaveInfo.getSource().getConnection();
+            PreparedStatement statement = slaveConnection.prepareStatement(query);
             statement.setString(1, blog.getBlogId().toString());
 
             ResultSet res = statement.executeQuery();
@@ -62,7 +64,7 @@ public class BlogDataHandler {
                         " icon_url, background_color, background_url, " +
                         " allow_under_18, nsfw, show_age, owners, owner)" +
                         " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
-                PreparedStatement ps = masterInfo.getSource().getConnection().prepareStatement(insertCommand);
+                PreparedStatement ps = masterConnection.prepareStatement(insertCommand);
 
                 ps.setString(1, blog.getBlogId().toString());
                 ps.setString(2, blog.getBaseUrl());
@@ -88,6 +90,7 @@ public class BlogDataHandler {
                 ps.executeUpdate();
                 ps.close();
                 statement.close();
+                slaveConnection.close();
                 return true;
             } else {
                 //Data present, update.
@@ -96,7 +99,7 @@ public class BlogDataHandler {
                         "icon_url = ?, background_color = ?, background_url = ?, " +
                         " allow_under_18 = ?, nsfw = ?, show_age = ?, owners = ?, owner = ? " +
                         " WHERE id = ?";
-                PreparedStatement ps = masterInfo.getSource().getConnection().prepareStatement(update);
+                PreparedStatement ps = masterConnection.prepareStatement(update);
 
                 ps.setString(1, blog.getBaseUrl());
                 ps.setString(2, blog.getCompleteUrl());
@@ -122,6 +125,7 @@ public class BlogDataHandler {
                 ps.executeUpdate();
                 ps.close();
                 statement.close();
+                slaveConnection.close();
                 return true;
             }
         } catch (SQLException e) {
@@ -131,10 +135,10 @@ public class BlogDataHandler {
     }
 
     public IBlog getBlog(UUID blogId) {
-        try {
+        try (final Connection connection = slaveInfo.getSource().getConnection()) {
             String tableName = String.format("%sblog", slaveInfo.getSettings().getPrefix());
             String query = "SELECT * FROM " + tableName + " WHERE id = ?";
-            PreparedStatement statement = slaveInfo.getSource().getConnection().prepareStatement(query);
+            PreparedStatement statement = connection.prepareStatement(query);
             statement.setString(1, blogId.toString());
 
             ResultSet res = statement.executeQuery();
@@ -198,10 +202,10 @@ public class BlogDataHandler {
     }
 
     public IBlog getBlog(String baseUrl) {
-        try {
+        try (final Connection connection = slaveInfo.getSource().getConnection()) {
             String tableName = String.format("%sblog", slaveInfo.getSettings().getPrefix());
             String query = "SELECT * FROM " + tableName + " WHERE base_url = ?";
-            PreparedStatement statement = slaveInfo.getSource().getConnection().prepareStatement(query);
+            PreparedStatement statement = connection.prepareStatement(query);
             statement.setString(1, baseUrl);
 
             ResultSet res = statement.executeQuery();
@@ -265,10 +269,10 @@ public class BlogDataHandler {
     }
 
     public GroupBlog getGroupBlog(UUID blogId) {
-        try {
+        try (final Connection connection = slaveInfo.getSource().getConnection()) {
             String tableName = String.format("%sblog", slaveInfo.getSettings().getPrefix());
             String query = "SELECT * FROM " + tableName + " WHERE id = ? AND blog_type = ?";
-            PreparedStatement statement = slaveInfo.getSource().getConnection().prepareStatement(query);
+            PreparedStatement statement = connection.prepareStatement(query);
             statement.setString(1, blogId.toString());
             statement.setString(2, BlogType.GROUP.name());
 
@@ -311,10 +315,10 @@ public class BlogDataHandler {
     }
 
     public PersonalBlog getPersonalBlog(UUID blogId) {
-        try {
+        try (final Connection connection = slaveInfo.getSource().getConnection()) {
             String tableName = String.format("%sblog", slaveInfo.getSettings().getPrefix());
             String query = "SELECT * FROM " + tableName + " WHERE id = ? AND blog_type = ?";
-            PreparedStatement statement = slaveInfo.getSource().getConnection().prepareStatement(query);
+            PreparedStatement statement = connection.prepareStatement(query);
             statement.setString(1, blogId.toString());
             statement.setString(2, BlogType.PERSONAL.name());
 
@@ -353,10 +357,10 @@ public class BlogDataHandler {
 
     public List<IBlog> getBlogs(UUID ownerId) {
         List<IBlog> blogs = new ArrayList<>();
-        try {
+        try (final Connection connection = slaveInfo.getSource().getConnection()) {
             String tableName = String.format("%sblog", slaveInfo.getSettings().getPrefix());
             String query = "SELECT * FROM " + tableName + " WHERE owner = ? OR owners LIKE ?;";
-            PreparedStatement statement = slaveInfo.getSource().getConnection().prepareStatement(query);
+            PreparedStatement statement = connection.prepareStatement(query);
             statement.setString(1, ownerId.toString());
             statement.setString(2, ownerId.toString());
 
@@ -415,10 +419,10 @@ public class BlogDataHandler {
     }
 
     public boolean blogUrlTaken(String url) {
-        try {
+        try (final Connection connection = slaveInfo.getSource().getConnection()) {
             String tableName = String.format("%sblog", slaveInfo.getSettings().getPrefix());
             String query = "SELECT * FROM " + tableName + " WHERE base_url = ?";
-            PreparedStatement statement = slaveInfo.getSource().getConnection().prepareStatement(query);
+            PreparedStatement statement = connection.prepareStatement(query);
             statement.setString(1, url);
 
             ResultSet res = statement.executeQuery();

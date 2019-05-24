@@ -5,6 +5,7 @@ import org.dreamexposure.tap.core.objects.account.Account;
 import org.dreamexposure.tap.core.objects.confirmation.EmailConfirmation;
 import org.dreamexposure.tap.core.utils.Logger;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -40,10 +41,10 @@ public class ConfirmationDataHandler {
     }
 
     public void addPendingConfirmation(Account account, String code) {
-        try {
+        try (final Connection connection = masterInfo.getSource().getConnection()) {
             String tableName = String.format("%sconfirmation", masterInfo.getSettings().getPrefix());
             String query = "INSERT INTO " + tableName + " (id, code) VALUES (?, ?)";
-            PreparedStatement statement = masterInfo.getSource().getConnection().prepareStatement(query);
+            PreparedStatement statement = connection.prepareStatement(query);
 
             statement.setString(1, account.getAccountId().toString());
             statement.setString(2, code);
@@ -57,10 +58,10 @@ public class ConfirmationDataHandler {
     }
 
     public EmailConfirmation getConfirmationInfo(String code) {
-        try {
+        try (final Connection connection = slaveInfo.getSource().getConnection()) {
             String tableName = String.format("%sconfirmation", slaveInfo.getSettings().getPrefix());
             String query = "SELECT * FROM " + tableName + " WHERE code = ?";
-            PreparedStatement statement = slaveInfo.getSource().getConnection().prepareStatement(query);
+            PreparedStatement statement = connection.prepareStatement(query);
             statement.setString(1, code);
 
             ResultSet res = statement.executeQuery();
@@ -87,10 +88,10 @@ public class ConfirmationDataHandler {
     }
 
     public void removeConfirmationInfo(String code) {
-        try {
+        try (final Connection connection = masterInfo.getSource().getConnection()) {
             String tableName = String.format("%sconfirmation", masterInfo.getSettings().getPrefix());
             String query = "DELETE FROM " + tableName + " WHERE code = ?";
-            PreparedStatement statement = masterInfo.getSource().getConnection().prepareStatement(query);
+            PreparedStatement statement = connection.prepareStatement(query);
             statement.setString(1, code);
 
             statement.execute();

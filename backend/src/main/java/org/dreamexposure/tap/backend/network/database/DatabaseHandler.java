@@ -6,6 +6,7 @@ import org.dreamexposure.novautils.database.DatabaseSettings;
 import org.dreamexposure.tap.core.conf.SiteSettings;
 import org.dreamexposure.tap.core.utils.Logger;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 
@@ -92,8 +93,8 @@ public class DatabaseHandler {
      * Creates all required tables in the database if they do not exist.
      */
     public void createTables() {
-        try {
-            Statement statement = masterInfo.getSource().getConnection().createStatement();
+        try (final Connection connection = masterInfo.getSource().getConnection()) {
+            Statement statement = connection.createStatement();
 
             String accountsTableName = String.format("%saccounts", masterInfo.getSettings().getPrefix());
             String confirmationTableName = String.format("%sconfirmation", masterInfo.getSettings().getPrefix());

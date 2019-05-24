@@ -4,6 +4,7 @@ import org.dreamexposure.novautils.database.DatabaseInfo;
 import org.dreamexposure.tap.core.objects.auth.AccountAuthentication;
 import org.dreamexposure.tap.core.utils.Logger;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -41,10 +42,10 @@ public class AuthorizationDataHandler {
     }
 
     public void saveAuth(AccountAuthentication auth) {
-        try {
+        try (final Connection connection = masterInfo.getSource().getConnection()) {
             String tableName = String.format("%sauth", masterInfo.getSettings().getPrefix());
             String query = "INSERT INTO " + tableName + " (id, refresh_token, access_token, expire) VALUES (?, ?, ?, ?)";
-            PreparedStatement statement = masterInfo.getSource().getConnection().prepareStatement(query);
+            PreparedStatement statement = connection.prepareStatement(query);
 
             statement.setString(1, auth.getAccountId().toString());
             statement.setString(2, auth.getRefreshToken());
@@ -59,10 +60,11 @@ public class AuthorizationDataHandler {
     }
 
     public void updateAuth(AccountAuthentication auth) {
-        try {
+        try (final Connection masterConnection = masterInfo.getSource().getConnection()) {
             String tableName = String.format("%sauth", slaveInfo.getSettings().getPrefix());
             String query = "SELECT * FROM " + tableName + " WHERE refresh_token = ?";
-            PreparedStatement statement = slaveInfo.getSource().getConnection().prepareStatement(query);
+            Connection slaveConnection = slaveInfo.getSource().getConnection();
+            PreparedStatement statement = slaveConnection.prepareStatement(query);
             statement.setString(1, auth.getRefreshToken());
 
             ResultSet res = statement.executeQuery();
@@ -73,7 +75,7 @@ public class AuthorizationDataHandler {
                 //Has stuff, lets update
                 String update = "UPDATE " + tableName
                         + " SET access_token = ?, expire = ? WHERE refresh_token = ?";
-                PreparedStatement ps = masterInfo.getSource().getConnection().prepareStatement(update);
+                PreparedStatement ps = masterConnection.prepareStatement(update);
 
                 ps.setString(1, auth.getAccessToken());
                 ps.setLong(2, auth.getExpire());
@@ -83,16 +85,17 @@ public class AuthorizationDataHandler {
                 ps.close();
             }
             statement.close();
+            slaveConnection.close();
         } catch (SQLException e) {
             Logger.getLogger().exception("Failed to update auth data", e, true, this.getClass());
         }
     }
 
     public AccountAuthentication getAuthFromAccessToken(String accessToken) {
-        try {
+        try (final Connection connection = slaveInfo.getSource().getConnection()) {
             String tableName = String.format("%sauth", slaveInfo.getSettings().getPrefix());
             String query = "SELECT * FROM " + tableName + " WHERE access_token = ?";
-            PreparedStatement statement = slaveInfo.getSource().getConnection().prepareStatement(query);
+            PreparedStatement statement = connection.prepareStatement(query);
             statement.setString(1, accessToken);
 
             ResultSet res = statement.executeQuery();
@@ -117,10 +120,10 @@ public class AuthorizationDataHandler {
     }
 
     public AccountAuthentication getAuthFromRefreshToken(String refreshToken) {
-        try {
+        try (final Connection connection = slaveInfo.getSource().getConnection()) {
             String tableName = String.format("%sauth", slaveInfo.getSettings().getPrefix());
             String query = "SELECT * FROM " + tableName + " WHERE refresh_token = ?";
-            PreparedStatement statement = slaveInfo.getSource().getConnection().prepareStatement(query);
+            PreparedStatement statement = connection.prepareStatement(query);
             statement.setString(1, refreshToken);
 
             ResultSet res = statement.executeQuery();
@@ -147,10 +150,10 @@ public class AuthorizationDataHandler {
     public List<AccountAuthentication> getAllAuth(UUID accountId) {
         List<AccountAuthentication> all = new ArrayList<>();
 
-        try {
+        try (final Connection connection = slaveInfo.getSource().getConnection()) {
             String tableName = String.format("%sauth", slaveInfo.getSettings().getPrefix());
             String query = "SELECT * FROM " + tableName + " WHERE id = ?";
-            PreparedStatement statement = slaveInfo.getSource().getConnection().prepareStatement(query);
+            PreparedStatement statement = connection.prepareStatement(query);
             statement.setString(1, accountId.toString());
 
             ResultSet res = statement.executeQuery();
@@ -175,10 +178,10 @@ public class AuthorizationDataHandler {
     }
 
     public void removeAuth(UUID accountId) {
-        try {
+        try (final Connection connection = masterInfo.getSource().getConnection()) {
             String tableName = String.format("%sauth", masterInfo.getSettings().getPrefix());
             String query = "DELETE FROM " + tableName + " WHERE id = ?";
-            PreparedStatement statement = masterInfo.getSource().getConnection().prepareStatement(query);
+            PreparedStatement statement = connection.prepareStatement(query);
             statement.setString(1, accountId.toString());
 
             statement.execute();
@@ -189,10 +192,10 @@ public class AuthorizationDataHandler {
     }
 
     public void removeAuthByAccessToken(String accessToken) {
-        try {
+        try (final Connection connection = masterInfo.getSource().getConnection()) {
             String tableName = String.format("%sauth", masterInfo.getSettings().getPrefix());
             String query = "DELETE FROM " + tableName + " WHERE access_token = ?";
-            PreparedStatement statement = masterInfo.getSource().getConnection().prepareStatement(query);
+            PreparedStatement statement = connection.prepareStatement(query);
             statement.setString(1, accessToken);
 
             statement.execute();
@@ -203,10 +206,10 @@ public class AuthorizationDataHandler {
     }
 
     public void removeAuthByRefreshToken(String refreshToken) {
-        try {
+        try (final Connection connection = masterInfo.getSource().getConnection()) {
             String tableName = String.format("%sauth", masterInfo.getSettings().getPrefix());
             String query = "DELETE FROM " + tableName + " WHERE refresh_token = ?";
-            PreparedStatement statement = masterInfo.getSource().getConnection().prepareStatement(query);
+            PreparedStatement statement = connection.prepareStatement(query);
             statement.setString(1, refreshToken);
 
             statement.execute();

@@ -5,6 +5,7 @@ import org.dreamexposure.tap.core.objects.account.Account;
 import org.dreamexposure.tap.core.utils.Logger;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -41,10 +42,10 @@ public class AccountDataHandler {
     }
 
     public void createAccount(String username, String email, String hash, String birthday) {
-        try {
+        try (final Connection connection = masterInfo.getSource().getConnection()) {
             String tableName = String.format("%saccounts", masterInfo.getSettings().getPrefix());
             String query = "INSERT INTO " + tableName + " (id, username, email, hash, phone_number, birthday, safe_search, verified, email_confirmed, admin) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-            PreparedStatement statement = masterInfo.getSource().getConnection().prepareStatement(query);
+            PreparedStatement statement = connection.prepareStatement(query);
 
             statement.setString(1, UUID.randomUUID().toString());
             statement.setString(2, username);
@@ -65,10 +66,10 @@ public class AccountDataHandler {
     }
 
     public Account getAccountFromUsername(String username) {
-        try {
+        try (final Connection connection = slaveInfo.getSource().getConnection()) {
             String tableName = String.format("%saccounts", slaveInfo.getSettings().getPrefix());
             String query = "SELECT * FROM " + tableName + " WHERE username = ?";
-            PreparedStatement statement = slaveInfo.getSource().getConnection().prepareStatement(query);
+            PreparedStatement statement = connection.prepareStatement(query);
             statement.setString(1, username);
 
             ResultSet res = statement.executeQuery();
@@ -97,10 +98,10 @@ public class AccountDataHandler {
     }
 
     public Account getAccountFromEmail(String email) {
-        try {
+        try (final Connection connection = slaveInfo.getSource().getConnection()) {
             String tableName = String.format("%saccounts", slaveInfo.getSettings().getPrefix());
             String query = "SELECT * FROM " + tableName + " WHERE email = ?";
-            PreparedStatement statement = slaveInfo.getSource().getConnection().prepareStatement(query);
+            PreparedStatement statement = connection.prepareStatement(query);
             statement.setString(1, email);
 
             ResultSet res = statement.executeQuery();
@@ -129,10 +130,10 @@ public class AccountDataHandler {
     }
 
     public Account getAccountFromId(UUID id) {
-        try {
+        try (final Connection connection = slaveInfo.getSource().getConnection()) {
             String tableName = String.format("%saccounts", slaveInfo.getSettings().getPrefix());
             String query = "SELECT * FROM " + tableName + " WHERE id = ?";
-            PreparedStatement statement = slaveInfo.getSource().getConnection().prepareStatement(query);
+            PreparedStatement statement = connection.prepareStatement(query);
             statement.setString(1, id.toString());
 
             ResultSet res = statement.executeQuery();
@@ -161,10 +162,10 @@ public class AccountDataHandler {
     }
 
     public boolean validLogin(String email, String password) {
-        try {
+        try (final Connection connection = slaveInfo.getSource().getConnection()) {
             String tableName = String.format("%saccounts", slaveInfo.getSettings().getPrefix());
             String query = "SELECT * FROM " + tableName + " WHERE email = ?";
-            PreparedStatement statement = slaveInfo.getSource().getConnection().prepareStatement(query);
+            PreparedStatement statement = connection.prepareStatement(query);
             statement.setString(1, email);
 
             ResultSet res = statement.executeQuery();
@@ -182,12 +183,12 @@ public class AccountDataHandler {
     }
 
     public boolean usernameOrEmailTaken(String username, String email) {
-        try {
+        try (final Connection connection = slaveInfo.getSource().getConnection()) {
             String tableName = String.format("%saccounts", slaveInfo.getSettings().getPrefix());
 
             //Try email first....
             String query = "SELECT * FROM " + tableName + " WHERE email = ? OR username = ?";
-            PreparedStatement statement = slaveInfo.getSource().getConnection().prepareStatement(query);
+            PreparedStatement statement = connection.prepareStatement(query);
             statement.setString(1, email);
             statement.setString(2, username);
 
@@ -207,12 +208,12 @@ public class AccountDataHandler {
     }
 
     public boolean emailTaken(String email) {
-        try {
+        try (final Connection connection = slaveInfo.getSource().getConnection()) {
             String tableName = String.format("%saccounts", slaveInfo.getSettings().getPrefix());
 
             //Try email first....
             String query = "SELECT * FROM " + tableName + " WHERE email = ?";
-            PreparedStatement statement = slaveInfo.getSource().getConnection().prepareStatement(query);
+            PreparedStatement statement = connection.prepareStatement(query);
             statement.setString(1, email);
 
             ResultSet res = statement.executeQuery();
@@ -231,11 +232,12 @@ public class AccountDataHandler {
     }
 
     public boolean updateAccount(Account account) {
-        try {
+        try (Connection masterConnection = masterInfo.getSource().getConnection()) {
             String tableName = String.format("%saccounts", slaveInfo.getSettings().getPrefix());
 
             String query = "SELECT * FROM " + tableName + " WHERE id = ?";
-            PreparedStatement statement = slaveInfo.getSource().getConnection().prepareStatement(query);
+            Connection slaveConnection = slaveInfo.getSource().getConnection();
+            PreparedStatement statement = slaveConnection.prepareStatement(query);
             statement.setString(1, account.getAccountId().toString());
 
             ResultSet res = statement.executeQuery();
@@ -244,7 +246,9 @@ public class AccountDataHandler {
 
             if (!hasStuff || res.getString("id") == null) {
                 //Data not present. this should not be possible.
+                slaveConnection.close();
                 statement.close();
+
                 return false;
             } else {
                 //Data present, update.
@@ -252,7 +256,7 @@ public class AccountDataHandler {
                         + " SET username = ?, email = ?, phone_number = ?, birthday = ?, " +
                         " safe_search = ?, verified = ?, email_confirmed = ?, admin = ?" +
                         " WHERE id = ?";
-                PreparedStatement ps = masterInfo.getSource().getConnection().prepareStatement(update);
+                PreparedStatement ps = masterConnection.prepareStatement(update);
 
                 ps.setString(1, account.getUsername());
                 ps.setString(2, account.getEmail());
@@ -270,6 +274,7 @@ public class AccountDataHandler {
 
                 ps.close();
                 statement.close();
+                slaveConnection.close();
             }
             return true;
         } catch (SQLException e) {
@@ -279,11 +284,12 @@ public class AccountDataHandler {
     }
 
     public boolean updateAccountHash(Account account, String hash) {
-        try {
+        try (final Connection masterConnection = masterInfo.getSource().getConnection()) {
             String tableName = String.format("%saccounts", masterInfo.getSettings().getPrefix());
 
             String query = "SELECT * FROM " + tableName + " WHERE id = ?";
-            PreparedStatement statement = masterInfo.getSource().getConnection().prepareStatement(query);
+            Connection slaveConnection = slaveInfo.getSource().getConnection();
+            PreparedStatement statement = slaveConnection.prepareStatement(query);
             statement.setString(1, account.getAccountId().toString());
 
             ResultSet res = statement.executeQuery();
@@ -293,11 +299,12 @@ public class AccountDataHandler {
             if (!hasStuff || res.getString("id") == null) {
                 //Data not present. this should not be possible.
                 statement.close();
+                slaveConnection.close();
                 return false;
             } else {
                 //Data present, update.
                 String update = "UPDATE " + tableName + " SET hash = ? WHERE id = ?";
-                PreparedStatement ps = masterInfo.getSource().getConnection().prepareStatement(update);
+                PreparedStatement ps = masterConnection.prepareStatement(update);
 
                 ps.setString(1, hash);
                 ps.setString(2, account.getAccountId().toString());
@@ -306,6 +313,7 @@ public class AccountDataHandler {
 
                 ps.close();
                 statement.close();
+                slaveConnection.close();
             }
             return true;
         } catch (SQLException e) {

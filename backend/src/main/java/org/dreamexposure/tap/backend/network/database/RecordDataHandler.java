@@ -4,6 +4,7 @@ import org.dreamexposure.novautils.database.DatabaseInfo;
 import org.dreamexposure.tap.core.objects.cloudflare.DnsRecord;
 import org.dreamexposure.tap.core.utils.Logger;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -39,10 +40,10 @@ public class RecordDataHandler {
     }
 
     public boolean createRecord(DnsRecord record) {
-        try {
+        try (final Connection connection = masterInfo.getSource().getConnection()) {
             String tableName = String.format("%srecord", masterInfo.getSettings().getPrefix());
             String query = "INSERT INTO " + tableName + " (blog_id, record_id) VALUES (?, ?)";
-            PreparedStatement statement = masterInfo.getSource().getConnection().prepareStatement(query);
+            PreparedStatement statement = connection.prepareStatement(query);
 
             statement.setString(1, record.getBlogId().toString());
             statement.setString(2, record.getRecordId());
@@ -57,10 +58,10 @@ public class RecordDataHandler {
     }
 
     public DnsRecord getRecord(UUID blogId) {
-        try {
+        try (final Connection connection = slaveInfo.getSource().getConnection()) {
             String tableName = String.format("%srecord", slaveInfo.getSettings().getPrefix());
             String query = "SELECT * FROM " + tableName + " WHERE blog_id = ?";
-            PreparedStatement statement = slaveInfo.getSource().getConnection().prepareStatement(query);
+            PreparedStatement statement = connection.prepareStatement(query);
             statement.setString(1, blogId.toString());
 
             ResultSet res = statement.executeQuery();
@@ -83,10 +84,10 @@ public class RecordDataHandler {
     }
 
     public boolean deleteRecord(UUID blogId) {
-        try {
+        try (final Connection connection = masterInfo.getSource().getConnection()) {
             String tableName = String.format("%srecord", masterInfo.getSettings().getPrefix());
             String query = "DELETE FROM " + tableName + " WHERE blog_id = ?";
-            PreparedStatement statement = masterInfo.getSource().getConnection().prepareStatement(query);
+            PreparedStatement statement = connection.prepareStatement(query);
             statement.setString(1, blogId.toString());
 
             statement.execute();
@@ -99,10 +100,10 @@ public class RecordDataHandler {
     }
 
     public boolean deleteRecord(String recordId) {
-        try {
+        try (final Connection connection = masterInfo.getSource().getConnection()) {
             String tableName = String.format("%srecord", masterInfo.getSettings().getPrefix());
             String query = "DELETE FROM " + tableName + " WHERE record_id = '" + recordId + "';";
-            PreparedStatement statement = masterInfo.getSource().getConnection().prepareStatement(query);
+            PreparedStatement statement = connection.prepareStatement(query);
 
             statement.execute();
             statement.close();

@@ -4,6 +4,7 @@ import org.dreamexposure.novautils.database.DatabaseInfo;
 import org.dreamexposure.tap.core.objects.file.UploadedFile;
 import org.dreamexposure.tap.core.utils.Logger;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -31,10 +32,10 @@ public class FileDataHandler {
     }
 
     public void addFile(UploadedFile file) {
-        try {
+        try (final Connection connection = masterInfo.getSource().getConnection()) {
             String tableName = String.format("%sfile", masterInfo.getSettings().getPrefix());
             String query = "INSERT INTO " + tableName + " (hash, uploader_id, name, url, path, timestamp) VALUES (?, ?, ?, ?, ?, ?)";
-            PreparedStatement statement = masterInfo.getSource().getConnection().prepareStatement(query);
+            PreparedStatement statement = connection.prepareStatement(query);
 
             statement.setString(1, file.getHash());
             statement.setString(2, file.getUploader().toString());
@@ -51,10 +52,10 @@ public class FileDataHandler {
     }
 
     public UploadedFile getFileFromHash(String hash) {
-        try {
+        try (final Connection connection = slaveInfo.getSource().getConnection()) {
             String tableName = String.format("%sfile", slaveInfo.getSettings().getPrefix());
             String query = "SELECT * FROM " + tableName + " WHERE hash = ?";
-            PreparedStatement statement = slaveInfo.getSource().getConnection().prepareStatement(query);
+            PreparedStatement statement = connection.prepareStatement(query);
             statement.setString(1, hash);
             ResultSet res = statement.executeQuery();
 
@@ -85,10 +86,10 @@ public class FileDataHandler {
     }
 
     public UploadedFile getFileFromUrl(String url) {
-        try {
+        try (final Connection connection = slaveInfo.getSource().getConnection()) {
             String tableName = String.format("%sfile", slaveInfo.getSettings().getPrefix());
             String query = "SELECT * FROM " + tableName + " WHERE url = ?";
-            PreparedStatement statement = slaveInfo.getSource().getConnection().prepareStatement(query);
+            PreparedStatement statement = connection.prepareStatement(query);
             statement.setString(1, url);
             ResultSet res = statement.executeQuery();
 
@@ -119,10 +120,10 @@ public class FileDataHandler {
     }
 
     public void removeFileByHash(String hash) {
-        try {
+        try (final Connection connection = masterInfo.getSource().getConnection()) {
             String tableName = String.format("%sfile", masterInfo.getSettings().getPrefix());
             String query = "DELETE FROM " + tableName + " WHERE hash = ?";
-            PreparedStatement statement = masterInfo.getSource().getConnection().prepareStatement(query);
+            PreparedStatement statement = connection.prepareStatement(query);
 
             statement.setString(1, hash);
 
@@ -134,10 +135,10 @@ public class FileDataHandler {
     }
 
     public void removeByUrl(String url) {
-        try {
+        try (final Connection connection = masterInfo.getSource().getConnection()) {
             String tableName = String.format("%sfile", masterInfo.getSettings().getPrefix());
             String query = "DELETE FROM " + tableName + " WHERE url = ?";
-            PreparedStatement statement = masterInfo.getSource().getConnection().prepareStatement(query);
+            PreparedStatement statement = connection.prepareStatement(query);
 
             statement.setString(1, url);
 
