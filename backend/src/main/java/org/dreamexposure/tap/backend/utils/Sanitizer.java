@@ -1,6 +1,7 @@
 package org.dreamexposure.tap.backend.utils;
 
 import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.jsoup.safety.Whitelist;
 
 /**
@@ -15,11 +16,10 @@ public class Sanitizer {
     private static char[] valid = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '_'};
 
     public static String sanitizeUserInput(String input) {
-        String output = input;
-        //First we clear out any HTML
-        output = Jsoup.clean(output, Whitelist.basic());
+        Document.OutputSettings settings = new Document.OutputSettings();
+        settings.prettyPrint(false);
 
-        return output;
+        return Jsoup.clean(input, "", Whitelist.none(), settings);
     }
 
     public static String sanitizeBlogUrl(String input) {
