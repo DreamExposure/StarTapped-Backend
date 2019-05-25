@@ -2,16 +2,14 @@ package org.dreamexposure.tap.backend.network.email;
 
 import net.sargue.mailgun.Configuration;
 import net.sargue.mailgun.Mail;
-import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.FileUtils;
 import org.dreamexposure.tap.core.conf.GlobalVars;
 import org.dreamexposure.tap.core.conf.SiteSettings;
 import org.dreamexposure.tap.core.utils.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Calendar;
 
 /**
@@ -25,10 +23,6 @@ import java.util.Calendar;
 @Component
 public class EmailHandler {
     private static EmailHandler instance;
-
-    @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
-    @Autowired
-    private ResourceLoader resourceLoader;
 
     private Configuration mailgunConfig;
     
@@ -73,7 +67,6 @@ public class EmailHandler {
 
 
     private String loadEmailResource(String fileName) throws IOException {
-        InputStream stream = resourceLoader.getResource("classpath:email/" + fileName).getInputStream();
-        return IOUtils.toString(stream, "UTF-8");
+        return FileUtils.readFileToString(new File(SiteSettings.TEMPLATE_FOLDER.get() + "/email/" + fileName), "UTF-8");
     }
 }
