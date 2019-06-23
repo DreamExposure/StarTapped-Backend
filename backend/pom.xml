@@ -47,6 +47,12 @@
             <artifactId>google-cloud-vision</artifactId>
             <version>1.59.0</version>
         </dependency>
+        <!--FlywayDB API for Database Migrations-->
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+            <version>5.2.4</version>
+        </dependency>
 
     </dependencies>
 

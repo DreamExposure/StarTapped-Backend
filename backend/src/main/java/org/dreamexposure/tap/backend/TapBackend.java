@@ -37,7 +37,7 @@ public class TapBackend {
         
         //Init database
         DatabaseHandler.getHandler().connectToMySQL();
-        DatabaseHandler.getHandler().createTables();
+        DatabaseHandler.getHandler().handleMigrations();
         
         //Init Spring
         SpringApplication.run(TapBackend.class, args);
