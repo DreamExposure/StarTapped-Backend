@@ -16,12 +16,12 @@
 /*!40111 SET @OLD_SQL_NOTES = @@SQL_NOTES, SQL_NOTES = 0 */;
 
 --
--- Table structure for table `${prefix}_accounts`
+-- Table structure for table `${prefix}accounts`
 --
 
 /*!40101 SET @saved_cs_client = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE IF NOT EXISTS `${prefix}_accounts`
+CREATE TABLE IF NOT EXISTS `${prefix}accounts`
 (
     `id`              varchar(255) NOT NULL,
     `username`        varchar(255) NOT NULL,
@@ -39,12 +39,12 @@ CREATE TABLE IF NOT EXISTS `${prefix}_accounts`
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `${prefix}_auth`
+-- Table structure for table `${prefix}auth`
 --
 
 /*!40101 SET @saved_cs_client = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE IF NOT EXISTS `${prefix}_auth`
+CREATE TABLE IF NOT EXISTS `${prefix}auth`
 (
     `id`            varchar(255) NOT NULL,
     `refresh_token` varchar(64)  NOT NULL,
@@ -56,12 +56,12 @@ CREATE TABLE IF NOT EXISTS `${prefix}_auth`
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `${prefix}_blog`
+-- Table structure for table `${prefix}blog`
 --
 
 /*!40101 SET @saved_cs_client = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE IF NOT EXISTS `${prefix}_blog`
+CREATE TABLE IF NOT EXISTS `${prefix}blog`
 (
     `id`               varchar(255) NOT NULL,
     `base_url`         longtext     NOT NULL,
@@ -83,12 +83,12 @@ CREATE TABLE IF NOT EXISTS `${prefix}_blog`
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `${prefix}_bookmark`
+-- Table structure for table `${prefix}bookmark`
 --
 
 /*!40101 SET @saved_cs_client = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE IF NOT EXISTS `${prefix}_bookmark`
+CREATE TABLE IF NOT EXISTS `${prefix}bookmark`
 (
     `id`        int(11)      NOT NULL AUTO_INCREMENT,
     `user_id`   varchar(255) NOT NULL,
@@ -101,12 +101,12 @@ CREATE TABLE IF NOT EXISTS `${prefix}_bookmark`
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `${prefix}_confirmation`
+-- Table structure for table `${prefix}confirmation`
 --
 
 /*!40101 SET @saved_cs_client = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE IF NOT EXISTS `${prefix}_confirmation`
+CREATE TABLE IF NOT EXISTS `${prefix}confirmation`
 (
     `id`   varchar(255) NOT NULL,
     `code` varchar(32)  NOT NULL,
@@ -116,12 +116,12 @@ CREATE TABLE IF NOT EXISTS `${prefix}_confirmation`
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `${prefix}_file`
+-- Table structure for table `${prefix}file`
 --
 
 /*!40101 SET @saved_cs_client = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE IF NOT EXISTS `${prefix}_file`
+CREATE TABLE IF NOT EXISTS `${prefix}file`
 (
     `hash`        varchar(255) NOT NULL,
     `uploader_id` varchar(255) NOT NULL,
@@ -135,12 +135,12 @@ CREATE TABLE IF NOT EXISTS `${prefix}_file`
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `${prefix}_follow`
+-- Table structure for table `${prefix}follow`
 --
 
 /*!40101 SET @saved_cs_client = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE IF NOT EXISTS `${prefix}_follow`
+CREATE TABLE IF NOT EXISTS `${prefix}follow`
 (
     `id`           int(11)      NOT NULL AUTO_INCREMENT,
     `user_id`      varchar(255) NOT NULL,
@@ -152,12 +152,12 @@ CREATE TABLE IF NOT EXISTS `${prefix}_follow`
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `${prefix}_post`
+-- Table structure for table `${prefix}post`
 --
 
 /*!40101 SET @saved_cs_client = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE IF NOT EXISTS `${prefix}_post`
+CREATE TABLE IF NOT EXISTS `${prefix}post`
 (
     `id`             varchar(255) NOT NULL,
     `creator_id`     varchar(255) NOT NULL,
@@ -180,12 +180,12 @@ CREATE TABLE IF NOT EXISTS `${prefix}_post`
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `${prefix}_record`
+-- Table structure for table `${prefix}record`
 --
 
 /*!40101 SET @saved_cs_client = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE IF NOT EXISTS `${prefix}_record`
+CREATE TABLE IF NOT EXISTS `${prefix}record`
 (
     `blog_id`   varchar(255) NOT NULL,
     `record_id` longtext     NOT NULL,
