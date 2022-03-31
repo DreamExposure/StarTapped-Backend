@@ -17,7 +17,7 @@
         <thymeleaf.version>3.0.11.RELEASE</thymeleaf.version>
         <thymeleaf-layout-dialect.version>2.4.1</thymeleaf-layout-dialect.version>
 
-        <spring.version>2.2.9.RELEASE</spring.version>
+        <spring.version>2.5.12</spring.version>
         <spring.session.version>2.2.3.RELEASE</spring.session.version>
         <spring.security.version>5.3.4.RELEASE</spring.security.version>
     </properties>
